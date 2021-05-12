@@ -54,7 +54,7 @@ for ( let x of kafi ) {
         if ( count2 % 2 ) x.a = x.a.slice( 0, x.a.lastIndexOf( "»" ) ).trim();
         else x.a = x.a.slice( 0, x.a.lastIndexOf( "»" ) +1 ).trim();
     }
-    // .. remove libNormal Tags
+    // .. remove libNormal Tags | keep wrapped data
     let m = ( x.a.match( /<span class=libNormal>(.*?)<\/span>/g ) || [] );
     for ( let c of m ) {
         x.a = x.a.replace( c, c.replace( "<span class=libNormal>", " " ).replace( "<\/span>", " " ) );

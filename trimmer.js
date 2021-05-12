@@ -38,8 +38,6 @@ for ( let x of kafi ) {
     x.a = x.a.replace( /<p class=libPoem>/g, " " );
     // .. Caution
     x.a = x.a.replace( /<span class=libAlaem>عليه‌السلام\(<\/span>/g, " عليه‌السلام " );
-    // x.a = x.a.replace( /<span class=libAie>/g, " " );
-    // x.a = x.a.replace( /<\/span>/g, " " );
     x.a = x.a.replace( / +/g, " " );
     x.a = x.a.trim();
 
@@ -56,7 +54,14 @@ for ( let x of kafi ) {
     for ( let c of m ) {
         x.a = x.a.replace( c, c.replace( "<span class=libNormal>", " " ).replace( "<\/span>", " " ) );
     }
+    let q = ( x.a.match( /<span class=libAie>(.*?)<\/span>/g ) || [] );
+    for ( let c of q ) {
+        x.a = x.a.replace( c, c.replace( "<span class=libAie>", " <Q>" ).replace( "<\/span>", "</Q> " ) );
+    }
 
+    x.a = x.a.replace( / +/g, " " );
+    x.a = x.a.trim();
+    
     test += x.a + "\n\n";
 }
 

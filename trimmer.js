@@ -8,9 +8,11 @@ import { kafi }                         from "./export.js";
 
 let test = "";
 for ( let x of kafi ) {
+
     // .. unify some tags
     x.a = x.a.replace( /libFootnoteAie/g, "libAie" );
     x.a = x.a.replace( /libFootnoteAlaem/g, "libAlaem" );
+
     // .. simplify
     x.a = x.a.replace( /<span class=libAlaem>عزوجل<\/span>/g, " عزوجل " );
     x.a = x.a.replace( /<span class=libAlaem>عليه‌السلام<\/span>/g, " عليه‌السلام " );
@@ -37,7 +39,8 @@ for ( let x of kafi ) {
     x.a = x.a.replace( /<span class=libAlaem>عليه‌السلام‌....<\/span>/g, " عليه‌السلام " );
     // .. Caution
     x.a = x.a.replace( /<span class=libAlaem>عليه‌السلام\(<\/span>/g, " عليه‌السلام " );
-    // .. trim
+
+    // .. trim 1st
     x.a = x.a.replace( /<span class=libAlaem>‌<\/span>/g, " " );
     x.a = x.a.replace( /<p class=libPoem>/g, " " );
     x.a = x.a.replace( / +/g, " " );
@@ -64,11 +67,14 @@ for ( let x of kafi ) {
     for ( let c of q ) {
         x.a = x.a.replace( c, c.replace( "<span class=libAie>", " <Q>" ).replace( "<\/span>", "</Q> " ) );
     }
-    // .. trim
+
+    // .. trim 2nd
     x.a = x.a.replace( / +/g, " " );
     x.a = x.a.trim();
 
+    // .. report
     test += x.a + "\n\n";
+
 }
 
 fs.writeFileSync( "../test.txt", test );

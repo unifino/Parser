@@ -4,11 +4,11 @@
 // book 6 : add <p class=libTocHeading></p> at line 30230
 // book 7 : add <p class=libTocHeading></p> at line 36962
 // book 10 : add <p class=libTocHeading></p> at line 47199
-// book 15 : add <p class=libTocHeading></p> at line 33043
+// book 15 : add <br clear=all><a name='864'></a><p class=libTocHeading></p> at line 33043
 
 // </p><p class=libNormal>:
 // 1    ٧٥٦
-// 2    ١٤٤٨
+// 2    ٧٧٢ & ١٤٤٨ & remove: ١ / ٥٠٨‌
 // 3
 // 4
 // 5    ٤٣٩٥
@@ -18,10 +18,10 @@
 // 9
 // 10
 // 11   ١٠٨٧٨
-// 12   ١١١٦٦ & ١١١٨١
+// 12   ١١١٦٦ & ١١١٨١ & ١٢٠٧٥
 // 13
 // 14
-// 15
+// 15   لرجل : «ما الفتى عندكم & 15413
 
 // .. no need any more
 // book 13 : replace <a name='2'></a> to line 152
@@ -85,10 +85,14 @@ for ( let lineNum in SimpleHadisBox ) {
         HadisBox.push( tmpBox );
         tmpBox = [];
         tmpBox.push( SimpleHadisBox[ lineNum ] );
-        if ( !( hasNum - HadisBox.length )) console.log( hasNum , HadisBox.length );
+        if ( ( hasNum - HadisBox.length ) ) { 
+            console.log( hasNum , HadisBox.length );
+            // break;
+        }
     }
     else tmpBox.push( SimpleHadisBox[ lineNum ] );
 }
+HadisBox.push( tmpBox );
 
 // .. omit empty cell
 if ( !HadisBox[0].length ) HadisBox.shift();
@@ -234,7 +238,7 @@ function createSimpleHadisBox ( source ) {
         if ( x === 1 ) PagesBox[ pageNum ] = PagesBox[ pageNum ].filter( (x,i) => i < p );
     }
 
-    // .. remove sme other lines
+    // .. remove some other lines
     for ( let page of PagesBox ) {
         for ( let lineNum in page ) {
             // .. remove some lines

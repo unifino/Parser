@@ -83,14 +83,17 @@ for ( let lineNum in SimpleHadisBox ) {
     let hasNum = id_extractor ( SimpleHadisBox[ lineNum ] );
     if ( hasNum ) {
         HadisBox.push( tmpBox );
-        tmpBox = [ hasNum ];
+        tmpBox = [];
         tmpBox.push( SimpleHadisBox[ lineNum ] );
         if ( !( hasNum - HadisBox.length )) console.log( hasNum , HadisBox.length );
     }
     else tmpBox.push( SimpleHadisBox[ lineNum ] );
 }
 
-await fs.writeFileSync( "../exported.json", JSON.stringify( HadisBox, null, "\t" ) );
+// .. omit empty cell
+if ( !HadisBox[0].length ) HadisBox.shift();
+
+await fs.writeFileSync( "db/exported.json", JSON.stringify( HadisBox, null, "\t" ) );
 
 
 // .. tools ================================================================

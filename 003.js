@@ -152,7 +152,7 @@ init();
 fine();
 
 // .. write down db
-await fs.writeFileSync( "db/db-t.json", JSON.stringify( db, null, "\t" ) );
+await fs.writeFileSync( "db/Kafi.json", JSON.stringify( db, null, "\t" ) );
 
 // .. tools ================================================================
 
@@ -170,6 +170,7 @@ function pre () {
             }
         }
     }
+
 }
 
 // .. ======================================================================
@@ -301,19 +302,16 @@ function cs_finder_patch( cell ) {
     let c_map = [
         "قُلْتُ لَهُ :",
         "، قَالَ :",
-        // [ 77 , "م ، عَنْ آبَائِهِ عليهم‌السلام ، قَالَ : « " ],
-        // [ 77 , "م ، قَالَ : " ],
-        // [ 77 , "، قَالَ : «" ],
-        // [ 77 , "، قَالَ : قُلْتُ لَهُ : " ],
-        // [ 77 , "، قَالَ : قُلْتُ : " ],
+        "قَالَ : ",
+        "قَالَ :"
     ];
+
+    cell.a = cell.a.replace( /قَالَ : قَالَ :/g, "قَالَ : " );
 
     for ( let cmd of c_map ) {
         if ( cell.a.startsWith( cmd ) )
             cell.a = cell.a.slice( cmd.length ).trim();
     }
-
-    cell.a = cell.a.replace( /قَالَ : قَالَ :/g, "قَالَ : " );
 
     if ( !cell.a.includes( "«" ) ) {
         if ( cell.a.endsWith( "» ." ) ) 
@@ -322,12 +320,25 @@ function cs_finder_patch( cell ) {
             cell.a = cell.a.slice( 0, cell.a.length - 2 ).trim();
     }
 
-    if ( cell.a.endsWith( "»." ) ) 
+    cell.a = cell.a.replace( / +/g, " " ).trim();
+
+    let c1 = ( cell.a.match( /«/g ) || [] ).length;
+    let c2 = ( cell.a.match( /»/g ) || [] ).length;
+
+    if ( c1 === 1 && c2 === 1 ) {
+        if ( cell.a.startsWith( "«" ) ) {
+            cell.a = cell.a.replace( "«", "" );
+            cell.a = cell.a.replace( "»", "" );
+        }
+    }
+
+    if ( cell.a.endsWith( "»." ) || cell.a.endsWith( "» ." ) ) 
         cell.a = cell.a.slice( 0, cell.a.length - 1 ).trim();
 
     cell.a = cell.a.replace( / +/g, " " ).trim();
 
     return cell;
+
 }
 
 // .. ======================================================================

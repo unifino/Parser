@@ -299,6 +299,8 @@ function cs_finder ( cell ) {
 
 function cs_finder_patch( cell ) {
 
+    cell.a = cell.a.replace( / ‌/g, " " );
+
     let c_map = [
         "قُلْتُ لَهُ :",
         "، قَالَ :",
@@ -306,12 +308,18 @@ function cs_finder_patch( cell ) {
         "قَالَ :"
     ];
 
+    cell.a = cell.a.replace( / +/g, " " ).trim();
+
     cell.a = cell.a.replace( /قَالَ : قَالَ :/g, "قَالَ : " );
+
+    cell.a = cell.a.replace( / +/g, " " ).trim();
 
     for ( let cmd of c_map ) {
         if ( cell.a.startsWith( cmd ) )
             cell.a = cell.a.slice( cmd.length ).trim();
     }
+
+    cell.a = cell.a.replace( / +/g, " " ).trim();
 
     if ( !cell.a.includes( "«" ) ) {
         if ( cell.a.endsWith( "» ." ) ) 

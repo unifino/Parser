@@ -152,7 +152,7 @@ init();
 fine();
 
 // .. write down db
-await fs.writeFileSync( "db/Kafi.json", JSON.stringify( db, null, "\t" ) );
+await fs.writeFileSync( "db/AL-Kafi.json", JSON.stringify( db, null, "\t" ) );
 
 // .. tools ================================================================
 
@@ -248,15 +248,22 @@ function fine () {
     ]
 
     for( let x in db ) {
+
+        db[x].a = db[x].a.replace( " ( </Q> <Q> ) ", " " );
+
         if ( db[x].c === null ) {
             for( let y of final_map ) { 
                 if ( db[x].a.slice( 0, y[1].length + 23 ).includes( y[1] ) ) {
                     db[x].c = y[0];
-                    // console.log(y[0],db[x].c, x);
                     break;
                 }
             }
         }
+
+        db[x].a = db[x].a.replace( "«", " " );
+        db[x].a = db[x].a.replace( "»", " " );
+        db[x].a = db[x].a.replace( / +/g, " " ).trim();
+
     }
 
 }
@@ -311,6 +318,7 @@ function cs_finder_patch( cell ) {
     cell.a = cell.a.replace( / +/g, " " ).trim();
 
     cell.a = cell.a.replace( /قَالَ : قَالَ :/g, "قَالَ : " );
+    cell.a = cell.a.replace( /قَالَ : فَقَالَ/g, "قَالَ : " );
 
     cell.a = cell.a.replace( / +/g, " " ).trim();
 

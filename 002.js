@@ -128,7 +128,9 @@ function salli ( text ) {
     // .. replace libAie with native Q tag
     let q = ( text.match( /<span class=libAie>(.*?)<\/span>/g ) || [] );
     for ( let c of q ) {
-        let r = c.replace( "<span class=libAie>", " <Q>" ).replace( "<\/span>", "</Q> " );
+        let r = c;
+        r = r.replace( "<span class=libAie>", " <Q> ) " );
+        r = r.replace( "<\/span>", " ( </Q> " );
         text = text.replace( c, r );
     }
 

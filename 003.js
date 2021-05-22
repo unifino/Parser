@@ -1,7 +1,6 @@
 import * as fs                          from "fs";
 
-console.log( "\n... AL-KAFI DB Tunner v.1.0.0 ...\n");
-
+console.log( "\n... AL-KAFI DB Tunner ( v.1.0.0 ) ...\n");
 
 // .. ======================================================================
 
@@ -151,9 +150,13 @@ await fs.promises.access( filePath, fs.constants.F_OK )
 // .. file is NOT found
 .catch( e => console.log(e) );
 
+// .. ======================================================================
+
 // .. get source
 let source = fs.readFileSync( filePath , 'utf8' );
 let db = JSON.parse( source );
+
+// .. @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 pre();
 init();
@@ -163,7 +166,7 @@ fine();
 // .. write down db
 await fs.writeFileSync( "db/AL-Kafi.json", JSON.stringify( db, null, "\t" ) );
 
-// .. tools ================================================================
+// .. @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 function pre () {
 

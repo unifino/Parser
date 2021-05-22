@@ -33,9 +33,11 @@
 // book 14 : add class=libNormal at line 42643
 // book 15 : remove all <p></p> then replace all <p> with <p class=libNormal>
 
+// .. ======================================================================
+
 import * as fs                          from "fs";
 
-console.log( "\n... AL-KAFI Parser v.2.0.0 ...\n");
+console.log( "\n... AL-KAFI Parser ( v.2.0.0 ) ...\n");
 
 // .. ======================================================================
 
@@ -43,7 +45,33 @@ let SimpleHadisBox = [];
 let HadisBox = [];
 let PagesBox = [];
 
-// .. ======================================================================
+// .. @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+// .. apply on all books
+for ( let i=1; i<=15; i ++ ) await init ( i );
+
+let tmpBox = [];
+for ( let lineNum in SimpleHadisBox ) {
+    let hasNum = id_extractor ( SimpleHadisBox[ lineNum ] );
+    if ( hasNum ) {
+        HadisBox.push( tmpBox );
+        tmpBox = [];
+        tmpBox.push( SimpleHadisBox[ lineNum ] );
+        if ( ( hasNum - HadisBox.length ) ) { 
+            console.log( hasNum , HadisBox.length );
+            // break;
+        }
+    }
+    else tmpBox.push( SimpleHadisBox[ lineNum ] );
+}
+HadisBox.push( tmpBox );
+
+// .. omit empty cell
+if ( !HadisBox[0].length ) HadisBox.shift();
+
+await fs.writeFileSync( "db/exported.json", JSON.stringify( HadisBox, null, "\t" ) );
+
+// .. @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 async function init ( num ) {
 
@@ -75,32 +103,6 @@ async function init ( num ) {
 
 }
 
-// .. apply on all books
-for ( let i=1; i<=15; i ++ ) await init ( i );
-
-let tmpBox = [];
-for ( let lineNum in SimpleHadisBox ) {
-    let hasNum = id_extractor ( SimpleHadisBox[ lineNum ] );
-    if ( hasNum ) {
-        HadisBox.push( tmpBox );
-        tmpBox = [];
-        tmpBox.push( SimpleHadisBox[ lineNum ] );
-        if ( ( hasNum - HadisBox.length ) ) { 
-            console.log( hasNum , HadisBox.length );
-            // break;
-        }
-    }
-    else tmpBox.push( SimpleHadisBox[ lineNum ] );
-}
-HadisBox.push( tmpBox );
-
-// .. omit empty cell
-if ( !HadisBox[0].length ) HadisBox.shift();
-
-await fs.writeFileSync( "db/exported.json", JSON.stringify( HadisBox, null, "\t" ) );
-
-
-// .. tools ================================================================
 // .. ======================================================================
 
 function removeArabicDigits ( str ) {
@@ -130,6 +132,8 @@ function removeArabicDigits ( str ) {
     return str;
 
 }
+
+// .. ======================================================================
 
 function id_extractor ( str ) {
     str = str.split( "." )[0].split( "/" )[0];
@@ -192,7 +196,7 @@ function step02 ( source ) {
     return source;
 }
 
-// .. create PagesBox ======================================================
+// .. ======================================================================
 
 function createPagesBox ( source ) {
 
@@ -218,7 +222,7 @@ function createPagesBox ( source ) {
 
 }
 
-// .. create SimpleHadisBox ================================================
+// .. ======================================================================
 
 function createSimpleHadisBox ( source ) {
 

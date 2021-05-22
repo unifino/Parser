@@ -142,7 +142,7 @@ let c_map = [
 
 // .. ======================================================================
 
-let filePath = "db/db.json";
+let filePath = "db/tmp/02.json";
 // .. check
 await fs.promises.access( filePath, fs.constants.F_OK )
 // .. file is found
@@ -164,7 +164,10 @@ init();
 fine();
 
 // .. write down db
-await fs.writeFileSync( "db/AL-Kafi.json", JSON.stringify( db, null, "\t" ) );
+let exp = "db/output/Al-Kafi.json";
+fs.writeFileSync( exp, JSON.stringify( db, null, "\t" ) );
+
+console.log( "\n... Done!\n" );
 
 // .. @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 

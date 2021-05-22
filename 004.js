@@ -1,11 +1,11 @@
 import * as fs                          from "fs";
 
-console.log( "\n... AL-KAFI vs. Misc. DBs Unifier ( v.1.0.0 ) ...\n");
+console.log( "\n... Al-Kafi vs. Misc. DBs Unifier ( v.1.0.0 ) ...\n");
 
 // .. ======================================================================
 
-let filePath_kafi = "db/AL-Kafi.json";
-// .. check AL-Kafi
+let filePath_kafi = "db/output/Al-Kafi.json";
+// .. check Al-Kafi
 await fs.promises.access( filePath_kafi, fs.constants.F_OK )
 // .. file is found
 .then( () => {} )
@@ -31,15 +31,38 @@ let test = "";
 
 // .. @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-console.log( db_misc.length );
 pre();
 init();
-console.log( db_misc.length );
+
+// .. remove i(s)
+for ( let h of db_misc ) delete h.i;
+
 // .. write down db
-await fs.writeFileSync( "db/Misc*.json", JSON.stringify( db_misc, null, "\t" ) );
+let exp = "db/output/Misc.json";
+fs.writeFileSync( exp, JSON.stringify( db_misc, null, "\t" ) );
+
 console.log( "\n... Done!\n" );
 
 // .. @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+async function assignID () {
+    for ( let hID in db_misc ) db_misc[ hID ].i = Number( hID );
+}
+
+// .. ======================================================================
+
+async function dub_check () {
+
+    db_misc = db_misc.reduce( (soFar, thisOne) => {
+
+        let dup = soFar.find( x => x.a2 === thisOne.a2 );
+        return !dup ? soFar.concat( [ thisOne ] ) : soFar;
+
+    }, [] );
+
+}
+
+// .. ======================================================================
 
 async function pre () {
 
@@ -49,7 +72,7 @@ async function pre () {
             h.a.includes("چ") || 
             h.a.includes("ژ") || 
             h.a.includes("گ") 
-        ) console.log( h);
+        ) console.log( h );
     }
 
 }
@@ -58,19 +81,62 @@ async function pre () {
 
 async function init () {
 
+    assignID();
+
     for ( let h of db_misc ) h.a2 = erabTrimmer( h.a );
     for ( let k of db_kafi ) k.a2 = erabTrimmer( k.a );
 
+    dub_check();
+
     // .. remove exactly doublicated (~Kafi) from Misc
     db_misc = db_misc.filter( x => !db_kafi.find( k => x.a2 === k.a2 ) );
+    // .. remove exactly -(.)| -( )| -( .) doublicated (~Kafi) from Misc
+    db_misc = db_misc.filter( x => !db_kafi.find( k => x.a2 === k.a2+"." ) );
+    db_misc = db_misc.filter( x => !db_kafi.find( k => x.a2 === k.a2+" " ) );
+    db_misc = db_misc.filter( x => !db_kafi.find( k => x.a2 === k.a2+" ." ) );
+
+    // .. find some-others :
+    recure ();
+
+    // .. remove temporary a2
     db_misc = db_misc.map( x => {
         return {
             a: x.a,
             b: x.b,
             c: x.c,
-            d: x.d
+            d: x.d,
+            i: x.i,
         }
     } );
+
+}
+
+// .. ======================================================================
+
+async function recure () {
+
+    let cur = db_misc.reduce( (soFar, thisOne) => {
+
+        let dup = db_kafi.findIndex( k => 
+            ( Math.abs( k.a2.length - thisOne.a2.length ) < 1000 )
+            &&
+            ( k.a2.includes( thisOne.a2 ) || thisOne.a2.includes( k.a2 ) )
+
+        );
+
+        return dup > -1 ? soFar.concat( [ { 
+            misc_ID:    thisOne.i, 
+            misc_b:     thisOne.b, 
+            misc_a:     thisOne.a, 
+            kafi:       db_kafi[ dup ].a, 
+            kafi_ID:    db_kafi[ dup ].d,
+            act:        0
+        } ] ) : soFar;
+
+    }, [] );
+
+    let exp = "db/tmp/dupped.json";
+    fs.writeFileSync( exp, JSON.stringify( cur, null, "\t" ) );
 
 }
 

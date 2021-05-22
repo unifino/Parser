@@ -11,13 +11,16 @@ let db = [];
 // .. apply on all books
 await init ();
 // .. write down db
-await fs.writeFileSync( "db/db.json", JSON.stringify( db, null, "\t" ) );
+let exp = "db/tmp/02.json";
+fs.writeFileSync( exp, JSON.stringify( db, null, "\t" ) );
+
+console.log( "\n... Done!\n" );
 
 // .. @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 async function init () {
 
-    let filePath = "db/exported.json";
+    let filePath = "db/tmp/01.json";
     // .. check
     await fs.promises.access( filePath, fs.constants.F_OK )
     // .. file is found

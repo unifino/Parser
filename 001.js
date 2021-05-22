@@ -69,7 +69,10 @@ HadisBox.push( tmpBox );
 // .. omit empty cell
 if ( !HadisBox[0].length ) HadisBox.shift();
 
-await fs.writeFileSync( "db/exported.json", JSON.stringify( HadisBox, null, "\t" ) );
+let exp = "db/tmp/01.json";
+fs.writeFileSync( exp, JSON.stringify( HadisBox, null, "\t" ) );
+
+console.log( "\n... Done!\n" );
 
 // .. @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
@@ -77,7 +80,7 @@ async function init ( num ) {
 
     console.log( "\n... parsing book num: " + num + " ...\n");
 
-    let filePath = "db/" + num + ".htm";
+    let filePath = "db/source/" + num + ".htm";
     // .. check
     await fs.promises.access( filePath, fs.constants.F_OK )
     // .. file is found

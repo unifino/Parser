@@ -172,6 +172,7 @@ function step01 ( source ) {
     source = source.replace( /<\/b>/g, " " );
     source = source.replace( /<br>/g, " " );
     source = source.replace( /&nbsp;/g, " " );
+    source = source.replace( /&quot;/g, "\"" );
     source = source.replace( / +/g, " " );
     // .. some edits
     source = source.replace( /<p>/g, "<p class=libNormal>" );

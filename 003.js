@@ -1,6 +1,6 @@
 import * as fs                          from "fs";
 
-console.log( "\n... AL-KAFI DB Tunner ( v.1.0.0 ) ...\n");
+console.log( "\n... AL-KAFI DB Tuner ( v.1.0.1 ) ...\n");
 
 // .. ======================================================================
 
@@ -280,7 +280,9 @@ function fine () {
 
     for( let x in db ) {
 
-        db[x].a = db[x].a.replace( " ( </Q> <Q> ) ", " " );
+        db[x].a = db[x].a.replace( /\( <\/Q> <Q> \)/g, " " );
+        db[x].a = db[x].a.replace( /\( <\/Q> <Q> \)/g, " " );
+        db[x].a = db[x].a.replace( /\( <\/Q> ، <Q> \)/g, " " );
 
         if ( db[x].c === null ) {
             for( let y of final_map ) { 
@@ -291,8 +293,8 @@ function fine () {
             }
         }
 
-        db[x].a = db[x].a.replace( "«", " " );
-        db[x].a = db[x].a.replace( "»", " " );
+        db[x].a = db[x].a.replace( /«/g, " " );
+        db[x].a = db[x].a.replace( /»/g, " " );
         db[x].a = db[x].a.replace( / +/g, " " ).trim();
 
     }

@@ -27,7 +27,7 @@
 // book 13 : replace <a name='2'></a> to line 152
 // book 4 : add class=libNormal to ٣٣٤٧
 // book 6 : add class=libNormal at line 3397
-// book 7 : remove all <p></.p> then replave all <p> with <p class=libNormal>
+// book 7 : remove all <p></.p> then replace all <p> with <p class=libNormal>
 // book 11 : add class=libNormal at line 34274
 // book 14 : add class=libNormal at line 85
 // book 14 : add class=libNormal at line 42643
@@ -258,7 +258,7 @@ function createSimpleHadisBox ( source ) {
                 page[ lineNum ].startsWith( "<p class=libFootnote0></p>" )
             )
                 delete page[ lineNum ];
-            // .. if line is ok; check if regognize it?
+            // .. if line is ok; check if recognize it?
             if ( page[ lineNum ] )
                 if ( !page[ lineNum ].startsWith( "<p class=libNormal" ) ) {
                     if (

@@ -88,15 +88,15 @@ async function init () {
 
     dub_check();
 
-    // .. remove exactly doublicated (~Kafi) from Misc
+    // .. remove exactly duplicated (~Kafi) from Misc
     db_misc = db_misc.filter( x => !db_kafi.find( k => x.a2 === k.a2 ) );
-    // .. remove exactly -(.)| -( )| -( .) doublicated (~Kafi) from Misc
+    // .. remove exactly -(.)| -( )| -( .) duplicated (~Kafi) from Misc
     db_misc = db_misc.filter( x => !db_kafi.find( k => x.a2 === k.a2+"." ) );
     db_misc = db_misc.filter( x => !db_kafi.find( k => x.a2 === k.a2+" " ) );
     db_misc = db_misc.filter( x => !db_kafi.find( k => x.a2 === k.a2+" ." ) );
 
     // .. find some-others :
-    recure ();
+    re_cure ();
 
     // .. remove temporary a2
     db_misc = db_misc.map( x => {
@@ -113,7 +113,7 @@ async function init () {
 
 // .. ======================================================================
 
-async function recure () {
+async function re_cure () {
 
     let cur = db_misc.reduce( (soFar, thisOne) => {
 

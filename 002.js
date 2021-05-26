@@ -35,7 +35,7 @@ async function init () {
     // .. do for each cell
     extracted.forEach( (h, i) => {
 
-        // .. extract actaual ID
+        // .. extract actual ID
         let id = id_extractor( h[0] );
         if ( id != i+1 ) console.warn( i, id );
 

@@ -51,23 +51,33 @@ console.time( "examine_X_by_A" );
 let limit = 50;
 let passedTime;
 let ets;
+let p_H, p_M, p_S;
 let ets_H, ets_M, ets_S;
 let ets_M_r, ets_S_r;
+let p_M_r, p_S_r;
 for ( let i = 0; i < db_misc.length; i++ ) {
     console.clear();
     console.log( "### Misc. Unifier ### ###    v.1.0.0    ###\n" );
     currentTime = new Date().getTime();
     passedTime = ( currentTime - startTime ) / 1000;
+
+    p_H = ( passedTime/3600 )|0;
+    p_M = ( passedTime/60 )|0;
+    p_S = ( passedTime )|0;
+    p_M_r = ( ( passedTime - p_H*3600 ) /60 ) |0;
+    p_S_r = ( ( passedTime - ( (p_H*3600) + (p_M_r*60) ) ) ) | 0;
+
+
     ets = db_misc.length * passedTime / i;
     ets_H = ( ets/3600 )|0;
     ets_M = ( ets/60 )|0;
     ets_S = ( ets )|0;
     ets_M_r = ( ( ets - ets_H*3600 ) /60 ) |0;
-    ets_S_r = ( ( ets - ( (ets_H*3600) + (ets_M_r*60) ) ) ) | 0
+    ets_S_r = ( ( ets - ( (ets_H*3600) + (ets_M_r*60) ) ) ) | 0;
     console.log( 
         ( (i/db_misc.length ) *100 ).toFixed(2) + 
         "% | F: " + dupC + 
-        " | T: " + (passedTime|0) + "s" +
+        " | T: " + p_H + "°: " + p_M_r + "': " + p_S_r +
         " | ETS: " + ets_H + "°: " + ets_M_r + "': " + ets_S_r + "\"" 
     );
 

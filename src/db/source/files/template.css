@@ -1,0 +1,399 @@
+body
+{
+	font-family: Arial,sans-serif;
+}
+body#bd
+{
+	background: #FBEFD8;
+	color: #122101;
+	font-size: 12px;
+	line-height: 1.5;
+	margin: 0;
+}
+#ja-header
+{
+	background: url('../images/header-bg.jpg') repeat-x top center;
+	z-index: 10;
+}
+#ja-header .main
+{
+	height: 106px;
+	padding: 0;
+}
+h1.logo,div.logo-text
+{
+	float: right;
+	position: relative;
+	z-index: 1;
+}
+h1.logo,div.logo-text h1
+{
+	font-size: 40px;
+	line-height: 1;
+	margin: 0;
+}
+h1.logo
+{
+	height: 106px;
+	margin-top: 0;
+	width: 100%;
+}
+h1.logo a
+{
+	background: url('../images/header.jpg') no-repeat top left;
+	display: block;
+	height: 106px;
+	width: 100%;
+}
+h1.logo a span
+{
+	position: absolute;
+	top: -1000px;
+}
+
+#ja-footer
+{
+	padding: 0;
+	font-family: Tahoma;
+	position: fixed;
+	bottom: 0px;
+	width: 100%;
+	z-index: 10;
+}
+#ja-footer .main
+{
+	background: #E2D8B2;
+	color: #89783F;
+	padding: 0;
+	text-align: left;
+}
+#ja-footer .main-inner1
+{
+	padding: 0;
+	height: 42px;
+}
+#ja-footer a
+{
+	color: #89783F;
+}
+#ja-footer a:hover
+{
+	color: #89783F;
+	text-decoration: underline;
+}
+#ja-footer .ja-footnav,#ja-footer .ja-copyright
+{
+	margin: 0 0 8px;
+}
+#ja-footlogo
+{
+	background: url('../images/footer.png') no-repeat left top;
+	height: 65px;
+	left: 12px;
+	position: absolute;
+	text-align: center;
+	top: 0;
+	width: 245px;
+}
+#ja-footlogo a
+{
+	color: transparent;
+	display: block;
+	height: 65px;
+	width: 215px;
+	margin-right: 20px;
+}
+#ja-footlogo a:hover,#ja-footlogo a:active,#ja-footlogo a:focus
+{
+	text-decoration: none;
+}
+#ja-poweredby
+{
+	opacity: .5;
+	position: absolute;
+	right: 10px;
+	top: 42px;
+}
+#ja-footer .ja-copyright
+{
+	/*border-left: 1px dotted #333;*/
+	margin-left: 4px;
+	margin-top: 10px;
+	padding-bottom: 0;
+	float: right;
+}
+#ja-footer .ja-copyright small
+{
+	text-indent: 8px;
+}
+a
+{
+	color: #7E2F2F;
+	text-decoration: none;
+}
+
+p.readmore {
+	float: left;
+	padding-top: 2px;
+}
+p.readmore a {
+	background: #FBEFD8;
+	color: #7E2F2F !important;
+	display: inline-block;
+	font: bold 10px/20px Arial,sans-serif;
+	height: 20px;
+	padding: 0 12px 0 8px;
+	text-decoration: none;
+	
+	border-radius: 3px 0 0 3px;
+  -moz-border-radius: 3px 0 0 3px;
+  -webkit-border-radius: 3px 0 0 3px;
+}
+p.readmore a:hover,p.readmore a:active,p.readmore a:focus {
+	background: #D5C7A1;
+	color: #7E2F2F !important;
+}
+h1
+{
+	font-size: 180%;
+}
+h2
+{
+	font-size: 150%;
+}
+h3
+{
+	font-size: 125%;
+}
+h4
+{
+	font-size: 100%;
+	text-transform: none;
+}
+h5
+{
+	font-size: 100%;
+}
+.contentheading,.componentheading,h1,h2,h3,h4,h5
+{
+	font-family: "Times New Roman",Times,serif;
+	
+}
+.item-page {
+	margin: 0 10px;
+}
+.item-page h1 {
+	font-size: 150%;
+	text-align: center;
+}
+
+h1.contentheading,h2.contentheading,.contentheading
+{
+	margin: 0;
+	padding-bottom: 5px;
+	text-align: center;
+}
+h1.componentheading,.componentheading
+{
+	border-bottom: 0 solid #ddd;
+	color: #000;
+	font: bold 200%/normal Arial,sans-serif;
+	margin-bottom: 12px;
+	padding: 0 0 8px;
+	text-transform: uppercase;
+}
+.contentheading {
+	font-size: 110%;
+}
+
+hr
+{
+	border-top: 1px solid #ccc;
+}
+input,select,textarea,.inputbox
+{
+	font-family: Tahoma;
+	padding: 2px;
+}
+
+thead tr th
+{
+	background: #333;
+	color: #fff;
+	padding: 5px;
+}
+thead tr th a,thead tr th a:hover,thead tr th a:focus,thead tr th a:active
+{
+	color: #fff;
+}
+
+table.contenttoc
+{
+	border: 1px solid #ccc;
+}
+table.contenttoc th
+{
+	background: #f0f0f0;
+	text-transform: uppercase;
+}
+
+#ja-container .main-inner1
+{
+	background: none;
+	margin: 0;
+	padding: 0;
+}
+.main .main-inner1
+{
+	margin-left: 0;
+	margin-right: 0;
+}
+#ja-main .inner
+{
+	padding: 0;
+}
+#ja-contentwrap
+{
+	padding: 0;
+}
+.ja-content-top
+{
+	background: #fff;
+	border: 1px solid #ccc;
+	margin: 2px;
+	padding: 0;
+}
+#ja-content-top .ja-moduletable,#ja-content-top .ja-module
+{
+	margin-left: 0;
+	margin-right: 0;
+}
+.ja-content-main
+{
+	background: 
+		url("../images/content_spacer.gif") right calc(100% - 10px),
+		url("../images/content_tl.gif") left top,
+		url("../images/content_tr.gif") right top;
+	
+	background-repeat: no-repeat;
+	background-color: #FFF !important;
+	
+	float: right;
+	border-bottom: 1px #D4D1A5 solid;
+	margin: 0 0 10px;
+	padding: 30px 0;
+}
+
+.item-page img
+{
+	max-width: 650px;
+}
+
+#ja-container {
+	position: relative;
+	z-index: 5;
+	padding-top: 0;
+	top: 0;
+	width: 100%;
+	/*text-align: center;*/
+	margin: 0 auto;
+	background: transparent;
+}
+
+/* typo.css */
+p.ja-typo-icon {
+	padding-right: 25px;
+	position: relative;
+}
+p.ja-typo-icon span.icon {
+	background-image: url('../images/icons-sprites-silk.png');
+	background-repeat: no-repeat;
+	width: 18px;
+	height: 18px;
+	display: block;
+	/*position: absolute;
+	top: 2px;
+	left: 0;*/
+	float: right;
+}
+p.icon-error span.icon {
+	background-position: left -54px;
+}
+p.icon-message span.icon {
+	background-position: left -72px;
+}
+p.icon-tips span.icon {
+	background-position: left -90px;
+}
+p.icon-key span.icon {
+	background-position: left -108px;
+}
+p.icon-tag span.icon {
+	background-position: left -126px;
+}
+p.icon-cart span.icon {
+	background-position: right -54px;
+}
+p.icon-doc  span.icon {
+	background-position: right -72px;
+}
+p.icon-note span.icon {
+	background-position: right -90px;
+}
+p.icon-photo span.icon {
+	background-position: right -108px;
+}
+p.icon-mobi span.icon {
+	background-position: right -126px;
+}
+p.icon-error {
+  background: url("../images/icons/exclamation.png") no-repeat center right;
+  padding-right: 25px;
+  color: #CC0000;
+}
+p.icon-message {
+  background: url("../images/icons/information.png") no-repeat center right;
+  padding-right: 25px;
+  color: #008CE5;
+}
+p.icon-tips {
+  background: url("../images/icons/lightbulb.png") no-repeat center right;
+  padding-right: 25px;
+  color: #E58C00;
+}
+
+/* layout.css */
+.main .inner {
+}
+.main .main-inner1 {
+}
+
+/* template.css */
+html {
+	direction: rtl;
+}
+th {
+	text-align: right;
+}
+img[align="right"] {
+	margin-right: 0;
+	margin-left: 10px;
+	float: right;
+}
+img[align="left"] {
+	margin-right: 10px;
+	margin-left: 0;
+	float: left;
+}
+table.contenttoc {
+    float: left;
+    margin: 0 12px 10px 0;
+}
+
+ul.treeview {
+	float: right;
+}
+
+ul.treeview li {
+	text-align: right;
+}

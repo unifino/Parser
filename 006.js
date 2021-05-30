@@ -34,12 +34,33 @@ let db_misc = JSON.parse( al_misc );
 
 // .. @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
+let t1 = "اِنَّ عَلَى الاِْمامِ اَنْ يُخْرِجَ الُْمحْبَسينَ فِى الدَّيْنِ يَوْمَ الْجُمُعَةِ اِلَى الْجُمُعَةِ وَ يَوْمَ الْعيدِ اِلَى الْعيدِ وَ يُرْسِلَ مَعَهُمْ فَاِذا قَضَوْا الصَّلاةَ رَدَّهُمْ اِلَى السِّجْنِ";
+let t2 = "على الإمامِ أنْ يُخرِجَ المَحْبوسينَ في الدَّينِ يَومَ الجُمُعةِ إلى الجُمُعةِ، ويَومَ العِيدِ إلى العِيدِ، فيُرسِلَ مَعهُم، فإذا قَضَوُا الصَّلاةَ والعِيدَ رَدّهُم إلى السِّجنِ.";
+t1 = t1.replace( /؛/g , " ؛ " );
+t1 = t1.replace( /؟/g , " ؟ " );
+t1 = t1.replace( /:/g , " : " );
+t1 = t1.replace( /\(/g , " ( " );
+t1 = t1.replace( /\)/g , " ) " );
+t1 = t1.replace( /\[/g , " [ " );
+t1 = t1.replace( /\]/g , " ] " );
+t1 = t1.replace( /ـ/g , "" );
+t1 = t1.replace( /  +/g , " " );
+
+t2 = t2.replace( /؛/g , " ؛ " );
+t2 = t2.replace( /؟/g , " ؟ " );
+t2 = t2.replace( /:/g , " : " );
+t2 = t2.replace( /\(/g , " ( " );
+t2 = t2.replace( /\)/g , " ) " );
+t2 = t2.replace( /\[/g , " [ " );
+t2 = t2.replace( /\]/g , " ] " );
+t2 = t2.replace( /ـ/g , "" );
+t2 = t2.replace( /  +/g , " " );
 // .. ! this line differs (1/2)
 // db_misc = db_kafi;
 
 let startTime = new Date().getTime(), currentTime = new Date().getTime();
 let dupC = 0;
-let quality = 100;
+let quality = 80;
 
 console.time( "App" );
 init();
@@ -47,7 +68,6 @@ console.timeEnd( "App" );
 console.log( "###     Done!     ###\n\n" );
 
 // .. @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-
 
 function init () {
 
@@ -61,18 +81,18 @@ function init () {
 
     db_misc = wrapper_examine_X_by_A( db_misc );
 
-    db_misc = finalizer ( db_misc )
+    // db_misc = finalizer ( db_misc )
 
-    // .. write down db
-    // .. ! this line differs (2/2)
-    let exported = "db/output/Misc_" + quality + ".json";
-    fs.writeFileSync( exported, JSON.stringify( db_misc, null, "\t" ) );
+    // // .. write down db
+    // // .. ! this line differs (2/2)
+    // let exported = "db/output/Misc_" + quality + ".json";
+    // fs.writeFileSync( exported, JSON.stringify( db_misc, null, "\t" ) );
 
-    if ( dupC ) init();
-    else if ( quality > 50 ) {
-        quality = quality -10;
-        init();
-    }
+    // if ( dupC ) init();
+    // else if ( quality > 50 ) {
+    //     quality = quality -10;
+    //     init();
+    // }
 
 }
 
@@ -113,11 +133,22 @@ function wrapper_examine_X_by_A ( db ) {
 
     for ( let i = 0; i < db.length; i++ ) {
 
-        timer( X.length, i );
+        // timer( db.length, i );
+        // if ( db[i].a === t2 )console.log("i, t2", i);
+        // if ( db[i].a === t1 )console.log("i, t1", i);
+        // i, t2 33526
+        // i, t1 34571
+
 
         let goFrom = i+1;
         while ( !!~goFrom && goFrom < db.length ) {
             db = examine_X_by_A( i, goFrom, db );
+
+
+            if ( db[goFrom].a === t1 || db[i].a === t1 )
+                if ( db[goFrom].a === t2 || db[i].a === t2 )
+                    console.log("hatef",goFrom,i);
+
             if ( db[ goFrom ].inFaParts.length - db[ i ].inFaParts.length > 7 ) 
                 goFrom = -1;
             else goFrom++;

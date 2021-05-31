@@ -3,6 +3,88 @@ import * as basic_tools                 from "./basic_tools";
 
 // .. ======================================================================
 
+export function boundBoxDivider ( clipBox: TS.bound, boundBox: TS.bound ) {
+
+    let startTime = new Date().getTime(), 
+        currentTime = new Date().getTime(),
+        singles: number[] = [];
+
+    console.log(Object.keys( boundBox ).length);
+
+    for ( let i=0; i<Object.keys( boundBox ).length; i++ ) {
+        if ( !(i%399) ) timer( Object.keys( boundBox ).length, i, currentTime, startTime );
+        if ( boundBox[i].length === 0 ) {
+            singles.push(i);
+            delete boundBox[i];
+        }
+    }
+    console.log(Object.keys( boundBox ).length);
+
+
+    return {
+        singles: singles,
+        rest: boundBox,
+    };
+
+}
+
+// .. ======================================================================
+
+export function coupleFinder ( clipBox: TS.bound, boundBox: TS.bound ) {
+
+    let couple: [ number, number ][] = [];
+
+    Object.keys( clipBox ).forEach( parent => {
+
+        // .. just those that have only one child
+        let children: number[],
+            grandChildren: number[],
+            child: number,
+            grandChild: number,
+            a: number,
+            b: number;
+
+
+        children = clipBox[ parent ];
+
+        if ( children.length === 1 ) {
+
+            child = children[0];
+            grandChildren = boundBox[ child ];
+            grandChild = grandChildren[0];
+
+            // .. BAD!
+            if ( grandChildren.length === 0 ) { console.log("something is wrong! :("); }
+
+            // .. child has just one child
+            else if ( grandChildren.length === 1 ) {
+
+                // .. it is not the child :) it is the parent :))
+                if ( grandChild === Number( parent ) ) {
+                    a = Number( parent ) > child ? child : Number( parent );
+                    b = Number( parent ) < child ? child : Number( parent );
+                    couple.push( [ a, b ] );
+                }
+                // .. BAD!
+                else { console.log("something is wrong! :((") }
+
+            }
+
+            // .. child has many children!
+            else {
+                // console.log("children are here");
+            }
+
+        }
+
+    } );
+
+    return couple;
+
+}
+
+// .. ======================================================================
+
 export function do_charSpacer ( db: TS.db ): void  {
     for ( let cell of db ) {
         cell.a = basic_tools.charSpacer( cell.a );

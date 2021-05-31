@@ -8,7 +8,7 @@ export let db_kafi: TS.db = JSON.parse( fs.readFileSync( "src/db/base/Al-Kafi.js
 export let db_misc: TS.db = JSON.parse( fs.readFileSync( "src/db/base/Misc.json", 'utf8' ) );
 export let R: TS.r = JSON.parse( fs.readFileSync( "src/db/tunned/R.json", 'utf8' ) );
 export let clipBox: TS.bound = JSON.parse( fs.readFileSync( "src/db/tunned/clipBox.json", 'utf8' ) );
-// export let boundBox: TS.bound = JSON.parse( fs.readFileSync( "src/db/tunned/boundBox.json", 'utf8' ) );
+export let boundBox: TS.bound = JSON.parse( fs.readFileSync( "src/db/tunned/boundBox.json", 'utf8' ) );
 
 // .. ======================================================================
 

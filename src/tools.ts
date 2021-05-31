@@ -115,10 +115,13 @@ export function R ( data: TS.r ) {
     // .. put a,b,R <== a<b
     data = data.map( x => [ x[0]>x[1] ? x[1]:x[0], x[0]>x[1] ? x[0]:x[1], x[2]] );
 
+    // .. condition defined
+    function cnd ( x, a: [number, number, number] ) {
+        return x[0] === a[0] && x[1] === a[1] && x[2] === a[2];
+    }
     // .. remove duplicates
     data = data.reduce( ( sigma, one ) => {
-        if ( !sigma.find( x => x[0] === one[0] && x[1] === one[1] && x[2] === one[2] ) )
-            sigma.push(one);
+        if ( !sigma.find( x => cnd( x, one ) ) ) sigma.push(one);
         return sigma;
     }, [] );
 

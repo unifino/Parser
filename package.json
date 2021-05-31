@@ -4,6 +4,7 @@
     "description": "",
     "main": "index.js",
     "scripts": {
+        "start": "node --inspect=5858 -r ts-node/register ./src/server.ts",
         "start_1": "node --inspect=5858 -r ts-node/register ./src/server1.ts",
         "start_2": "node --inspect=5858 -r ts-node/register ./src/server2.ts",
         "start:watch": "nodemon",

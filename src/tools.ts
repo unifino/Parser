@@ -75,7 +75,7 @@ export function rBig2ClipBox ( db: TS.r ) {
     for ( let i=0; i<db.length; i++ ) {
         timer( db.length, i, currentTime, startTime );
         clip = clipper( i, db );
-        if ( clip ) clipBox.push( clip );
+        if ( clip.length > 1 ) clipBox.push( clip );
     }
     return clipBox;
 

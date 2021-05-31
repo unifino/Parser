@@ -9,6 +9,8 @@ export let db_misc: TS.db = JSON.parse( fs.readFileSync( "src/db/base/Misc.json"
 export let R: TS.r = JSON.parse( fs.readFileSync( "src/db/tunned/R.json", 'utf8' ) );
 export let clipBox: TS.bound = JSON.parse( fs.readFileSync( "src/db/tunned/clipBox.json", 'utf8' ) );
 export let boundBox: TS.bound = JSON.parse( fs.readFileSync( "src/db/tunned/boundBox.json", 'utf8' ) );
+export let boundBox_rest: TS.bound = JSON.parse( fs.readFileSync( "src/db/tunned/boundBox_rest.json", 'utf8' ) );
+export let singles: number[] = JSON.parse( fs.readFileSync( "src/db/tunned/singles.json", 'utf8' ) );
 
 // .. ======================================================================
 

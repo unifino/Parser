@@ -26,15 +26,12 @@ tools.do_charSpacer( storage.db_misc );
 
                 // .. from no on we have tunned DBs in Hand                 
 
-let exp = tools.boundBoxDivider( storage.clipBox, storage.boundBox );
-storage.info_save( exp.rest, "tunned", "boundBox_rest", true );
-storage.info_save( exp.singles, "tunned", "singles", true );
+
+
 
 
 // [...storage.db_kafi,...storage.db_misc]
 // storage.info_save( clipBox, "tunned", "clipBox", true );
-
-
 
 
 // .. save results

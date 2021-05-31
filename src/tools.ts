@@ -65,7 +65,7 @@ function pAOX ( A: string[], X: string[] ) {
 
 // .. ======================================================================
 
-export function rBig2ClipBox ( db: TS.r ) {
+export function R2ClipBox ( db: TS.r ) {
 
     let startTime = new Date().getTime(), 
         currentTime = new Date().getTime(),

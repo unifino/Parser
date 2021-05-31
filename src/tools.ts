@@ -1,85 +1,44 @@
 import * as TS                          from "./types";
 import * as basic_tools                 from "./basic_tools";
 
+
 // .. ======================================================================
 
-export function boundBoxDivider ( clipBox: TS.bound, boundBox: TS.bound ) {
+export function boundBoxDivider_SD( boundBox: TS.bound ) {
 
-    let startTime = new Date().getTime(), 
-        currentTime = new Date().getTime(),
-        singles: number[] = [];
+    let singles = [],
+        doubles: [number,number][] = [],
+        child: number;
 
-    console.log(Object.keys( boundBox ).length);
-
-    for ( let i=0; i<Object.keys( boundBox ).length; i++ ) {
-        if ( !(i%399) ) timer( Object.keys( boundBox ).length, i, currentTime, startTime );
-        if ( boundBox[i].length === 0 ) {
-            singles.push(i);
-            delete boundBox[i];
+    // .. get singles
+    for ( let key of Object.keys( boundBox ) ){
+        if ( boundBox[ key ].length === 0 ) {
+            singles.push( Number(key) );
+            delete boundBox[ key ];
         }
     }
-    console.log(Object.keys( boundBox ).length);
+    // .. get doubles
+    for ( let parent of Object.keys( boundBox ) ) {
+        if ( boundBox[ parent ] ) {
+            if ( boundBox[ parent ].length === 1 ) {
+                child = boundBox[ parent ][0];
+                if ( boundBox[ child ].length === 1 ) {
+                    if ( boundBox[ child ][0] === Number( parent ) ) {
+                        doubles.push( [ Number( parent ), child ] );
+                        delete boundBox[ parent ];
+                        delete boundBox[ child ];
+                    }
+                }
+            }
+        }
+    }
 
-
+    // .. report
     return {
         singles: singles,
-        rest: boundBox,
+        doubles: doubles,
+        rest: boundBox
     };
-
-}
-
-// .. ======================================================================
-
-export function coupleFinder ( clipBox: TS.bound, boundBox: TS.bound ) {
-
-    let couple: [ number, number ][] = [];
-
-    Object.keys( clipBox ).forEach( parent => {
-
-        // .. just those that have only one child
-        let children: number[],
-            grandChildren: number[],
-            child: number,
-            grandChild: number,
-            a: number,
-            b: number;
-
-
-        children = clipBox[ parent ];
-
-        if ( children.length === 1 ) {
-
-            child = children[0];
-            grandChildren = boundBox[ child ];
-            grandChild = grandChildren[0];
-
-            // .. BAD!
-            if ( grandChildren.length === 0 ) { console.log("something is wrong! :("); }
-
-            // .. child has just one child
-            else if ( grandChildren.length === 1 ) {
-
-                // .. it is not the child :) it is the parent :))
-                if ( grandChild === Number( parent ) ) {
-                    a = Number( parent ) > child ? child : Number( parent );
-                    b = Number( parent ) < child ? child : Number( parent );
-                    couple.push( [ a, b ] );
-                }
-                // .. BAD!
-                else { console.log("something is wrong! :((") }
-
-            }
-
-            // .. child has many children!
-            else {
-                // console.log("children are here");
-            }
-
-        }
-
-    } );
-
-    return couple;
 
 }
 
@@ -149,12 +108,11 @@ function pAOX ( A: string[], X: string[] ) {
 
 export function R2BoundBox ( db: TS.r ) {
 
-    let startTime = new Date().getTime(), 
-        currentTime = new Date().getTime(),
+    let sTime = new Date().getTime(), 
         boundBox: TS.bound = {};
 
     for ( let i=0; i<db.length; i++ ) {
-        if ( !(i%9) ) timer( db.length, i, currentTime, startTime, "1/2" );
+        if ( !(i%9) ) timer( db.length, i, sTime, "1/2" );
         if ( !boundBox[ db[i][0] ] ) boundBox[ db[i][0] ] = [];
         if ( !boundBox[ db[i][1] ] ) boundBox[ db[i][1] ] = [];
         boundBox[ db[i][0] ].push( db[i][1] );
@@ -162,7 +120,7 @@ export function R2BoundBox ( db: TS.r ) {
     }
 
     for ( let i=0; i<Object.keys( boundBox ).length; i++ ) {
-        if ( !(i%99) ) timer( Object.keys( boundBox ).length, i, currentTime, startTime, "2/2" );
+        if ( !(i%99) ) timer( Object.keys( boundBox ).length, i, sTime, "2/2" );
         boundBox[i] = [ ...new Set(boundBox[i]) ];
     }
 
@@ -174,13 +132,12 @@ export function R2BoundBox ( db: TS.r ) {
 
 export function R2ClipBox ( db: TS.r ) {
 
-    let startTime = new Date().getTime(), 
-        currentTime = new Date().getTime(),
+    let sTime = new Date().getTime(), 
         clipBox = [],
         clip: number[];
 
     for ( let i=0; i<db.length; i++ ) {
-        timer( db.length, i, currentTime, startTime );
+        timer( db.length, i, sTime );
         clip = clipper( i, db );
         if ( clip.length > 1 ) clipBox.push( clip );
     }
@@ -241,10 +198,9 @@ export function R ( data: TS.r ) {
 export function timer ( 
     length: number, 
     i: number, 
-    currentTime: number, 
     startTime: number, 
     title: string = "Timer", 
-    version: string = "1.0.2", 
+    version: string = "1.0.3", 
     quality: number = null, 
     dupC: number = null 
 ) {
@@ -257,8 +213,7 @@ export function timer (
     console.clear();
     console.log( "### " + title + " ###\n###    v." + version + "    ###\n" );
 
-    currentTime = new Date().getTime();
-    passedTime = ( currentTime - startTime ) / 1000;
+    passedTime = ( new Date().getTime() - startTime ) / 1000;
 
     p_H = ( passedTime/3600 )|0;
     p_M = ( passedTime/60 )|0;

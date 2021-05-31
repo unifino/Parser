@@ -26,13 +26,21 @@ tools.do_charSpacer( storage.db_misc );
 
                 // .. from no on we have tunned DBs in Hand                 
 
+// let c = 0;
+// Object.keys( storage._clipBox ).forEach( x => {
+//     if ( storage._clipBox[x].length === 1 ) {
+//         let child = storage._clipBox[x][0];
+//         if ( !storage._clipBox[child] ) {
+//             let singleProved = true;
+
+//             if ( !singleProved ) console.log(child);
+//         }
+//     }
+// } );
 
 
 // [...storage.db_kafi,...storage.db_misc]
-let clipBox = tools.rBig2ClipBox( storage._rBIG );
-storage.info_save( clipBox, "tunned", "clipBox" );
-
-
+// storage.info_save( clipBox, "tunned", "clipBox" );
 
 
 

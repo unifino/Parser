@@ -106,12 +106,16 @@ export function clipper ( start: number, db: TS.r ) {
 
 // .. ======================================================================
 
-export function _rBIG ( data: TS.r ) {
+export function R ( data: TS.r ) {
 
+    // .. not a-a situation + r > 50
     data = data.filter( x => x[0] !== x[1] && x[2] > 50 );
+    // .. sort by R
     data.sort( (a,x) => x[2] > a[2] ? 1 : -1 );
+    // .. put a,b,R <== a<b
     data = data.map( x => [ x[0]>x[1] ? x[1]:x[0], x[0]>x[1] ? x[0]:x[1], x[2]] );
 
+    // .. remove duplicates
     data = data.reduce( ( sigma, one ) => {
         if ( !sigma.find( x => x[0] === one[0] && x[1] === one[1] && x[2] === one[2] ) )
             sigma.push(one);

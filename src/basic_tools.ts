@@ -1,5 +1,14 @@
 import * as TS                          from "./types";
 
+
+// .. ======================================================================
+
+export function beautyJSON ( str: string ) {
+    str = str.replace( /\n.\t/g, " " );
+    str = str.replace( /\n\t\]/g, " ]" );
+    return str;
+}
+
 // .. ======================================================================
 
 export function charSpacer ( str: string ) {

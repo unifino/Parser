@@ -1,12 +1,14 @@
 import * as fs                          from "fs";
 import * as TS                          from "./types";
+import * as basic_tools                 from "./basic_tools";
 
 // .. ======================================================================
 
 export let db_kafi: TS.db = JSON.parse( fs.readFileSync( "src/db/base/Al-Kafi.json", 'utf8' ) );
 export let db_misc: TS.db = JSON.parse( fs.readFileSync( "src/db/base/Misc.json", 'utf8' ) );
 export let R: TS.r = JSON.parse( fs.readFileSync( "src/db/tunned/R.json", 'utf8' ) );
-export let _clipBox: TS.r2 = JSON.parse( fs.readFileSync( "src/db/tunned/clipBox.json", 'utf8' ) );
+export let clipBox: TS.bound = JSON.parse( fs.readFileSync( "src/db/tunned/clipBox.json", 'utf8' ) );
+// export let boundBox: TS.bound = JSON.parse( fs.readFileSync( "src/db/tunned/boundBox.json", 'utf8' ) );
 
 // .. ======================================================================
 
@@ -18,10 +20,17 @@ export function db_save ( db: TS.db, path: string, name: TS.source ) {
 
 // .. ======================================================================
 
-export function info_save ( db: []|{}, path: string, name: string ) {
+export function info_save ( 
+    db: []|{},
+    path: string,
+    name: string,
+    beautify?: boolean
+) {
     // .. write down db
     path = "src/db/" + path + "/" + name + ".json";
-    fs.writeFileSync( path, JSON.stringify( db, null, "\t" ) );
+    let data = JSON.stringify( db, null, "\t" );
+    if ( beautify ) data = basic_tools.beautyJSON( data );
+    fs.writeFileSync( path, data );
 }
 
 // .. ======================================================================

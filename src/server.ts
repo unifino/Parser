@@ -26,25 +26,12 @@ tools.do_charSpacer( storage.db_misc );
 
                 // .. from no on we have tunned DBs in Hand                 
 
-// let c = 0;
-// Object.keys( storage._clipBox ).forEach( x => {
-//     if ( storage._clipBox[x].length === 1 ) {
-//         let child = storage._clipBox[x][0];
-//         if ( !storage._clipBox[child] ) {
-//             let singleProved = true;
 
-//             if ( !singleProved ) console.log(child);
-//         }
-//     }
-// } );
-
+let boundBox = tools.R2BoundBox( storage.R );
+storage.info_save( boundBox, "tunned", "boundBox", true );
 
 // [...storage.db_kafi,...storage.db_misc]
 // storage.info_save( clipBox, "tunned", "clipBox" );
-
-
-
-
 
 
 // .. save results

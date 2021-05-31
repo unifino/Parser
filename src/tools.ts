@@ -65,6 +65,31 @@ function pAOX ( A: string[], X: string[] ) {
 
 // .. ======================================================================
 
+export function R2BoundBox ( db: TS.r ) {
+
+    let startTime = new Date().getTime(), 
+        currentTime = new Date().getTime(),
+        boundBox: TS.bound = {};
+
+    for ( let i=0; i<db.length; i++ ) {
+        if ( !(i%9) ) timer( db.length, i, currentTime, startTime, "1/2" );
+        if ( !boundBox[ db[i][0] ] ) boundBox[ db[i][0] ] = [];
+        if ( !boundBox[ db[i][1] ] ) boundBox[ db[i][1] ] = [];
+        boundBox[ db[i][0] ].push( db[i][1] );
+        boundBox[ db[i][1] ].push( db[i][0] );
+    }
+
+    for ( let i=0; i<Object.keys( boundBox ).length; i++ ) {
+        if ( !(i%99) ) timer( Object.keys( boundBox ).length, i, currentTime, startTime, "2/2" );
+        boundBox[i] = [ ...new Set(boundBox[i]) ];
+    }
+
+    return boundBox;
+
+}
+
+// .. ======================================================================
+
 export function R2ClipBox ( db: TS.r ) {
 
     let startTime = new Date().getTime(), 
@@ -137,7 +162,7 @@ export function timer (
     currentTime: number, 
     startTime: number, 
     title: string = "Timer", 
-    version: string = "v.1.0.1", 
+    version: string = "1.0.2", 
     quality: number = null, 
     dupC: number = null 
 ) {
@@ -148,7 +173,7 @@ export function timer (
     let dialog: string = "";
 
     console.clear();
-    console.log( "### " + title + " ### ###    v." + version + "    ###\n" );
+    console.log( "### " + title + " ###\n###    v." + version + "    ###\n" );
 
     currentTime = new Date().getTime();
     passedTime = ( currentTime - startTime ) / 1000;

@@ -5,6 +5,9 @@ import * as TS                          from "./types";
 
 export let db_kafi: TS.db = JSON.parse( fs.readFileSync( "src/db/base/Al-Kafi.json", 'utf8' ) );
 export let db_misc: TS.db = JSON.parse( fs.readFileSync( "src/db/base/Misc.json", 'utf8' ) );
+export let r_dMax: TS.db = JSON.parse( fs.readFileSync( "src/db/tunned/r_dMax.json", 'utf8' ) );
+export let r_Kafi: TS.db = JSON.parse( fs.readFileSync( "src/db/tunned/r_Al-Kafi.json", 'utf8' ) );
+export let r_misc: TS.db = JSON.parse( fs.readFileSync( "src/db/tunned/r_misc.json", 'utf8' ) );
 
 // .. ======================================================================
 

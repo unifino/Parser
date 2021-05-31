@@ -14,33 +14,22 @@ let startTime = new Date().getTime(),
 
 let quality = 100;
 let dupC = 0;
-let dMax = [ ...storage.db_kafi, ...storage.db_misc ];
 
 // .. ======================================================================
 console.time( "App Clock" );
 // .. ======================================================================
 
 // .. do update DBs
-tools.do_charSpacer( dMax );
+tools.do_charSpacer( storage.db_kafi );
+tools.do_charSpacer( storage.db_misc );
 
 
                 // .. from no on we have tunned DBs in Hand                 
 
 
-//.. add some new properties to the DBs
-tools.addTmpProps( dMax );
 
-let co = [];
-let cVal;
-for ( let i=0; i<dMax.length; i++ ) {
-    // tools.timer( dMax.length, i, currentTime, startTime, title, version, quality, dupC );
-    for ( let j=0; j<dMax.length; j++ ) {
-        cVal = tools.correlationCalculator(i,j,dMax);
-        if(cVal[2]>30) co.push(cVal);
-    }
-}
 
-storage.info_save( co, "tunned", "correlations_"+"dMax" );
+
 
 
 

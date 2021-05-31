@@ -3,18 +3,34 @@ import * as basic_tools                 from "./basic_tools";
 
 // .. ======================================================================
 
-export function lastClip ( boundBox_rest: TS.bound[], R: TS.r ) {
+export function getMultiples ( lastClip:TS.lastClip ) {
+    // .. remove duplicates
+    let tmp_01: string[] = [];
+    let multiples: number[][] = [];
+    for ( let line of lastClip ) tmp_01.push( line.join(":") )
+    let tmp_02 = [ ...new Set(tmp_01) ];
+    for ( let line of tmp_02 ) multiples.push( line.split(":").map( x => Number(x) ) );
+    return multiples;
+}
 
-    let lastClip = [],
+// .. ======================================================================
+
+export function clipRest ( boundBox_rest: TS.bound, R: TS.r ) {
+
+    let clipRest: TS.bound = {},
         startTime = new Date().getTime(),
         c =0,
         total = Object.keys( boundBox_rest ).length;
 
     for ( let key of Object.keys( boundBox_rest ) ) {
         timer( total,c,startTime )
-        lastClip.push( clipper(Number(key), R ) );
+        clipRest[ key ] = clipper( Number(key), R );
+        // .. sort this line
+        clipRest[ key ] = clipRest[ key ].sort( (a,b) => a>b ? 1:-1 );
         c++;
     }
+
+    return clipRest;
 
 }
 
@@ -166,7 +182,7 @@ export function R2ClipBox ( db: TS.r ) {
 export function clipper ( start: number, db: TS.r ) {
 
     let hand = [ start ];
-    let clip = [];
+    let clip: number[] = [];
 
     while ( hand.length ) {
         for ( let i=0; i<db.length; i++ ) {

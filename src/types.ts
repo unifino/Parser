@@ -19,5 +19,6 @@ export type db = {
 
 export type r = [ number, number, number ][];
 export type bound = { [key: string]: number[] };
+export type lastClip = number[][];
 
 export type source = "Al-Kafi" | "misc";

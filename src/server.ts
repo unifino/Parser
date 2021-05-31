@@ -28,19 +28,30 @@ tools.do_charSpacer( storage.db_misc );
 
 
 
-let total = Object.keys( storage.boundBox ).length;
-let exp = tools.boundBoxDivider_SD( storage.boundBox )
-storage.info_save( exp.rest, "tunned", "boundBox_rest", true );
-storage.info_save( exp.singles, "tunned", "singles", true );
-storage.info_save( exp.doubles, "tunned", "doubles", true );
+// let total = Object.keys( storage.boundBox ).length;
+// let exp = tools.boundBoxDivider_SD( storage.boundBox )
+// storage.info_save( exp.rest, "tunned", "boundBox_rest", true );
+// storage.info_save( exp.singles, "tunned", "singles", true );
+// storage.info_save( exp.doubles, "tunned", "doubles", true );
 
+// console.log( 
+//     Object.keys( exp.rest ).length 
+//     + exp.singles.length
+//     + exp.doubles.length*2 
+//     - total 
+// );
+
+// storage.info_save( exp.doubles, "tunned", "doubles", true );
+// storage.info_save( exp.singles, "tunned", "singles", true );
+// storage.info_save( exp.rest, "tunned", "boundBox_rest", true );
+
+let total = Object.keys( storage.boundBox ).length;
 console.log( 
-    Object.keys( exp.rest ).length 
-    + exp.singles.length
-    + exp.doubles.length*2 
+    Object.keys( storage.boundBox_rest ).length 
+    + storage.singles.length
+    + storage.doubles.length*2 
     - total 
 );
-
 
 
 // [...storage.db_kafi,...storage.db_misc]

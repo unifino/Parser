@@ -8,14 +8,6 @@ console.clear();
 console.log( "###" +title +"###\n###-----v." +version +"----###\n" );
 
 // .. ======================================================================
-
-let startTime = new Date().getTime(), 
-    currentTime = new Date().getTime();
-
-let quality = 100;
-let dupC = 0;
-
-// .. ======================================================================
 console.time( "App Clock" );
 // .. ======================================================================
 
@@ -27,11 +19,31 @@ tools.do_charSpacer( storage.db_misc );
 // ..                 from no on we have tunned DBs in Hand                 
 //..........................................................................
 
-console.log(storage.multiples);
 
+
+// for ( let line of storage.doubles ) {
+//     // if ( line.length > 4 && line.length < 7 ) {
+//         // for ( let x of line ) 
+//         console.log( [...storage.db_kafi,...storage.db_misc ][line[0]].a );
+//         console.log( [...storage.db_kafi,...storage.db_misc ][line[1]].a );
+//         console.log("\n\n\n");
+//     // }
+// }
+// for ( let line of storage.doubles ) {
+//     if ( storage.R.find( x => x[0] === line[0] && x[1] === line[1] )[2] < 55 ) {
+//         console.log( [...storage.db_kafi,...storage.db_misc ][line[0]].a );
+//         console.log( [...storage.db_kafi,...storage.db_misc ][line[1]].a );
+//         console.log("\n\n\n");
+//     }
+    
+// }
 
 // [...storage.db_kafi,...storage.db_misc]
 // storage.info_save( clipBox, "tunned", "clipBox", true );
+
+
+
+
 
 
 // .. save results

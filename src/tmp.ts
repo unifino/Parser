@@ -17,3 +17,16 @@ for ( let i=0; i<dMax.length; i++ ) {
 }
 
 storage.info_save( co, "tunned", "correlations_"+"dMax" );
+
+// .. ======================================================================
+
+
+let sorted = storage.r_dMax.filter( x => x[0] !== x[1] );
+sorted.sort( (a,x) => x[2] > a[2] ? 1 : -1 );
+
+storage.info_save( sorted, "tunned", "r_dMax_sorted" );
+
+// .. ======================================================================
+
+// let _rBIG = tools._rBIG ( storage.r_dMax );
+// storage.info_save( _rBIG, "tunned", "_rBIG" );

@@ -28,6 +28,12 @@ tools.do_charSpacer( storage.db_misc );
 
 
 
+// [...storage.db_kafi,...storage.db_misc]
+let clipBox = tools.rBig2ClipBox( storage._rBIG );
+storage.info_save( clipBox, "tunned", "clipBox" );
+
+
+
 
 
 

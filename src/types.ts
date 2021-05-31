@@ -17,4 +17,7 @@ export type db = {
     }[],
 }[];
 
+export type r = [ number, number, number ][];
+export type r2 = { [key: string]: [number,number][] };
+
 export type source = "Al-Kafi" | "misc";

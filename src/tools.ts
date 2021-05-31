@@ -65,11 +65,80 @@ function pAOX ( A: string[], X: string[] ) {
 
 // .. ======================================================================
 
-export function timer ( length: number, i: number, currentTime: number, startTime: number, title: string, version: string, quality: number, dupC: number ) {
+export function rBig2ClipBox ( db: TS.r ) {
+
+    let startTime = new Date().getTime(), 
+        currentTime = new Date().getTime(),
+        clipBox = [],
+        clip: number[];
+
+    for ( let i=0; i<db.length; i++ ) {
+        timer( db.length, i, currentTime, startTime );
+        clip = clipper( i, db );
+        if ( clip ) clipBox.push( clip );
+    }
+    return clipBox;
+
+}
+
+// .. ======================================================================
+
+export function clipper ( start: number, db: TS.r ) {
+
+    let hand = [ start ];
+    let clip = [];
+
+    while ( hand.length ) {
+        for ( let i=0; i<db.length; i++ ) {
+            if ( db[i][0] === hand[0] || db[i][1] === hand[0] ) {
+                hand.push( db[i][0], db[i][1] );
+            }
+        }
+        hand = [ ... new Set(hand) ];
+        clip.push( hand[0] );
+        hand.shift();
+        hand = hand.filter( x => !clip.includes(x) );
+    }
+
+    return clip;
+
+}
+
+// .. ======================================================================
+
+export function _rBIG ( data: TS.r ) {
+
+    data = data.filter( x => x[0] !== x[1] && x[2] > 50 );
+    data.sort( (a,x) => x[2] > a[2] ? 1 : -1 );
+    data = data.map( x => [ x[0]>x[1] ? x[1]:x[0], x[0]>x[1] ? x[0]:x[1], x[2]] );
+
+    data = data.reduce( ( sigma, one ) => {
+        if ( !sigma.find( x => x[0] === one[0] && x[1] === one[1] && x[2] === one[2] ) )
+            sigma.push(one);
+        return sigma;
+    }, [] );
+
+    return data;
+
+}
+
+// .. ======================================================================
+
+export function timer ( 
+    length: number, 
+    i: number, 
+    currentTime: number, 
+    startTime: number, 
+    title: string = "Timer", 
+    version: string = "v.1.0.1", 
+    quality: number = null, 
+    dupC: number = null 
+) {
 
     let passedTime, ets;
     let p_H, p_M, p_S, p_M_r, p_S_r;
     let ets_H, ets_M, ets_S, ets_M_r, ets_S_r;
+    let dialog: string = "";
 
     console.clear();
     console.log( "### " + title + " ### ###    v." + version + "    ###\n" );
@@ -83,18 +152,19 @@ export function timer ( length: number, i: number, currentTime: number, startTim
     p_M_r = ( ( passedTime - p_H*3600 ) /60 ) |0;
     p_S_r = ( ( passedTime - ( (p_H*3600) + (p_M_r*60) ) ) ) | 0;
 
-    ets = length * passedTime / i;
+    ets = ( length * passedTime / i ) - passedTime;
     ets_H = ( ets/3600 )|0;
     ets_M = ( ets/60 )|0;
     ets_S = ( ets )|0;
     ets_M_r = ( ( ets - ets_H*3600 ) /60 ) |0;
     ets_S_r = ( ( ets - ( (ets_H*3600) + (ets_M_r*60) ) ) ) | 0;
-    console.log( 
-        ( (i/length ) *100 ).toFixed(2) + "%" +
-        " | QC: " + quality +
-        " | F: " + dupC + 
-        " | T: " + p_H + "°: " + p_M_r + "': " + p_S_r +
-        " | ETS: " + ets_H + "°: " + ets_M_r + "': " + ets_S_r + "\""
-    );
+    dialog = ( (i/length ) *100 ).toFixed(2) + "%";
+    if ( quality !== null ) dialog += " | QC: " + quality;
+    if ( dupC !== null ) dialog += " | F: " + dupC;
+    dialog += " | T: " + p_H + "°: " + p_M_r + "': " + p_S_r;
+    dialog += " | ETS: " + ets_H + "°: " + ets_M_r + "': " + ets_S_r + "\"";
+    console.log( dialog );
 
 }
+
+// .. ======================================================================

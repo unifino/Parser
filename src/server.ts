@@ -20,35 +20,29 @@ tools.do_charSpacer( storage.db_misc );
 //..........................................................................
 
 
-
-// for ( let line of storage.doubles ) {
-//     // if ( line.length > 4 && line.length < 7 ) {
-//         // for ( let x of line ) 
-//         console.log( [...storage.db_kafi,...storage.db_misc ][line[0]].a );
-//         console.log( [...storage.db_kafi,...storage.db_misc ][line[1]].a );
-//         console.log("\n\n\n");
-//     // }
-// }
-// for ( let line of storage.doubles ) {
-//     if ( storage.R.find( x => x[0] === line[0] && x[1] === line[1] )[2] < 55 ) {
-//         console.log( [...storage.db_kafi,...storage.db_misc ][line[0]].a );
-//         console.log( [...storage.db_kafi,...storage.db_misc ][line[1]].a );
-//         console.log("\n\n\n");
-//     }
-    
-// }
-
-// [...storage.db_kafi,...storage.db_misc]
-// storage.info_save( clipBox, "tunned", "clipBox", true );
+// ..
+// ..
+// ..
+// ..
+// ..
+// ..
+// ..
+// ..
+// ..
+// ..
 
 
-
-
+// .. allocate j index
+tools.jAllocator( storage.db_kafi, storage.db_misc );
 
 
 // .. save results
-storage.db_save( storage.db_kafi, "tunned", "Al-Kafi" );
-storage.db_save( storage.db_misc, "tunned", "misc" );
+storage.db_save( storage.db_kafi, "ready", "Al-Kafi" );
+storage.db_save( storage.db_misc, "ready", "misc" );
+// storage.info_save( clipBox, "tunned", "clipBox", true );
+// [...storage.db_kafi,...storage.db_misc ]
+
+
 
 // .. ======================================================================
 console.log( "\n" );

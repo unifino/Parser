@@ -4,6 +4,7 @@ export type db = {
     c: number,
     d: string|number,
     n: number,
+    z: number,
 
     tmp_inFarsiLetter: string,
     tmp_kalamat: string[],
@@ -14,7 +15,10 @@ export type db = {
         d: string|number,
         n: number,
         r: number,
+        j: number,
     }[],
+    j: number,
+
 }[];
 
 export type r = [ number, number, number ][];

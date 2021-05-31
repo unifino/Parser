@@ -1,6 +1,17 @@
 import * as TS                          from "./types";
 import * as basic_tools                 from "./basic_tools";
 
+
+export function jAllocator ( kafi: TS.db, misc: TS.db ) {
+    // .. allocate fromSourceID: j
+    for ( let i in kafi ) {
+        kafi[i].j = Number(i) +1;
+    }
+    for ( let i in misc ) {
+        misc[i].j = Number(i) +kafi.length +1;
+    }
+}
+
 // .. ======================================================================
 
 export function getMultiples ( lastClip:TS.lastClip ) {

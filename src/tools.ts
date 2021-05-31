@@ -1,6 +1,22 @@
 import * as TS                          from "./types";
 import * as basic_tools                 from "./basic_tools";
 
+// .. ======================================================================
+
+export function lastClip ( boundBox_rest: TS.bound[], R: TS.r ) {
+
+    let lastClip = [],
+        startTime = new Date().getTime(),
+        c =0,
+        total = Object.keys( boundBox_rest ).length;
+
+    for ( let key of Object.keys( boundBox_rest ) ) {
+        timer( total,c,startTime )
+        lastClip.push( clipper(Number(key), R ) );
+        c++;
+    }
+
+}
 
 // .. ======================================================================
 

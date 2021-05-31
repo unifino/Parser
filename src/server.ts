@@ -24,9 +24,10 @@ tools.do_charSpacer( storage.db_kafi );
 tools.do_charSpacer( storage.db_misc );
 
 
-                // .. from no on we have tunned DBs in Hand                 
+// ..                 from no on we have tunned DBs in Hand                 
 //..........................................................................
 
+console.log(storage.multiples);
 
 
 // [...storage.db_kafi,...storage.db_misc]

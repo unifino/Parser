@@ -15,12 +15,12 @@ storage.update();
 // .. alter DBs
 tools.do_charSpacer( storage.db_kafi );
 tools.do_charSpacer( storage.db_misc );
-// .. ----------------------------------------------------------------
-// .. [addTmpProps]
-tools.addTmpProps( storage.db_kafi );
-tools.addTmpProps( storage.db_misc );
-// .. loop on [R] => TS.R
-// ........ Code Omitted ............
+// // .. ----------------------------------------------------------------
+// // .. [addTmpProps]
+// tools.addTmpProps( storage.db_kafi );
+// tools.addTmpProps( storage.db_misc );
+// // .. loop on [R] => TS.R
+// // ........ Code Omitted ............
 // // .. ----------------------------------------------------------------
 // // .. [R_optimizer] ( ?>67 )
 // let R__ = tools.R_optimizer ( storage.R, 67 );
@@ -49,21 +49,98 @@ tools.addTmpProps( storage.db_misc );
 // // .. ----------------------------------------------------------------
 // tools.resultValidator();
 // .. ----------------------------------------------------------------
-// let c = 0;
-// for ( let x of storage.single ) {
-//     let t = storage.R.find( y => y[0] === x );
-//     let f = false;
-//     if ( t )
-//         if ( t[2] > 66 ) {
-//             f = true;
-//             break;
-//         }
-//     if ( !f ) c++;
-// }
-// console.log(storage.single.length-c);
+// .. allocate j index
+tools.jAllocator( storage.db_kafi, storage.db_misc );
+let mix = [ ...storage.double, ...storage.multi ];
+let r_mix = tools.clusterRichMaker( mix )
+let mox: TS.db = [];
+let c = 0;
+for ( let p of r_mix ) {
+    let head = tools.clusterHeadPicker( p );
+    let children = p.filter( x => x.index !== head ).map( x => x.index );
+    let cell: TS.db_item = storage.grand_db[ head ];
+    cell.childBasket = [];
+    c++;
+    for ( let child of children ) {
+        cell.childBasket.push( storage.grand_db[ child ] );
+        c++;
+    }
+    mox.push( cell );
+}
+for ( let x of storage.single ) {
+    mox.push( storage.grand_db[x] );
+    c++;
+}
+for ( let x of tools.clusterBoxRealLengthReport( storage.other ).seq ) {
+    mox.push( storage.grand_db[x] );
+    c++;
+}
+mox = mox.sort( (a,b) => a.j > b.j ? 1 : -1 );
+// .. allocate n index
+for ( let i=0; i<mox.length; i++ ) mox[i].n = i+1;
+storage.db_save( mox, "ready", "mox" );
 
-// // .. allocate j index
-// tools.jAllocator( storage.db_kafi, storage.db_misc );
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// console.log("s_50\t",storage.single_50.length);
+// tools.clusterBoxRealLengthReport(storage.double_50,"d_50")
+// tools.clusterBoxRealLengthReport(storage.multi_50,"m_50")
+// tools.clusterBoxRealLengthReport(storage.other_50,"o_50")
+// console.log("\ns\t",storage.single.length);
+// tools.clusterBoxRealLengthReport(storage.double,"d")
+// tools.clusterBoxRealLengthReport(storage.multi,"m")
+// tools.clusterBoxRealLengthReport(storage.other,"o")
+
+// let d = tools.clusterBoxRealLengthReport(storage.other)
+// let m = tools.clusterBoxRealLengthReport(storage.other)
+// console.log(d.seq.includes(51947));
+// console.log(m.seq.includes(51947));
+// console.log(d.seq.includes(24778));
+// console.log(m.seq.includes(24778));
+// console.log(storage.single.includes(51947))
+// console.log(storage.single.includes(24778))
+
+// let willNotProcessedBY67 = [];
+// for ( let i of storage.single ) 
+//     if ( !storage.single_50.includes( i ) )
+//         willNotProcessedBY67.push(i);
+// console.log(willNotProcessedBY67.length);
+// let solvedBy50 = []
+// for ( let x of willNotProcessedBY67 )
+//     solvedBy50.push(storage.double_50.find( y => y[0] === x || y[1] === x));
+// solvedBy50 = solvedBy50.filter(x=>x);
+// for(let x of solvedBy50) {
+//     console.log(x[0],storage.grand_db[x[0]].a);
+//     console.log(x[1],storage.grand_db[x[1]].a);
+//     console.log("\n\n\n\n");
+// }
+
 // // .. [MOX] (match for singles doubles multiples)
 // let mox: TS.db = [];
 // // .. match for singles
@@ -72,8 +149,7 @@ tools.addTmpProps( storage.db_misc );
 // mox = [ ...mox, ...tools.MOX( storage.double, storage.grand_db ) ];
 // // .. match for multiples
 // mox = [ ...mox, ...tools.MOX( storage.multi, storage.grand_db ) ];
-// // .. allocate n index
-// for ( let i=0; i<mox.length; i++ ) mox[i].n = i+1;
+
 // // .. save
 // storage.db_save( mox, "ready", "mox" );
 // // .. done!

@@ -14,6 +14,10 @@ export let other: TS.m;
 export let m_1: TS.m;
 export let m_2: TS.m;
 export let grand_db: TS.db;
+export let single_50: TS.s;
+export let double_50: TS.d;
+export let multi_50: TS.m;
+export let other_50: TS.m;
 
 // .. ======================================================================
 
@@ -28,6 +32,10 @@ export function update () {
         m_2    = JSON.parse(fs.readFileSync("src/db/tmp/m_2.json",'utf8'));
         multi  = JSON.parse(fs.readFileSync("src/db/tunned/multi.json",'utf8'));
         other  = JSON.parse(fs.readFileSync("src/db/tunned/other.json",'utf8'));
+        single_50 = JSON.parse(fs.readFileSync("src/db/tunned/single_50.json",'utf8'));
+        double_50 = JSON.parse(fs.readFileSync("src/db/tunned/double_50.json",'utf8'));
+        multi_50  = JSON.parse(fs.readFileSync("src/db/tunned/multi_50.json",'utf8'));
+        other_50  = JSON.parse(fs.readFileSync("src/db/tunned/other_50.json",'utf8'));
     } catch {}
     grand_db = [ ...db_kafi, ...db_misc ];
 }

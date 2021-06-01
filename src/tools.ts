@@ -460,3 +460,67 @@ export function resultValidator () {
 }
 
 // .. ======================================================================
+
+export function clusterRichMaker ( db: TS.ClusterBox ) {
+
+    let rich: TS.RichClusterBox = db.map( cell => {
+        let newCell = [];
+        for ( let p of cell ) {
+            newCell.push( {
+                isKafi: p < storage.db_kafi.length,
+                index: p,
+                length: storage.grand_db[p].a.length
+            } )
+        }
+        return newCell;
+    } );
+
+    return rich;
+
+}
+
+// .. ======================================================================
+
+export function clusterHeadPicker ( row: TS.RichCluster ) {
+
+    let head = row.reduce( (lastSelected,one) => {
+
+        // .. _S is Kafi
+        if ( lastSelected.isKafi ) {
+            // .. _1 is Kafi
+            if ( one.isKafi ) {
+                // .. _1 is longer
+                if ( one.length > lastSelected.length ) return one;
+                // .. _1 has same length
+                else if ( one.length === lastSelected.length ) {
+                    // .. _1 comes first
+                    if ( one.index <= lastSelected.index ) return one;
+                    // .. _1 come later
+                    else return lastSelected
+                }
+                // . . _1 is shorter
+                else return lastSelected;
+            }
+            // .. _1 is NOT Kafi
+            else return lastSelected
+        }
+        // .. _S is NOT Kafi
+        else {
+            // .. _1 is Kafi
+            if ( one.isKafi ) return one;
+            // .. _1 is NOT Kafi
+            else {
+                // .. _1 is longer or has same length
+                if ( one.length >= lastSelected.length ) return one;
+                // .. _1 is shorter
+                else return lastSelected;
+            }
+        }
+
+    }, { isKafi: false, index: -1, length: -1 } );
+
+    return head.index;
+
+}
+
+// .. ======================================================================

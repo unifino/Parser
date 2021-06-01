@@ -7,7 +7,7 @@ export type child_item = {
     r?: number,
     j: number,
 };
-export type db = {
+export type db_item = {
     a: string,
     b: string,
     c: number,
@@ -19,7 +19,9 @@ export type db = {
     childBasket: child_item[],
     tmp_inFarsiLetter: string,
     tmp_kalamat: string[],
-}[];
+};
+export type db = db_item[];
+
 
 export type s = number[];
 export type d = [ number, number ][];
@@ -33,9 +35,17 @@ export type ClusterBox = Cluster[];
 
 export type source = "Al-Kafi" | "misc" | "mox";
 
-export type Repo = { 
-    any: number, 
-    uniqe: number, 
-    diff: number, 
-    seq: number[] 
+export type Repo = {
+    any: number,
+    uniqe: number,
+    diff: number,
+    seq: number[]
 }
+
+export type RichCluster = {
+    isKafi: boolean
+    index: number,
+    length: number
+}[];
+
+export type RichClusterBox = RichCluster[];

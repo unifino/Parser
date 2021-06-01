@@ -14,6 +14,47 @@ export function jAllocator ( kafi: TS.db, misc: TS.db ) {
 
 // .. ======================================================================
 
+export function MOX ( src: TS.d|TS.lastClip, ref: TS.db ) {
+
+    let mox: TS.db = [];
+
+    for ( let rowOfIDs of src ) {
+
+        let seq: {
+            len: number,
+            id: number
+        }[] = [];
+
+        for ( let x of rowOfIDs ) {
+            seq.push( {
+                len: ref[x].a.length,
+                id: x
+            } );
+        }
+        let max = seq.reduce( (soFar, one) => {
+            if ( one.len >= soFar.len ) soFar = one;
+            return soFar;
+        } , { len: -1, id: -1 } );
+
+        let head = ref[ max.id ];
+        head.childBasket = [];
+        for ( let x of rowOfIDs ) {
+            if ( x !== max.id ) {
+                let child = ref[ x ];
+                head.childBasket.push( child );
+            }
+        }
+
+        mox.push( head );
+
+    }
+
+    return mox;
+
+}
+
+// .. ======================================================================
+
 export function getMultiples ( lastClip:TS.lastClip ) {
     // .. remove duplicates
     let tmp_01: string[] = [];

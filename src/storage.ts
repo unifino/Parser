@@ -4,14 +4,17 @@ import * as basic_tools                 from "./basic_tools";
 
 // .. ======================================================================
 
-export let db_kafi: TS.db = JSON.parse( fs.readFileSync( "src/db/base/Al-Kafi.json", 'utf8' ) );
-export let db_misc: TS.db = JSON.parse( fs.readFileSync( "src/db/base/Misc.json", 'utf8' ) );
+// export let db_kafi: TS.db = JSON.parse( fs.readFileSync( "src/db/base/Al-Kafi.json", 'utf8' ) );
+export let db_kafi_tunned: TS.db = JSON.parse( fs.readFileSync( "src/db/tunned/Al-Kafi.json", 'utf8' ) );
+// export let db_misc: TS.db = JSON.parse( fs.readFileSync( "src/db/base/Misc.json", 'utf8' ) );
+export let db_misc_tunned: TS.db = JSON.parse( fs.readFileSync( "src/db/tunned/Misc.json", 'utf8' ) );
+export let grand_db: TS.db = [ ...db_kafi_tunned, ...db_misc_tunned ]
 export let R: TS.r = JSON.parse( fs.readFileSync( "src/db/tunned/R.json", 'utf8' ) );
 // export let clipBox: TS.bound = JSON.parse( fs.readFileSync( "src/db/tunned/clipBox.json", 'utf8' ) );
 // export let boundBox: TS.bound = JSON.parse( fs.readFileSync( "src/db/tunned/boundBox.json", 'utf8' ) );
 // export let boundBox_rest: TS.bound = JSON.parse( fs.readFileSync( "src/db/tunned/boundBox_rest.json", 'utf8' ) );
 export let singles: number[] = JSON.parse( fs.readFileSync( "src/db/tunned/singles.json", 'utf8' ) );
-export let doubles: TS.r = JSON.parse( fs.readFileSync( "src/db/tunned/doubles.json", 'utf8' ) );
+export let doubles: TS.d = JSON.parse( fs.readFileSync( "src/db/tunned/doubles.json", 'utf8' ) );
 // export let lastClip: TS.lastClip = JSON.parse( fs.readFileSync( "src/db/tunned/lastClip.json", 'utf8' ) );
 export let multiples: number[][] = JSON.parse( fs.readFileSync( "src/db/tunned/multiples.json", 'utf8' ) );
 

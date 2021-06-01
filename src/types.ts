@@ -14,15 +14,16 @@ export type db = {
         c: number,
         d: string|number,
         n: number,
-        r: number,
+        r?: number,
         j: number,
     }[],
     j: number,
 
 }[];
 
+export type d = [ number, number ][];
 export type r = [ number, number, number ][];
 export type bound = { [key: string]: number[] };
 export type lastClip = number[][];
 
-export type source = "Al-Kafi" | "misc";
+export type source = "Al-Kafi" | "misc" | "mox";

@@ -21,9 +21,13 @@ export type db = {
 
 }[];
 
+export type s = number[];
 export type d = [ number, number ][];
-export type r = [ number, number, number ][];
-export type bound = { [key: string]: number[] };
-export type lastClip = number[][];
+export type m = number[][];
+
+export type R = [ number, number, number ];
+export type boundBox = { [key: string]: number[] };
+export type Cluster = number[];
+export type ClusterBox = Cluster[];
 
 export type source = "Al-Kafi" | "misc" | "mox";

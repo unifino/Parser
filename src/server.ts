@@ -22,30 +22,19 @@ tools.do_charSpacer( storage.db_misc );
 // // .. loop on [R] => TS.R
 // // ........ Code Omitted ............
 // .. ----------------------------------------------------------------
-// .. [R_optimizer] ( ?>67 )
-let tmpR = tools.R_optimizer ( storage.R, 67 );
-// .. [R2Bound]
-let tmpB = tools.R2Bound( tmpR );
-// .. [boundBoxDivider_SD]
-let tmpE = tools.boundBoxDivider( tmpB );
-storage.info_save( tmpE.single, "tunned", "single", true );
-storage.info_save( tmpE.double, "tunned", "double", true );
-storage.info_save( tmpE.pBound, "tunned", "pBound", true );
-// .. refresh DBs
-storage.update();
+// // .. [R_optimizer] ( ?>67 )
+// let tmpR = tools.R_optimizer ( storage.R, 67 );
+// // .. [R2Bound]
+// let tmpB = tools.R2Bound( tmpR, storage.grand_db.length );
+// // .. [boundBoxDivider_SD]
+// let tmpE = tools.boundBoxDivider( tmpB, storage.R );
+// storage.info_save( tmpE.single, "tunned", "single", true );
+// storage.info_save( tmpE.double, "tunned", "double", true );
+// storage.info_save( tmpE.multi, "tunned", "multi", true );
+// // .. refresh DBs
+// storage.update();
 // .. ----------------------------------------------------------------
-// .. [clusterPepticBounds]
-let multi = tools.clusterPeptics ( storage.pBound, storage.R )
-storage.info_save( multi, "tunned", "multi", true );
-// .. refresh DBs
-storage.update();
-// .. ----------------------------------------------------------------
-// .. check if multi has error ( <= 14 && > 14 )
-let peptic = storage.multi.filter( x => x.length > 14 );
-if ( peptic.length ) console.log( "ERROR! PEPTIC", peptic.length );
-else console.log( ":)" );
-for ( let p of peptic ) { console.log(p.length) }
-// .. ----------------------------------------------------------------
+
 // // .. allocate j index
 // tools.jAllocator( storage.db_kafi, storage.db_misc );
 // // .. [MOX] (match for singles doubles multiples)
@@ -58,7 +47,10 @@ for ( let p of peptic ) { console.log(p.length) }
 // mox = [ ...mox, ...tools.MOX( storage.multi, storage.grand_db ) ];
 // // .. allocate n index
 // for ( let i=0; i<mox.length; i++ ) mox[i].n = i+1;
-// .. save. done!
+// // .. save
+// storage.db_save( mox, "ready", "mox" );
+// // .. done!
+
 
 
 // .. ======================================================================

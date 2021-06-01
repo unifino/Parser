@@ -92,54 +92,57 @@ export function R_optimizer ( data: TS.R[], min: number ) {
 
 // .. ======================================================================
 
-export function R2Bound ( R: TS.R[] ) {
+export function R2Bound ( R: TS.R[], length: number ) {
 
     let sTime = new Date().getTime(),
-        total: number,
-        boundBox: TS.boundBox = {};
+        boundBox: TS.boundBoxC = [],
+        boundLine: TS.boundLine,
+        a: number,
+        b: number;
 
-    for ( let i=0; i<R.length; i++ ) {
-        if ( !(i%1) ) timer( R.length, i, sTime, " R2Bound: 1/2 " );
-        if ( !boundBox[ R[i][0] ] ) boundBox[ R[i][0] ] = [];
-        if ( !boundBox[ R[i][1] ] ) boundBox[ R[i][1] ] = [];
-        boundBox[ R[i][0] ].push( R[i][1] );
-        boundBox[ R[i][1] ].push( R[i][0] );
-    }
-    total = Object.keys( boundBox ).length;
-    for ( let i=0; i<total; i++ ) {
-        if ( !(i%99) ) timer( total, i, sTime, " R2Bound: 2/2 " );
-        boundBox[i] = [ ...new Set(boundBox[i]) ];
+    for ( let i=0; i<length; i++ ) {
+        if ( !(i%100) ) timer( length, i, sTime, "    R2Bound   " );
+        boundLine = [];
+        for ( let j=0; j<R.length; j++ ) {
+            a = R[j][0];
+            b = R[j][1];
+            if ( a === i ) boundLine.push(b);
+            if ( b === i ) boundLine.push(a);
+        }
+        boundBox.push( boundLine );
     }
 
-    return boundBox;
+    if ( boundBox.length !== length ) console.log( "Critical Error!" );
+    else return boundBox;
 
 }
 
 // .. ======================================================================
 
-export function boundBoxDivider( boundBox: TS.boundBox ) {
+export function boundBoxDivider( boundBox: TS.boundBoxC, R: TS.R[] ) {
 
     let single: TS.s = [],
         double: TS.d = [],
-        multi: TS.m = [],
+        other: TS.m = [],
+        multi: TS.ClusterBox,
         child: number;
 
     // .. get singles
-    for ( let key of Object.keys( boundBox ) ){
-        if ( boundBox[ key ].length === 0 ) {
-            single.push( Number(key) );
-            delete boundBox[ key ];
+    for ( let i in boundBox ){
+        if ( boundBox[i].length === 0 ) {
+            single.push( Number(i) );
+            delete boundBox[i];
         }
     }
     // .. get doubles
-    for ( let parent of Object.keys( boundBox ) ) {
-        if ( boundBox[ parent ] ) {
-            if ( boundBox[ parent ].length === 1 ) {
-                child = boundBox[ parent ][0];
+    for ( let i in boundBox ) {
+        if ( boundBox[i] ) {
+            if ( boundBox[i].length === 1 ) {
+                child = boundBox[i][0];
                 if ( boundBox[ child ].length === 1 ) {
-                    if ( boundBox[ child ][0] === Number( parent ) ) {
-                        double.push( [ Number( parent ), child ] );
-                        delete boundBox[ parent ];
+                    if ( boundBox[ child ][0] === Number(i) ) {
+                        double.push( [ Number(i), child ] );
+                        delete boundBox[i];
                         delete boundBox[ child ];
                     }
                 }
@@ -147,15 +150,18 @@ export function boundBoxDivider( boundBox: TS.boundBox ) {
         }
     }
 
-    for ( let key of Object.keys( boundBox ) ) {
-        multi.push( [ Number(key), ...boundBox[key] ] );
-    }
+    for ( let i in boundBox ) 
+        if ( boundBox[i] )
+            other.push( [ Number(i), ...boundBox[i] ] );
+
+
+    multi = clusterPeptics ( other, R );
 
     // .. report
     return {
         single: single,
         double: double,
-        pBound: boundBox,
+        multi: multi,
     };
 
 }
@@ -174,17 +180,16 @@ export function multiUnifier ( raw_multi:TS.ClusterBox ) {
 
 // .. ======================================================================
 
-export function clusterPeptics ( restBox: TS.boundBox, R: TS.R[] ) {
+export function clusterPeptics ( other: TS.ClusterBox, R: TS.R[] ) {
 
     let oneCluster: TS.Cluster = [],
         clusterBox: TS.ClusterBox = [],
         startTime = new Date().getTime(),
         c = 0,
-        total = Object.keys( restBox ).length;
+        total = other.length;
 
-    for ( let key of Object.keys( restBox ) ) {
+    for ( oneCluster of other ) {
         timer( total, c, startTime, "clusterPeptics" );
-        oneCluster = [ Number(key), ...cluster( Number(key), R ) ];
         // .. sort this cluster
         oneCluster = [ ...new Set( oneCluster ) ];
         oneCluster = oneCluster.sort( (a,b) => a>b ? 1:-1 );
@@ -233,42 +238,43 @@ export function jAllocator ( kafi: TS.db, misc: TS.db ) {
 
 // .. ======================================================================
 
-export function MOX ( src: TS.d|TS.ClusterBox, ref: TS.db ) {
+let trace = [];
+export function MOX ( src: TS.ClusterBox, ref: TS.db ) {
 
-    let mox: TS.db = [];
+    // let mox: TS.db = [],
+    //     tmpX: TS.child_item[],
+    //     child: TS.child_item[];
 
-    for ( let rowOfIDs of src ) {
+    // for ( let rowOfIDs of src ) {
 
-        let seq: {
-            len: number,
-            id: number
-        }[] = [];
+    //     let seq: {
+    //         len: number,
+    //         id: number
+    //     }[] = [];
 
-        for ( let x of rowOfIDs ) {
-            seq.push( {
-                len: ref[x].a.length,
-                id: x
-            } );
-        }
-        let max = seq.reduce( (soFar, one) => {
-            if ( one.len >= soFar.len ) soFar = one;
-            return soFar;
-        } , { len: -1, id: -1 } );
+    //     for ( let x of rowOfIDs ) {
 
-        let head = ref[ max.id ];
-        head.childBasket = [];
-        for ( let x of rowOfIDs ) {
-            if ( x !== max.id ) {
-                let child = ref[ x ];
-                head.childBasket.push( child );
-            }
-        }
+    //         seq.push( {
+    //             len: ref[x].a.length,
+    //             id: x
+    //         } );
+    //     }
+    //     let max = seq.reduce( (soFar, one) => {
+    //         if ( one.len >= soFar.len ) soFar = one;
+    //         return soFar;
+    //     } , { len: -1, id: -1 } );
 
-        mox.push( head );
+    //     let head = ref[ max.id ];
+    //     if ( seq.length > 1 ) {
+    //         head.childBasket = [];
+    //         for ( )
+    //     }
 
-    }
+    //     mox.push( head );
 
-    return mox;
+    // }
+
+    // return mox;
 
 }
 
@@ -326,11 +332,14 @@ export function timer (
 
 // .. ======================================================================
 
-export function clusterBoxRealLength ( db: TS.ClusterBox ) {
+export function clusterBoxRealLengthReport ( db: TS.ClusterBox ) {
     let t = []
     for ( let r of db ) t = [ ...t, ...r  ];
+    let a = t.length;
+    console.log( "any\t: ", a );
     t = [ ...new Set(t) ];
-    return t.length;
+    console.log( "uniqe\t: ",  t.length );
+    console.log( "diff\t: ", a -t.length );
 }
 
 // .. ======================================================================
@@ -344,7 +353,7 @@ export function checkPresents ( src: TS.db, s: TS.s, d: TS.d, m: TS.m ) {
     for ( let x of d ) tmp = [ ...tmp, ...x  ];
     mix = [ ...mix, ...tmp ];
     for ( let x of m ) tmp = [ ...tmp, ...x  ];
-    mix = [ ...mix, ...tmp ];
+    mix = [ ...new Set( [ ...mix, ...tmp ] ) ];
 
     return mix.length === src.length;
 

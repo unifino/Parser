@@ -69,8 +69,8 @@ function pAOX ( A: string[], X: string[] ) {
 
 export function R_optimizer ( data: TS.R[], min: number ) {
 
-    // .. not a-a situation + r >= min ( ?50 )
-    data = data.filter( x => x[0] !== x[1] && x[2] >= min );
+    // .. not a-a situation + r > min ( ?50 )
+    data = data.filter( x => x[0] !== x[1] && x[2] > min );
     // .. sort by R
     data.sort( (a,x) => x[2] > a[2] ? 1 : -1 );
     // .. put a,b,R <== a<b
@@ -174,21 +174,20 @@ export function multiUnifier ( raw_multi:TS.ClusterBox ) {
 
 // .. ======================================================================
 
-export function clusterPepticBounds ( restBox: TS.boundBox, R: TS.R[] ) {
+export function clusterPeptics ( restBox: TS.boundBox, R: TS.R[] ) {
 
     let oneCluster: TS.Cluster = [],
         clusterBox: TS.ClusterBox = [],
         startTime = new Date().getTime(),
         c = 0,
-        total = Object.keys( restBox ).length,
-        tmp: number[];
+        total = Object.keys( restBox ).length;
 
     for ( let key of Object.keys( restBox ) ) {
         timer( total, c, startTime, "clusterPepticBounds" );
-        tmp = cluster( Number(key), R );
-        // .. sort this line
-        tmp = tmp.sort( (a,b) => a>b ? 1:-1 );
-        oneCluster = [ Number(key), ...tmp ];
+        oneCluster = [ Number(key), ...cluster( Number(key), R ) ];
+        // .. sort this cluster
+        oneCluster = [ ...new Set( oneCluster ) ];
+        oneCluster = oneCluster.sort( (a,b) => a>b ? 1:-1 );
         clusterBox.push( oneCluster );
         c++;
     }

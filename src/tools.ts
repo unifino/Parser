@@ -155,7 +155,7 @@ export function boundBoxDivider( boundBox: TS.boundBox ) {
     return {
         single: single,
         double: double,
-        multiBound: boundBox,
+        pBound: boundBox,
     };
 
 }
@@ -174,7 +174,7 @@ export function multiUnifier ( raw_multi:TS.ClusterBox ) {
 
 // .. ======================================================================
 
-export function clusterMultiBounds ( restBox: TS.boundBox, R: TS.R[] ) {
+export function clusterPepticBounds ( restBox: TS.boundBox, R: TS.R[] ) {
 
     let oneCluster: TS.Cluster = [],
         clusterBox: TS.ClusterBox = [],
@@ -184,7 +184,7 @@ export function clusterMultiBounds ( restBox: TS.boundBox, R: TS.R[] ) {
         tmp: number[];
 
     for ( let key of Object.keys( restBox ) ) {
-        timer( total, c, startTime, "clusterMultiBounds" );
+        timer( total, c, startTime, "clusterPepticBounds" );
         tmp = cluster( Number(key), R );
         // .. sort this line
         tmp = tmp.sort( (a,b) => a>b ? 1:-1 );
@@ -293,7 +293,7 @@ export function timer (
     quality: number = null, 
     dupC: number = null 
 ) {
-    return;
+
     let passedTime, ets;
     let p_H, p_M, p_S, p_M_r, p_S_r;
     let ets_H, ets_M, ets_S, ets_M_r, ets_S_r;

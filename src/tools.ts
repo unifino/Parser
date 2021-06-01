@@ -99,7 +99,7 @@ export function R2Bound ( R: TS.R[] ) {
         boundBox: TS.boundBox = {};
 
     for ( let i=0; i<R.length; i++ ) {
-        if ( !(i%9) ) timer( R.length, i, sTime, "R2Bound : 1/2" );
+        if ( !(i%1) ) timer( R.length, i, sTime, " R2Bound: 1/2 " );
         if ( !boundBox[ R[i][0] ] ) boundBox[ R[i][0] ] = [];
         if ( !boundBox[ R[i][1] ] ) boundBox[ R[i][1] ] = [];
         boundBox[ R[i][0] ].push( R[i][1] );
@@ -107,7 +107,7 @@ export function R2Bound ( R: TS.R[] ) {
     }
     total = Object.keys( boundBox ).length;
     for ( let i=0; i<total; i++ ) {
-        if ( !(i%99) ) timer( total, i, sTime, "R2Bound: 2/2" );
+        if ( !(i%99) ) timer( total, i, sTime, " R2Bound: 2/2 " );
         boundBox[i] = [ ...new Set(boundBox[i]) ];
     }
 
@@ -183,7 +183,7 @@ export function clusterPeptics ( restBox: TS.boundBox, R: TS.R[] ) {
         total = Object.keys( restBox ).length;
 
     for ( let key of Object.keys( restBox ) ) {
-        timer( total, c, startTime, "clusterPepticBounds" );
+        timer( total, c, startTime, "clusterPeptics" );
         oneCluster = [ Number(key), ...cluster( Number(key), R ) ];
         // .. sort this cluster
         oneCluster = [ ...new Set( oneCluster ) ];
@@ -288,7 +288,7 @@ export function timer (
     i: number, 
     startTime: number, 
     title: string = "Timer", 
-    version: string = "1.0.3", 
+    version: string = "1.0.4", 
     quality: number = null, 
     dupC: number = null 
 ) {
@@ -299,7 +299,7 @@ export function timer (
     let dialog: string = "";
 
     console.clear();
-    console.log( "### " + title + " ###\n###    v." + version + "    ###\n" );
+    console.log( "### " + title + " ###\n###     v." + version + "    ###\n" );
 
     passedTime = ( new Date().getTime() - startTime ) / 1000;
 

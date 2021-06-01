@@ -435,6 +435,27 @@ export function resultValidator () {
     let t = s + d.any + m.any + o.any;
     let answer = storage.grand_db.length === t ;
     console.log( "\nAnswer is: " + ( answer ? "OK!" : "BAD!!" ) );
+    let collection = [...storage.single,...d.seq,...m.seq,...o.seq]
+    collection = [ ...new Set(collection) ];
+    console.log("------> " , collection.length );
+    console.log("------> " , collection.length===storage.grand_db.length );
+    let hasR = [];
+    for ( let pp of storage.R ) hasR.push( pp[0], pp[1] );
+    hasR = [ ...new Set(hasR) ];
+    console.log(storage.grand_db.length-hasR.length);
+    let noR = [];
+    for ( let i=0; i<storage.grand_db.length; i++ ) 
+        if ( !hasR.includes(i) )
+        noR.push(i);
+    console.log("------> " ,storage.grand_db.length-hasR.length-noR.length===0);
+    let swr = 0;
+    let swor = 0;
+    for ( let x of storage.single ) {
+        if ( noR.includes(x) ) swor++;
+        else swr++;
+    }
+    console.log(swr,swor);
+    
     return answer;
 }
 

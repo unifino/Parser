@@ -27,8 +27,15 @@ export type m = ClusterBox;
 
 export type R = [ number, number, number ];
 export type boundLine = number[];
-export type boundBoxC = number[][];
+export type boundBox = number[][];
 export type Cluster = number[];
 export type ClusterBox = Cluster[];
 
 export type source = "Al-Kafi" | "misc" | "mox";
+
+export type Repo = { 
+    any: number, 
+    uniqe: number, 
+    diff: number, 
+    seq: number[] 
+}

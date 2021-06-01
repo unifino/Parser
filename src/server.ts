@@ -15,25 +15,56 @@ storage.update();
 // .. alter DBs
 tools.do_charSpacer( storage.db_kafi );
 tools.do_charSpacer( storage.db_misc );
-// .. ----------------------------------------------------------------
+// // .. ----------------------------------------------------------------
 // // .. [addTmpProps]
 // tools.addTmpProps( storage.db_kafi );
 // tools.addTmpProps( storage.db_misc );
 // // .. loop on [R] => TS.R
 // // ........ Code Omitted ............
+// // .. ----------------------------------------------------------------
+// .. [R_optimizer] ( ?>67 )
+let R67 = tools.R_optimizer ( storage.R, 80 );
 // .. ----------------------------------------------------------------
-// // .. [R_optimizer] ( ?>67 )
-// let tmpR = tools.R_optimizer ( storage.R, 67 );
-// // .. [R2Bound]
-// let tmpB = tools.R2Bound( tmpR, storage.grand_db.length );
-// // .. [boundBoxDivider_SD]
-// let tmpE = tools.boundBoxDivider( tmpB, storage.R );
-// storage.info_save( tmpE.single, "tunned", "single", true );
-// storage.info_save( tmpE.double, "tunned", "double", true );
-// storage.info_save( tmpE.multi, "tunned", "multi", true );
-// // .. refresh DBs
-// storage.update();
+// .. [R2Bound]
+let tmpB = tools.R2Bound( R67, storage.grand_db.length );
+// .. [boundBoxDivider_SD]
+let tmpE = tools.boundBoxDivider( tmpB );
+storage.info_save( tmpE.single, "tunned", "single", true );
+storage.info_save( tmpE.double, "tunned", "double", true );
+storage.info_save( tmpE.m_1, "tmp", "m_1", true );
+// .. refresh DBs
+storage.update();
 // .. ----------------------------------------------------------------
+// .. re-do the process for remaining "m_1" ==> "m_2"
+let m_2 = tools.aggressiveClusterPeptics( storage.m_1, R67 );
+storage.info_save( m_2, "tmp", "m_2", true );
+// .. refresh DBs
+storage.update();
+// .. ----------------------------------------------------------------
+let tmpE2 = tools.multiScatter( storage.m_2 );
+storage.info_save( tmpE2.multi, "tunned", "multi", true );
+storage.info_save( tmpE2.other, "tunned", "other", true );
+// .. refresh DBs
+storage.update();
+// .. ----------------------------------------------------------------
+let s = storage.single.length;
+let d = tools.clusterBoxRealLengthReport( storage.double, "double" );
+let m = tools.clusterBoxRealLengthReport( storage.multi, "multi" );
+let o = tools.clusterBoxRealLengthReport( storage.other, "other" );
+let t = s + d.any + m.any + o.any;
+let z = 0;
+console.log( storage.grand_db.length===t );
+
+
+
+
+
+
+
+
+
+
+
 
 // // .. allocate j index
 // tools.jAllocator( storage.db_kafi, storage.db_misc );
@@ -50,8 +81,6 @@ tools.do_charSpacer( storage.db_misc );
 // // .. save
 // storage.db_save( mox, "ready", "mox" );
 // // .. done!
-
-
 
 // .. ======================================================================
 console.log( "\n" );

@@ -95,7 +95,7 @@ export function R_optimizer ( data: TS.R[], min: number ) {
 export function R2Bound ( R: TS.R[], length: number ) {
 
     let sTime = new Date().getTime(),
-        boundBox: TS.boundBoxC = [],
+        boundBox: TS.boundBox = [],
         boundLine: TS.boundLine,
         a: number,
         b: number;
@@ -119,12 +119,12 @@ export function R2Bound ( R: TS.R[], length: number ) {
 
 // .. ======================================================================
 
-export function boundBoxDivider( boundBox: TS.boundBoxC, R: TS.R[] ) {
+export function boundBoxDivider( boundBox: TS.boundBox ) {
 
     let single: TS.s = [],
         double: TS.d = [],
         other: TS.m = [],
-        multi: TS.ClusterBox,
+        m_1: TS.ClusterBox,
         child: number;
 
     // .. get singles
@@ -155,14 +155,49 @@ export function boundBoxDivider( boundBox: TS.boundBoxC, R: TS.R[] ) {
             other.push( [ Number(i), ...boundBox[i] ] );
 
 
-    multi = clusterPeptics ( other, R );
+    m_1 = simpleClusterPeptics ( other );
 
     // .. report
     return {
         single: single,
         double: double,
-        multi: multi,
+        m_1: m_1,
     };
+
+}
+
+// .. ======================================================================
+
+export function multiScatter( multiBox: TS.boundBox ) {
+
+    let clusterBox: TS.ClusterBox = [],
+        other: TS.m = []
+
+    // .. get singles
+    for ( let row of multiBox )
+        if ( row.length === 0 ) 
+            console.log("ERROR!");
+
+    if ( clusterBoxRealLengthReport( multiBox ).diff ) {
+        console.log( "ERROR!!" );
+        return;
+    }
+
+    for ( let i in multiBox ) {
+        if ( multiBox[i].length <= 14 ) {
+            clusterBox.push( multiBox[i] );
+            delete multiBox[i];
+        }
+        else console.log("aa");
+        
+    }
+
+    multiBox = multiBox.filter( x => x );
+
+    return {
+        multi: clusterBox,
+        other: multiBox
+    }
 
 }
 
@@ -172,7 +207,9 @@ export function multiUnifier ( raw_multi:TS.ClusterBox ) {
     // .. remove duplicates
     let tmp_01: string[] = [];
     let multiples: TS.ClusterBox = [];
-    for ( let line of raw_multi ) tmp_01.push( line.join(":") )
+    // .. sort and stringify
+    for ( let line of raw_multi ) 
+        tmp_01.push( line.sort( (a,b) => a>b ? 1:-1 ).join(":") )
     let tmp_02: string[] = [ ...new Set(tmp_01) ];
     for ( let line of tmp_02 ) multiples.push( line.split(":").map( x => Number(x) ) );
     return multiples;
@@ -180,7 +217,7 @@ export function multiUnifier ( raw_multi:TS.ClusterBox ) {
 
 // .. ======================================================================
 
-export function clusterPeptics ( other: TS.ClusterBox, R: TS.R[] ) {
+export function simpleClusterPeptics ( other: TS.ClusterBox ) {
 
     let oneCluster: TS.Cluster = [],
         clusterBox: TS.ClusterBox = [],
@@ -189,16 +226,34 @@ export function clusterPeptics ( other: TS.ClusterBox, R: TS.R[] ) {
         total = other.length;
 
     for ( oneCluster of other ) {
-        timer( total, c, startTime, "clusterPeptics" );
-        // .. sort this cluster
+        timer( total, c, startTime, "clusterPeptic-" );
         oneCluster = [ ...new Set( oneCluster ) ];
-        oneCluster = oneCluster.sort( (a,b) => a>b ? 1:-1 );
         clusterBox.push( oneCluster );
         c++;
     }
 
     return multiUnifier( clusterBox );
 
+}
+
+// .. ======================================================================
+
+export function aggressiveClusterPeptics ( m_1: TS.ClusterBox, R: TS.R[] ) {
+
+    let clusterBox: TS.ClusterBox = [],
+        startTime = new Date().getTime();
+
+    // .. unify multiDB
+    let uni = []
+    for ( let r of m_1 ) uni = [ ...uni, ...r  ];
+    uni = [ ...new Set(uni) ];
+
+    for ( let i in uni ) {
+        timer( uni.length, Number(i), startTime, "clusterPeptic+" );
+        clusterBox.push( cluster( uni[i], R ) );
+    }
+
+    return multiUnifier( clusterBox );
 }
 
 // .. ======================================================================
@@ -332,14 +387,22 @@ export function timer (
 
 // .. ======================================================================
 
-export function clusterBoxRealLengthReport ( db: TS.ClusterBox ) {
-    let t = []
+export function clusterBoxRealLengthReport ( db: TS.ClusterBox, tag?: string ) {
+
+    let t = [],
+        report: TS.Repo = {} as any;
+
     for ( let r of db ) t = [ ...t, ...r  ];
-    let a = t.length;
-    console.log( "any\t: ", a );
+    report.any = t.length;
     t = [ ...new Set(t) ];
-    console.log( "uniqe\t: ",  t.length );
-    console.log( "diff\t: ", a -t.length );
+    report.uniqe = t.length;
+    report.diff = report.any - report.uniqe;
+
+    if ( tag ) console.log( tag, report );
+
+    report.seq = t;
+    return report;
+
 }
 
 // .. ======================================================================

@@ -70,6 +70,8 @@ let head = tools.clusterHeadPicker( r_last[0] );
 let children = r_last[0].filter( x => x.index !== head ).map( x => x.index );
 let cell: TS.db_item = storage.grand_db[ head ];
 cell.childBasket = [];
+console.log(cell);
+
 for ( let child of children ) cell.childBasket.push( storage.grand_db[ child ] );
 mox.push( cell );
 // .. sort
@@ -79,81 +81,6 @@ for ( let i=0; i<mox.length; i++ ) mox[i].n = i+1;
 // .. save it
 storage.db_save( mox, "ready", "mox" );
 // .. done! :)
-// .. ----------------------------------------------------------------
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// console.log("s_50\t",storage.single_50.length);
-// tools.clusterBoxRealLengthReport(storage.double_50,"d_50")
-// tools.clusterBoxRealLengthReport(storage.multi_50,"m_50")
-// tools.clusterBoxRealLengthReport(storage.other_50,"o_50")
-// console.log("\ns\t",storage.single.length);
-// tools.clusterBoxRealLengthReport(storage.double,"d")
-// tools.clusterBoxRealLengthReport(storage.multi,"m")
-// tools.clusterBoxRealLengthReport(storage.other,"o")
-
-// let d = tools.clusterBoxRealLengthReport(storage.other)
-// let m = tools.clusterBoxRealLengthReport(storage.other)
-// console.log(d.seq.includes(51947));
-// console.log(m.seq.includes(51947));
-// console.log(d.seq.includes(24778));
-// console.log(m.seq.includes(24778));
-// console.log(storage.single.includes(51947))
-// console.log(storage.single.includes(24778))
-
-// let willNotProcessedBY67 = [];
-// for ( let i of storage.single ) 
-//     if ( !storage.single_50.includes( i ) )
-//         willNotProcessedBY67.push(i);
-// console.log(willNotProcessedBY67.length);
-// let solvedBy50 = []
-// for ( let x of willNotProcessedBY67 )
-//     solvedBy50.push(storage.double_50.find( y => y[0] === x || y[1] === x));
-// solvedBy50 = solvedBy50.filter(x=>x);
-// for(let x of solvedBy50) {
-//     console.log(x[0],storage.grand_db[x[0]].a);
-//     console.log(x[1],storage.grand_db[x[1]].a);
-//     console.log("\n\n\n\n");
-// }
-
-// // .. [MOX] (match for singles doubles multiples)
-// let mox: TS.db = [];
-// // .. match for singles
-// for ( let a of storage.single ) mox.push( storage.grand_db[a] );
-// // .. match for doubles
-// mox = [ ...mox, ...tools.MOX( storage.double, storage.grand_db ) ];
-// // .. match for multiples
-// mox = [ ...mox, ...tools.MOX( storage.multi, storage.grand_db ) ];
-
-// // .. save
-// storage.db_save( mox, "ready", "mox" );
-// // .. done!
-
 // .. ======================================================================
 console.log( "\n" );
 console.timeEnd( "App Clock" );

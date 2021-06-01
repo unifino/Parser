@@ -23,10 +23,10 @@ tools.do_charSpacer( storage.db_misc );
 // // ........ Code Omitted ............
 // // .. ----------------------------------------------------------------
 // .. [R_optimizer] ( ?>67 )
-let R67 = tools.R_optimizer ( storage.R, 80 );
+let R__ = tools.R_optimizer ( storage.R, 67 );
 // .. ----------------------------------------------------------------
 // .. [R2Bound]
-let tmpB = tools.R2Bound( R67, storage.grand_db.length );
+let tmpB = tools.R2Bound( R__, storage.grand_db.length );
 // .. [boundBoxDivider_SD]
 let tmpE = tools.boundBoxDivider( tmpB );
 storage.info_save( tmpE.single, "tunned", "single", true );
@@ -36,7 +36,7 @@ storage.info_save( tmpE.m_1, "tmp", "m_1", true );
 storage.update();
 // .. ----------------------------------------------------------------
 // .. re-do the process for remaining "m_1" ==> "m_2"
-let m_2 = tools.aggressiveClusterPeptics( storage.m_1, R67 );
+let m_2 = tools.aggressiveClusterPeptics( storage.m_1, R__ );
 storage.info_save( m_2, "tmp", "m_2", true );
 // .. refresh DBs
 storage.update();
@@ -47,24 +47,7 @@ storage.info_save( tmpE2.other, "tunned", "other", true );
 // .. refresh DBs
 storage.update();
 // .. ----------------------------------------------------------------
-let s = storage.single.length;
-let d = tools.clusterBoxRealLengthReport( storage.double, "double" );
-let m = tools.clusterBoxRealLengthReport( storage.multi, "multi" );
-let o = tools.clusterBoxRealLengthReport( storage.other, "other" );
-let t = s + d.any + m.any + o.any;
-let z = 0;
-console.log( storage.grand_db.length===t );
-
-
-
-
-
-
-
-
-
-
-
+tools.resultValidator();
 
 // // .. allocate j index
 // tools.jAllocator( storage.db_kafi, storage.db_misc );

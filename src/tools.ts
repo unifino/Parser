@@ -1,5 +1,6 @@
 import * as TS                          from "./types";
 import * as basic_tools                 from "./basic_tools";
+import * as storage                     from "./storage";
 
 // .. ======================================================================
 
@@ -188,8 +189,6 @@ export function multiScatter( multiBox: TS.boundBox ) {
             clusterBox.push( multiBox[i] );
             delete multiBox[i];
         }
-        else console.log("aa");
-        
     }
 
     multiBox = multiBox.filter( x => x );
@@ -398,7 +397,10 @@ export function clusterBoxRealLengthReport ( db: TS.ClusterBox, tag?: string ) {
     report.uniqe = t.length;
     report.diff = report.any - report.uniqe;
 
-    if ( tag ) console.log( tag, report );
+    if ( tag ) {
+        if ( report.diff ) console.log( tag,"\t",report );
+        else console.log( tag,"\t",report.any );
+    }
 
     report.seq = t;
     return report;
@@ -420,6 +422,20 @@ export function checkPresents ( src: TS.db, s: TS.s, d: TS.d, m: TS.m ) {
 
     return mix.length === src.length;
 
+}
+
+// .. ======================================================================
+
+export function resultValidator () {
+    let s = storage.single.length;
+    console.log( "\nsingle", "\t", s );
+    let d = clusterBoxRealLengthReport( storage.double, "double" );
+    let m = clusterBoxRealLengthReport( storage.multi, "multi" );
+    let o = clusterBoxRealLengthReport( storage.other, "other" );
+    let t = s + d.any + m.any + o.any;
+    let answer = storage.grand_db.length === t ;
+    console.log( "\nAnswer is: " + ( answer ? "OK!" : "BAD!!" ) );
+    return answer;
 }
 
 // .. ======================================================================

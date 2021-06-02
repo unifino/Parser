@@ -4,7 +4,6 @@ export type child_item = {
     c: number,
     d: string|number,
     n: number,
-    r?: number,
     j: number,
 };
 export type db_item = {
@@ -13,7 +12,6 @@ export type db_item = {
     c: number,
     d: string|number,
     n: number,
-    r?: number,
     j: number,
     z: number,
     childBasket: child_item[],

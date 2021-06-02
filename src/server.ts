@@ -51,35 +51,8 @@ tools.do_charSpacer( storage.db_misc );
 // .. ----------------------------------------------------------------
 // .. allocate j index
 tools.jAllocator( storage.db_kafi, storage.db_misc );
-let mix = [ ...storage.double, ...storage.multi ];
-let r_mix = tools.clusterRichMaker( mix )
-let mox: TS.db = [];
-for ( let p of r_mix ) {
-    let head = tools.clusterHeadPicker( p );
-    let children = p.filter( x => x.index !== head ).map( x => x.index );
-    let cell: TS.db_item = storage.grand_db[ head ];
-    cell.childBasket = [];
-    for ( let child of children )
-        cell.childBasket.push( storage.grand_db[ child ] );
-    mox.push( cell );
-}
-for ( let x of storage.single ) mox.push( storage.grand_db[x] );
-// .. control by Hand
-let r_last = tools.clusterRichMaker( storage.other );
-let head = tools.clusterHeadPicker( r_last[0] );
-let children = r_last[0].filter( x => x.index !== head ).map( x => x.index );
-let cell: TS.db_item = storage.grand_db[ head ];
-cell.childBasket = [];
-console.log(cell);
-
-for ( let child of children ) cell.childBasket.push( storage.grand_db[ child ] );
-mox.push( cell );
-// .. sort
-mox = mox.sort( (a,b) => a.j > b.j ? 1 : -1 );
-// .. allocate n index
-for ( let i=0; i<mox.length; i++ ) mox[i].n = i+1;
-// .. save it
-storage.db_save( mox, "ready", "mox" );
+// .. create DBs
+tools.dbBuilder();
 // .. done! :)
 // .. ======================================================================
 console.log( "\n" );

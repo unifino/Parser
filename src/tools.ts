@@ -292,48 +292,6 @@ export function jAllocator ( kafi: TS.db, misc: TS.db ) {
 
 // .. ======================================================================
 
-let trace = [];
-export function MOX ( src: TS.ClusterBox, ref: TS.db ) {
-
-    // let mox: TS.db = [],
-    //     tmpX: TS.child_item[],
-    //     child: TS.child_item[];
-
-    // for ( let rowOfIDs of src ) {
-
-    //     let seq: {
-    //         len: number,
-    //         id: number
-    //     }[] = [];
-
-    //     for ( let x of rowOfIDs ) {
-
-    //         seq.push( {
-    //             len: ref[x].a.length,
-    //             id: x
-    //         } );
-    //     }
-    //     let max = seq.reduce( (soFar, one) => {
-    //         if ( one.len >= soFar.len ) soFar = one;
-    //         return soFar;
-    //     } , { len: -1, id: -1 } );
-
-    //     let head = ref[ max.id ];
-    //     if ( seq.length > 1 ) {
-    //         head.childBasket = [];
-    //         for ( )
-    //     }
-
-    //     mox.push( head );
-
-    // }
-
-    // return mox;
-
-}
-
-// .. ======================================================================
-
 export function getPepticR ( peptic: TS.ClusterBox, R: TS.R[] ) {
     let patients = [];
     for ( let r of peptic ) patients = [ ...patients, ...r  ];
@@ -524,3 +482,44 @@ export function clusterHeadPicker ( row: TS.RichCluster ) {
 }
 
 // .. ======================================================================
+
+export function dbBuilder () {
+
+    let mix = [ ...storage.double, ...storage.multi ],
+        rich_mix = clusterRichMaker( mix ),
+        mox: TS.db = [],
+        head: number,
+        child: number,
+        children: number[],
+        cell: TS.db_item;
+
+    for ( let p of rich_mix ) {
+        head = clusterHeadPicker( p );
+        children = p.filter( x => x.index !== head ).map( x => x.index );
+        cell = storage.grand_db[ head ];
+        cell.childBasket = [];
+        for ( child of children ) cell.childBasket.push( storage.grand_db[ child ] );
+        mox.push( cell );
+    }
+
+    for ( let x of storage.single ) mox.push( storage.grand_db[x] );
+
+    // .. control by Hand
+    rich_mix = clusterRichMaker( storage.other );
+    head = clusterHeadPicker( rich_mix[0] );
+    children = rich_mix[0].filter( x => x.index !== head ).map( x => x.index );
+    cell = storage.grand_db[ head ];
+    cell.childBasket = [];
+    for ( child of children ) cell.childBasket.push( storage.grand_db[ child ] );
+    mox.push( cell );
+
+    // .. sort
+    mox = mox.sort( (a,b) => a.j > b.j ? 1 : -1 );
+
+    // .. allocate n index
+    for ( let i=0; i<mox.length; i++ ) mox[i].n = i+1;
+
+    // .. save it
+    storage.db_save( mox, "ready", "mox" );
+
+}

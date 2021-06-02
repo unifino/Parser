@@ -311,13 +311,12 @@ export function timer (
     dupC: number = null 
 ) {
 
-    let passedTime, ets;
-    let p_H, p_M, p_S, p_M_r, p_S_r;
-    let ets_H, ets_M, ets_S, ets_M_r, ets_S_r;
-    let dialog: string = "";
+    let passedTime, ets,
+        p_H, p_M, p_S, p_M_r, p_S_r,
+        ets_H, ets_M, ets_S, ets_M_r, ets_S_r,
+        dialog: string = "";
 
-    console.clear();
-    console.log( "### " + title + " ###\n###     v." + version + "    ###\n" );
+    notify( title );
 
     passedTime = ( new Date().getTime() - startTime ) / 1000;
 
@@ -393,27 +392,6 @@ export function resultValidator () {
     let t = s + d.any + m.any + o.any;
     let answer = storage.grand_db.length === t ;
     console.log( "\nAnswer is: " + ( answer ? "OK!" : "BAD!!" ) );
-    let collection = [...storage.single,...d.seq,...m.seq,...o.seq]
-    collection = [ ...new Set(collection) ];
-    console.log("------> " , collection.length );
-    console.log("------> " , collection.length===storage.grand_db.length );
-    let hasR = [];
-    for ( let pp of storage.R ) hasR.push( pp[0], pp[1] );
-    hasR = [ ...new Set(hasR) ];
-    console.log(storage.grand_db.length-hasR.length);
-    let noR = [];
-    for ( let i=0; i<storage.grand_db.length; i++ ) 
-        if ( !hasR.includes(i) )
-        noR.push(i);
-    console.log("------> " ,storage.grand_db.length-hasR.length-noR.length===0);
-    let swr = 0;
-    let swor = 0;
-    for ( let x of storage.single ) {
-        if ( noR.includes(x) ) swor++;
-        else swr++;
-    }
-    console.log(swr,swor);
-    
     return answer;
 }
 
@@ -497,8 +475,8 @@ export function dbBuilder () {
         head = clusterHeadPicker( p );
         children = p.filter( x => x.index !== head ).map( x => x.index );
         cell = storage.grand_db[ head ];
-        cell.childBasket = [];
-        for ( child of children ) cell.childBasket.push( storage.grand_db[ child ] );
+        cell.cDB = [];
+        for ( child of children ) cell.cDB.push( storage.grand_db[ child ] );
         mox.push( cell );
     }
 
@@ -509,17 +487,163 @@ export function dbBuilder () {
     head = clusterHeadPicker( rich_mix[0] );
     children = rich_mix[0].filter( x => x.index !== head ).map( x => x.index );
     cell = storage.grand_db[ head ];
-    cell.childBasket = [];
-    for ( child of children ) cell.childBasket.push( storage.grand_db[ child ] );
+    cell.cDB = [];
+    for ( child of children ) cell.cDB.push( storage.grand_db[ child ] );
     mox.push( cell );
 
     // .. sort
     mox = mox.sort( (a,b) => a.j > b.j ? 1 : -1 );
 
+    return mox;
+
+}
+
+// .. ======================================================================
+
+function cndMotor ( keys: string[], miscDB: TS.db ) {
+
+    let _cnd = ( x: TS.db_item ) => {
+        let state = false;
+        if ( typeof x.d === "string" )
+            for ( let k of keys ) 
+                if ( x.d.includes(k) ) 
+                    state = true;
+        return state;
+    }
+
+    // .. create new Book
+    let newBook = miscDB.filter( x => _cnd(x) );
+    // .. trim miscDB
+    miscDB = miscDB.filter( x => !_cnd(x) );
+
+    return [ newBook, miscDB ];
+
+}
+
+// .. ======================================================================
+
+function bookSaver ( books: TS.bookKeys, order: TS.source[], db: TS.db ) {
+
+    let newBook: TS.db,
+        library: { [key in TS.source]: TS.db } = {} as any,
+        keys: string[],
+        cDB: TS.cDB = {},
+        miscDB: TS.db,
+        mox: TS.db = [],
+        summery = {},
+        c = 0;
+
+    for ( let p of order ) {
+        if ( p === "الکافی" ) {
+            newBook = db.filter( x => x.j <= storage.db_kafi.length );
+            miscDB = db.filter( x => x.j > storage.db_kafi.length );
+        }
+        else if ( p !== "متفرقه" ) {
+            keys = books[ p ];
+            [ newBook, miscDB ] = cndMotor ( keys, miscDB );
+        }
+        else {
+            newBook = miscDB;
+        }
+        library[ p ] = newBook;
+        mox = [ ...mox, ...newBook ];
+    }
+
     // .. allocate n index
     for ( let i=0; i<mox.length; i++ ) mox[i].n = i+1;
 
-    // .. save it
-    storage.db_save( mox, "ready", "mox" );
+    // .. cDB & trim
+    for ( let title of Object.keys( library ) ) {
+
+        for ( let p of library[ title ] ) {
+            cDB[ p.n ] = p.cDB;
+            delete p.cDB;
+            delete p.j;
+        }
+
+        c += library[ title ].length;
+        summery[ "$ Book " + title + " is "] = library[ title ].length;
+
+    }
+
+    console.table( summery );
+    console.table( { passed: c === db.length ? "Yes" : "No" }  );
+
+    // .. save books
+    for ( let p of order ) storage.db_save( library[p], "ready", p );
+    // .. save CDB
+    storage.db_save( cDB, "ready", "cDB" );
 
 }
+
+// .. ======================================================================
+
+export function dbExporter ( db: TS.db ) {
+
+    let order: TS.source[],
+        keys: string[],
+        keysBox: { [key in TS.source]: string[] } = {} as any ;
+
+    keys = [ "نهج الفصاحه","نهج الفصاحة" ];
+    keysBox[ "نهج‌الفصاحة" ] = keys;
+
+    keys = [ "نهج البلاغه","نهج‌البلاغه","نهج‌ البلاغه","شرح نهج البلاغة","نهج البلاغة","نهج البلاغ" ];
+    keysBox[ "نهج‌البلاغة" ] = keys;
+
+    keys = [ "غررالحکم","غرر الحکم","غرر الحكم","غررالحكم","منتخب الغرر","منتخاب الغرر","شرح غرر" ];
+    keysBox[ "غررالحکم" ] = keys;
+
+    keys = [ "كنز العمّال","كنزالعّمال","كنز العمال","کنز العمّال","کنز العمال","کنزالعمال","کنزالعمّال","کنزالعمّال","کنز العال","کنزل العمّال","كنزالعمال","كنزالعمّال"];
+    keysBox[ "كنز‌العمّال" ] = keys;
+
+    keys = [ "بحار الأنوار","بحارالأنوار","بحارالانوار","في البحار","بحار الانوار","البحار :","نقل از بحار","بحارالانور" ];
+    keysBox[ "بحار‌الأنوار" ] = keys;
+
+    keys = [ "تحف العقول" ];
+    keysBox[ "تحف‌العقول" ] = keys;
+
+    keys = [ "وسائل الشيعه", "وسائل الشیعه", "وسائل الشیعة", "وسائل الشّیعه" ];
+    keysBox[ "وسائل‌الشيعه" ] = keys;
+
+    order = [
+        "الکافی",
+        "نهج‌الفصاحة",
+        "نهج‌البلاغة",
+        "غررالحکم",
+        "كنز‌العمّال",
+        "تحف‌العقول",
+        "بحار‌الأنوار",
+        "وسائل‌الشيعه",
+        "متفرقه"
+    ];
+
+    bookSaver ( keysBox, order, db );
+
+}
+
+// .. ======================================================================
+
+export function notify ( title = " Parser Script", end?: boolean ) {
+
+    const version = "2.0.5";
+    let pad = "        ",
+        msg = "";
+
+
+    if ( end ) {
+        console.log( "" );
+        console.timeEnd( "App Clock" );
+        msg = "##### " + pad + "   Done :)    " + pad + " #####\n";
+    }
+    else {
+        console.clear();
+        msg += "##### " + pad + title + pad + " #####";
+        msg += '\n';
+        msg += "###--     " + pad + "v." + version + pad + "    --###\n";
+    }
+
+    console.log(msg);
+
+}
+
+// .. ======================================================================

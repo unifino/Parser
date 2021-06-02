@@ -42,7 +42,7 @@ export function update () {
 
 // .. ======================================================================
 
-export function db_save ( db: TS.db, path: string, name: TS.source ) {
+export function db_save ( db: TS.db|TS.cDB, path: string, name: TS.source ) {
     // .. write down db
     path = "src/db/" + path + "/" + name + ".json";
     fs.writeFileSync( path, JSON.stringify( db, null, "\t" ) );

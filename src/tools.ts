@@ -681,6 +681,7 @@ function _h ( str: string ) {
     str = str.replace( /\(علیه السلام\)/g, " عليه‌السلام " );
     str = str.replace( /علیه السلام/g, " عليه‌السلام " );
     str = str.replace( /- صلى‌الله‌عليه‌وآله‌وسلم -/g, " صلى‌الله‌عليه‌وآله‌وسلم " );
+    str = str.replace( /- صلّي الله عليه و آله -/g, " صلى‌الله‌عليه‌وآله‌وسلم " );
 
     str = str.replace( /\. \. \./g, " ... " );
     str = str.replace( /  +/g, " " );

@@ -657,6 +657,8 @@ export function finalEditor ( db: TS.db ) {
             p.d = basic_tools.arabicDigits( "الکافی، الحدیث: " + p.d );
 
         if ( p.a.startsWith( "ـ" ) ) p.a = p.a.slice(1);
+        if ( p.a.startsWith( ":" ) ) p.a = p.a.slice(1);
+
         p.a = p.a.replace( /ـ :/g , ":" );
         p.a = p.a.replace( /«/g, "<Q> )" );
         p.a = p.a.replace( /»/g, "( </Q>" );
@@ -671,6 +673,7 @@ export function finalEditor ( db: TS.db ) {
 
 function _h ( str: string ) {
 
+    str = str.replace( /\( عليه‌السلام \)/g, " عليه‌السلام " );
     str = str.replace( /- علیها السلام -/g, " عليها‌السلام " );
     str = str.replace( /علیها السلام/g, " عليها‌السلام " );
     str = str.replace( /عليهم السلام/g, " عليهم‌السلام " );
@@ -686,9 +689,10 @@ function _h ( str: string ) {
     str = str.replace( /علیه السّلام/g, " عليه‌السلام " );
     str = str.replace( /(صلی الله علیه و آله و سلم)/g, " صلى‌الله‌عليه‌وآله‌وسلم " );
     str = str.replace( /صلی الله علیه و آله و سلم/g, " صلى‌الله‌عليه‌وآله‌وسلم " );
-    str = str.replace( /صلی الله علیه و آله /g, " صلى‌الله‌عليه‌وآله‌وسلم " );
-    str = str.replace( /\( عليه‌السلام \)/g, " عليه‌السلام " );
-
+    str = str.replace( /صلی الله علیه و آله/g, " صلى‌الله‌عليه‌وآله‌وسلم " );
+    str = str.replace( /- رَحِمَهُ اللهُ -/g, " رحمه‌الله " );
+    str = str.replace( /رَحِمَهُ اللهُ/g, " رحمه‌الله " );
+    
     str = str.replace( /\. \. \./g, " ... " );
     str = str.replace( /  +/g, " " );
     str = str.trim();

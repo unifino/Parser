@@ -670,7 +670,7 @@ export function finalEditor ( db: TS.db ) {
 }
 
 function _h ( str: string ) {
-    
+
     str = str.replace( /- علیها السلام -/g, " عليها‌السلام " );
     str = str.replace( /علیها السلام/g, " عليها‌السلام " );
     str = str.replace( /عليهم السلام/g, " عليهم‌السلام " );
@@ -687,9 +687,12 @@ function _h ( str: string ) {
     str = str.replace( /(صلی الله علیه و آله و سلم)/g, " صلى‌الله‌عليه‌وآله‌وسلم " );
     str = str.replace( /صلی الله علیه و آله و سلم/g, " صلى‌الله‌عليه‌وآله‌وسلم " );
     str = str.replace( /صلی الله علیه و آله /g, " صلى‌الله‌عليه‌وآله‌وسلم " );
+    str = str.replace( /\( عليه‌السلام \)/g, " عليه‌السلام " );
 
     str = str.replace( /\. \. \./g, " ... " );
     str = str.replace( /  +/g, " " );
     str = str.trim();
+
     return str;
+
 }

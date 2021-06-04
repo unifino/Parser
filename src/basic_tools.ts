@@ -81,6 +81,13 @@ function erabTrimmer ( str ) {
 
 // .. ======================================================================
 
+export function arabicDigits ( str: string ) {
+    const base = [ '۰','۱','۲','۳','۴','۵','۶','۷','۸','۹' ];
+    return str.replace( /[0-9]/g, w => base[+w] );
+}
+
+// .. ======================================================================
+
 export function cutSomePhrases ( str: string ) {
 
     str = str.replace( /رسول الله صلی‌الله‌علیه‌واله‌وسلم/g , " " );

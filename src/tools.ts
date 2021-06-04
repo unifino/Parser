@@ -647,3 +647,43 @@ export function notify ( title = " Parser Script", end?: boolean ) {
 }
 
 // .. ======================================================================
+
+
+export function finalEditor ( db: TS.db ) {
+    for ( let p of db ) {
+
+        // .. assign source of Kafi
+        if ( p.j <= storage.db_kafi.length ) 
+            p.d = basic_tools.arabicDigits( "الکافی، الحدیث: " + p.d );
+
+        if ( p.a.startsWith( "ـ" ) ) p.a = p.a.slice(1);
+        p.a = p.a.replace( /ـ :/g , ":" );
+        p.a = p.a.replace( /«/g, "<Q> )" );
+        p.a = p.a.replace( /»/g, "( </Q>" );
+        p.a = _h( p.a );
+
+        if ( p.b ) p.b = _h( p.b );
+        if ( typeof p.d === "string" ) p.d = _h( p.d );
+
+    }
+    return db;
+}
+
+function _h ( str: string ) {
+    
+    str = str.replace( /- علیها السلام -/g, " عليها‌السلام " );
+    str = str.replace( /علیها السلام/g, " عليها‌السلام " );
+    str = str.replace( /عليهم السلام/g, " عليهم‌السلام " );
+    str = str.replace( /\(علیهما السلام\)/g, " عليهما‌السلام " );
+    str = str.replace( /علیهما السلام/g, " عليهما‌السلام " );
+    str = str.replace( /علیهم السلام/g, " عليهم‌السلام " );
+    str = str.replace( /علیه‏ السلام/g, " عليه‌السلام " );
+    str = str.replace( /\(علیه السلام\)/g, " عليه‌السلام " );
+    str = str.replace( /علیه السلام/g, " عليه‌السلام " );
+    str = str.replace( /- صلى‌الله‌عليه‌وآله‌وسلم -/g, " صلى‌الله‌عليه‌وآله‌وسلم " );
+
+    str = str.replace( /\. \. \./g, " ... " );
+    str = str.replace( /  +/g, " " );
+    str = str.trim();
+    return str;
+}

@@ -570,7 +570,10 @@ function bookSaver ( books: TS.bookKeys, order: TS.source[], db: TS.db ) {
     console.table( { passed: c === db.length ? "Yes" : "No" }  );
 
     // .. save books
-    for ( let p of order ) storage.db_save( library[p], "ready", p );
+    for ( let p of order ) {
+        storage.db_save( library[p], "ready", p );
+        storage.db_replace( library[p], p );
+    }
     // .. save CDB
     storage.db_save( cDB, "ready", "cDB" );
 
@@ -673,6 +676,7 @@ export function finalEditor ( db: TS.db ) {
 
 function _h ( str: string ) {
 
+    str = str.replace( /عز و جل/g, " عزوجل " );
     str = str.replace( /\( عليه‌السلام \)/g, " عليه‌السلام " );
     str = str.replace( /- علیها السلام -/g, " عليها‌السلام " );
     str = str.replace( /علیها السلام/g, " عليها‌السلام " );

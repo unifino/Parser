@@ -1,3 +1,10 @@
+export type newDB = {
+    a: string,
+    b: string,
+    c?: number,
+    d?: string
+}[];
+
 export type db_item = {
     a: string,
     b: string,

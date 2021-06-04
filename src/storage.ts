@@ -18,26 +18,28 @@ export let single_50: TS.s;
 export let double_50: TS.d;
 export let multi_50: TS.m;
 export let other_50: TS.m;
+export let mox: TS.db;
 
 // .. ======================================================================
 
 export function update () {
-    db_kafi = JSON.parse(fs.readFileSync("src/db/base/Al-Kafi.json",'utf8'));
-    db_misc = JSON.parse(fs.readFileSync("src/db/base/Misc.json",'utf8'));
-    R       = JSON.parse(fs.readFileSync("src/db/ready/R.json",'utf8'));
+    mox = JSON.parse(fs.readFileSync("src/db/base/mox.json",'utf8'));
     try {
-        single = JSON.parse(fs.readFileSync("src/db/tunned/single.json",'utf8'));
-        double = JSON.parse(fs.readFileSync("src/db/tunned/double.json",'utf8'));
-        m_1    = JSON.parse(fs.readFileSync("src/db/tmp/m_1.json",'utf8'));
-        m_2    = JSON.parse(fs.readFileSync("src/db/tmp/m_2.json",'utf8'));
-        multi  = JSON.parse(fs.readFileSync("src/db/tunned/multi.json",'utf8'));
-        other  = JSON.parse(fs.readFileSync("src/db/tunned/other.json",'utf8'));
+        db_kafi   = JSON.parse(fs.readFileSync("src/db/tmp/Al-Kafi.json",'utf8'));
+        db_misc   = JSON.parse(fs.readFileSync("src/db/tmp/Misc.json",'utf8'));
+        R         = JSON.parse(fs.readFileSync("src/db/ready/R.json",'utf8'));
+        single    = JSON.parse(fs.readFileSync("src/db/tunned/single.json",'utf8'));
+        double    = JSON.parse(fs.readFileSync("src/db/tunned/double.json",'utf8'));
+        m_1       = JSON.parse(fs.readFileSync("src/db/tmp/m_1.json",'utf8'));
+        m_2       = JSON.parse(fs.readFileSync("src/db/tmp/m_2.json",'utf8'));
+        multi     = JSON.parse(fs.readFileSync("src/db/tunned/multi.json",'utf8'));
+        other     = JSON.parse(fs.readFileSync("src/db/tunned/other.json",'utf8'));
         single_50 = JSON.parse(fs.readFileSync("src/db/tunned/single_50.json",'utf8'));
         double_50 = JSON.parse(fs.readFileSync("src/db/tunned/double_50.json",'utf8'));
         multi_50  = JSON.parse(fs.readFileSync("src/db/tunned/multi_50.json",'utf8'));
         other_50  = JSON.parse(fs.readFileSync("src/db/tunned/other_50.json",'utf8'));
+        grand_db = [ ...db_kafi, ...db_misc ];
     } catch {}
-    grand_db = [ ...db_kafi, ...db_misc ];
 }
 
 // .. ======================================================================

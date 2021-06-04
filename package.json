@@ -5,8 +5,7 @@
     "main": "index.js",
     "scripts": {
         "start": "node --inspect=5858 -r ts-node/register ./src/server.ts",
-        "start_1": "node --inspect=5858 -r ts-node/register ./src/server1.ts",
-        "start_2": "node --inspect=5858 -r ts-node/register ./src/server2.ts",
+        "old_server": "node --inspect=5858 -r ts-node/register ./src/old_server.ts",
         "start:watch": "nodemon",
         "build": "tsc"
     },

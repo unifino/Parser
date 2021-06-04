@@ -27,11 +27,51 @@ export function addTmpProps ( db: TS.db ) {
         cell.tmp_kalamat = basic_tools.deleteSomeWords( tmp_2 );
     }
 
+    return db;
+
 }
 
 // .. ======================================================================
 
-export function R ( i: number, j: number, db: TS.db ) {
+export function R ( newDB: TS.db, reference: TS.db ) {
+
+    let R: TS.R[] = [],
+        title = " R Calculation ";
+
+    for ( let i=0; i<newDB.length; i++ ) {
+        timer( newDB.length, i, new Date().getTime(), title );
+        for ( let x of reference ) {
+            R.push( R_Calc( newDB[i], x ) );
+        }
+    }
+
+    return R;
+
+}
+
+// .. ======================================================================
+
+export function R_Calc ( A: TS.db_item, X: TS.db_item ): TS.R {
+
+    let partsA = A.tmp_kalamat.slice(0);
+    let partsX = X.tmp_kalamat.slice(0);
+    let totalParts = partsA.length + partsX.length;
+
+    // .. trimming by A on (X and A)
+    pAOX( partsA, partsX );
+    partsA = partsA.filter( a => a );
+
+    let totalRemains = partsA.length + partsX.length;
+    let correlationRate = ( (totalParts - totalRemains) / totalParts )*100;
+
+    let r: TS.R = [ A.j, X.n, (correlationRate*100|0)/100 ];
+
+    return r;
+
+}
+// .. ======================================================================
+
+export function R_Calc__old ( i: number, j: number, db: TS.db ): TS.R {
 
     let partsA = db[i].tmp_kalamat.slice(0);
     let partsX = db[j].tmp_kalamat.slice(0);
@@ -46,7 +86,7 @@ export function R ( i: number, j: number, db: TS.db ) {
 
     let r: TS.R = [ i, j, (correlationRate*100|0)/100 ];
 
-    return R;
+    return r;
 
 }
 
@@ -535,8 +575,8 @@ function bookSaver ( books: TS.bookKeys, order: TS.source[], db: TS.db ) {
 
     for ( let p of order ) {
         if ( p === "الکافی" ) {
-            newBook = db.filter( x => x.j <= storage.db_kafi.length );
-            miscDB = db.filter( x => x.j > storage.db_kafi.length );
+            newBook = db.filter( (x,i) => i<14647 );
+            miscDB = db.filter( (x,i) => i>=14647 );
         }
         else if ( p !== "متفرقه" ) {
             keys = books[ p ];
@@ -551,6 +591,7 @@ function bookSaver ( books: TS.bookKeys, order: TS.source[], db: TS.db ) {
 
     // .. allocate n index
     for ( let i=0; i<mox.length; i++ ) mox[i].n = i+1;
+    storage.info_save( mox, "base", "mox" );
 
     // .. cDB & trim
     for ( let title of Object.keys( library ) ) {
@@ -567,7 +608,7 @@ function bookSaver ( books: TS.bookKeys, order: TS.source[], db: TS.db ) {
     }
 
     console.table( summery );
-    console.table( { passed: c === db.length ? "Yes" : "No" }  );
+    console.table( { passed: c === db.length ? "Yes" : ("No" + (c - db.length)) }  );
 
     // .. save books
     for ( let p of order ) {
@@ -651,30 +692,37 @@ export function notify ( title = " Parser Script", end?: boolean ) {
 
 // .. ======================================================================
 
-
 export function finalEditor ( db: TS.db ) {
     for ( let p of db ) {
 
-        // .. assign source of Kafi
-        if ( p.j <= storage.db_kafi.length ) 
-            p.d = basic_tools.arabicDigits( "الکافی، الحدیث: " + p.d );
+        // // .. assign source of Kafi
+        // if ( p.j <= storage.db_kafi.length ) 
+        //     p.d = basic_tools.arabicDigits( "الکافی، الحدیث: " + p.d );
 
-        if ( p.a.startsWith( "ـ" ) ) p.a = p.a.slice(1);
-        if ( p.a.startsWith( ":" ) ) p.a = p.a.slice(1);
+        p.a = _h_00( p.a );
+        p.a = _h_01( p.a );
 
-        p.a = p.a.replace( /ـ :/g , ":" );
-        p.a = p.a.replace( /«/g, "<Q> )" );
-        p.a = p.a.replace( /»/g, "( </Q>" );
-        p.a = _h( p.a );
-
-        if ( p.b ) p.b = _h( p.b );
-        if ( typeof p.d === "string" ) p.d = _h( p.d );
+        if ( p.b ) p.b = _h_01( p.b );
+        if ( typeof p.d === "string" ) p.d = _h_01( p.d );
 
     }
     return db;
 }
 
-function _h ( str: string ) {
+// .. ======================================================================
+
+export function _h_00 ( str: string ) {
+    if ( str.startsWith( "ـ" ) ) str = str.slice(1);
+    if ( str.startsWith( ":" ) ) str = str.slice(1);
+    str = str.replace( /ـ :/g , ":" );
+    str = str.replace( /«/g, "<Q> )" );
+    str = str.replace( /»/g, "( </Q>" );
+    return str;
+}
+
+// .. ======================================================================
+
+export function _h_01 ( str: string ) {
 
     str = str.replace( /عز و جل/g, " عزوجل " );
     str = str.replace( /\( عليه‌السلام \)/g, " عليه‌السلام " );
@@ -704,3 +752,35 @@ function _h ( str: string ) {
     return str;
 
 }
+
+// .. ======================================================================
+
+export function newDBConverter ( newDB: TS.newDB ) {
+    let db: TS.db = [];
+    db = newDB.map( (x,j) => {
+        return { 
+            a: x.a,
+            b: x.b,
+            c: x.c || null,
+            d: x.d || null,
+            n: -1,
+            tmp_kalamat: null,
+            tmp_inFarsiLetter: null,
+            j: j,
+            cDB: null
+        }
+    } );
+    return db;
+}
+
+// .. ======================================================================
+
+export function dbCleaner ( db: TS.db ) {
+    for ( let p of db ) {
+        delete p.cDB;
+        delete p.tmp_inFarsiLetter;
+        delete p.tmp_kalamat;
+    }
+}
+
+// .. ======================================================================

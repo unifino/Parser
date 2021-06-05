@@ -703,6 +703,7 @@ export function finalEditor ( db: TS.db ) {
 
         p.a = _h_00( p.a );
         p.a = _h_01( p.a );
+        p.a = _h_02( p.a );
 
         if ( p.b ) p.b = _h_01( p.b );
         if ( typeof p.d === "string" ) p.d = _h_01( p.d );
@@ -757,6 +758,17 @@ export function _h_01 ( str: string ) {
 
     return str;
 
+}
+
+// .. ======================================================================
+
+function _h_02 ( str: string ) {
+
+    for ( let e of basic_tools.erabs ) {
+        let regx = new RegExp( " " +e, "g" );
+        str = str.replace( regx, e );
+    }
+    return str;
 }
 
 // .. ======================================================================

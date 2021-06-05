@@ -576,10 +576,10 @@ function bookSaver ( books: TS.bookKeys, order: TS.source[], db: TS.db ) {
     for ( let p of order ) {
         if ( p === "الکافی" ) {
             newBook = db.filter( (x,i) => i<14647 );
-            // // .. assign source of Kafi
-            // for ( let p of newBook ) 
-            //     if ( typeof p.d === "number" )
-            //         p.d = basic_tools.arabicDigits("الکافی، الحدیث: " +p.d);
+            // .. assign source of Kafi
+            for ( let p of newBook ) 
+                if ( typeof p.d === "number" )
+                    p.d = basic_tools.arabicDigits( "الکافی، الحدیث: " +p.d );
             miscDB = db.filter( (x,i) => i>=14647 );
         }
         else if ( p !== "متفرقه" ) {
@@ -595,7 +595,9 @@ function bookSaver ( books: TS.bookKeys, order: TS.source[], db: TS.db ) {
 
     // .. allocate n index
     for ( let i=0; i<mox.length; i++ ) mox[i].n = i+1;
-    storage.info_save( mox, "base", "mox" );
+    // ! IMPORTANT .. SAVE MOX REFERENCE FILE
+    storage.db_save( mox, "base", "mox" );
+    // ! IMPORTANT .. SAVE MOX REFERENCE FILE
 
     // .. cDB & trim
     for ( let title of Object.keys( library ) ) {
@@ -746,6 +748,7 @@ export function _h_01 ( str: string ) {
     str = str.replace( /رَحِمَهُ اللهُ/g, " رحمه‌الله " );
 
     str = str.replace( /\. \. \./g, " ... " ).replace( /  +/g, " " );
+    str = str.replace( /\.\. \./g, " ... " ).replace( /  +/g, " " );
     str = str.replace( /\. ،/g, " ، " ).replace( /  +/g, " " );
     str = str.replace( /\. :/g, " . " ).replace( /  +/g, " " );
     str = str.replace( /\. \./g, " . " ).replace( /  +/g, " " );

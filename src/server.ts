@@ -53,8 +53,6 @@ if ( newDB.length ) {
     else {
         tools.dbCleaner( newDB, true );
         mox = [ ...storage.mox, ...newDB ];
-        storage.db_save( mox, "base", "mox" as any );
-        storage.update();
     }
 }
 // .. ======================================================================

@@ -63,6 +63,7 @@ export type source =
     | "بحار‌الأنوار"
     | "تحف‌العقول"
     | "وسائل‌الشيعه"
+    | "mox"
     ;
 
 export type bookKeys = { [key in source]: string[] };

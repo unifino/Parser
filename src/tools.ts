@@ -36,7 +36,7 @@ export function addTmpProps ( db: TS.db ) {
 export function R ( newDB: TS.db, reference: TS.db ) {
 
     let R: TS.R[] = [],
-        title = " R Calculation ";
+        title = " R Calculation";
 
     for ( let i=0; i<newDB.length; i++ ) {
         timer( newDB.length, i, new Date().getTime(), title );
@@ -593,9 +593,11 @@ function bookSaver ( books: TS.bookKeys, order: TS.source[], db: TS.db ) {
         mox = [ ...mox, ...newBook ];
     }
 
-    // .. allocate n index
-    for ( let i=0; i<mox.length; i++ ) mox[i].n = i+1;
     // ! IMPORTANT .. SAVE MOX REFERENCE FILE
+    // .. get last n
+    let n = mox.reduce( (n,x) => { if( x.n && x.n > n ) n = x.n; return n }, 0 );
+    // .. allocate new N index
+    for ( let i=0; i<mox.length; i++ ) if ( !~mox[i].n ) mox[i].n = n++ +1;
     storage.db_save( mox, "base", "mox" );
     // ! IMPORTANT .. SAVE MOX REFERENCE FILE
 
@@ -715,11 +717,10 @@ export function finalEditor ( db: TS.db ) {
 // .. ======================================================================
 
 export function _h_00 ( str: string ) {
-    if ( str.startsWith( "ـ" ) ) str = str.slice(1);
-    if ( str.startsWith( ":" ) ) str = str.slice(1);
-    str = str.replace( /ـ :/g , ":" );
+    str = str.replace( /ـ/g , "" );
     str = str.replace( /«/g, "<Q> )" );
     str = str.replace( /»/g, "( </Q>" );
+    if ( str.startsWith( ":" ) ) str = str.slice(1);
     return str;
 }
 
@@ -727,6 +728,7 @@ export function _h_00 ( str: string ) {
 
 export function _h_01 ( str: string ) {
 
+    str = str.replace( /عزّوجلّ/g, " عزوجل " );
     str = str.replace( /عز و جل/g, " عزوجل " );
     str = str.replace( /\( عليه‌السلام \)/g, " عليه‌السلام " );
     str = str.replace( /- علیها السلام -/g, " عليها‌السلام " );
@@ -744,10 +746,11 @@ export function _h_01 ( str: string ) {
     str = str.replace( /علیه السّلام/g, " عليه‌السلام " );
     str = str.replace( /(صلی الله علیه و آله و سلم)/g, " صلى‌الله‌عليه‌وآله‌وسلم " );
     str = str.replace( /صلی الله علیه و آله و سلم/g, " صلى‌الله‌عليه‌وآله‌وسلم " );
+    str = str.replace( /صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ/g, " صلى‌الله‌عليه‌وآله‌وسلم " );
     str = str.replace( /صلی الله علیه و آله/g, " صلى‌الله‌عليه‌وآله‌وسلم " );
     str = str.replace( /- رَحِمَهُ اللهُ -/g, " رحمه‌الله " );
     str = str.replace( /رَحِمَهُ اللهُ/g, " رحمه‌الله " );
-
+    
     str = str.replace( /\. \. \./g, " ... " ).replace( /  +/g, " " );
     str = str.replace( /\.\. \./g, " ... " ).replace( /  +/g, " " );
     str = str.replace( /\. ،/g, " ، " ).replace( /  +/g, " " );

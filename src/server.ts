@@ -50,14 +50,16 @@ if ( newDB.length ) {
         console.log("CODE IT!");
     }
     // .. ----------------------------------------------------------------
-    tools.dbCleaner( newDB );
-    mox = [ ...storage.mox, ...newDB ];
-    storage.db_save( mox, "base", "mox" as any );
-    storage.update();
+    else {
+        tools.dbCleaner( newDB, true );
+        mox = [ ...storage.mox, ...newDB ];
+        storage.db_save( mox, "base", "mox" as any );
+        storage.update();
+    }
 }
 // .. ======================================================================
 // .. last text edits
-tools.dbCleaner( mox );
+tools.dbCleaner( mox, false );
 mox = tools.finalEditor( mox );
 // .. save it
 tools.dbExporter( mox );

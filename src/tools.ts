@@ -576,6 +576,10 @@ function bookSaver ( books: TS.bookKeys, order: TS.source[], db: TS.db ) {
     for ( let p of order ) {
         if ( p === "الکافی" ) {
             newBook = db.filter( (x,i) => i<14647 );
+            // // .. assign source of Kafi
+            // for ( let p of newBook ) 
+            //     if ( typeof p.d === "number" )
+            //         p.d = basic_tools.arabicDigits("الکافی، الحدیث: " +p.d);
             miscDB = db.filter( (x,i) => i>=14647 );
         }
         else if ( p !== "متفرقه" ) {
@@ -695,10 +699,6 @@ export function notify ( title = " Parser Script", end?: boolean ) {
 export function finalEditor ( db: TS.db ) {
     for ( let p of db ) {
 
-        // // .. assign source of Kafi
-        // if ( p.j <= storage.db_kafi.length ) 
-        //     p.d = basic_tools.arabicDigits( "الکافی، الحدیث: " + p.d );
-
         p.a = _h_00( p.a );
         p.a = _h_01( p.a );
 
@@ -744,9 +744,12 @@ export function _h_01 ( str: string ) {
     str = str.replace( /صلی الله علیه و آله/g, " صلى‌الله‌عليه‌وآله‌وسلم " );
     str = str.replace( /- رَحِمَهُ اللهُ -/g, " رحمه‌الله " );
     str = str.replace( /رَحِمَهُ اللهُ/g, " رحمه‌الله " );
-    
-    str = str.replace( /\. \. \./g, " ... " );
-    str = str.replace( /  +/g, " " );
+
+    str = str.replace( /\. \. \./g, " ... " ).replace( /  +/g, " " );
+    str = str.replace( /\. ،/g, " ، " ).replace( /  +/g, " " );
+    str = str.replace( /\. :/g, " . " ).replace( /  +/g, " " );
+    str = str.replace( /\. \./g, " . " ).replace( /  +/g, " " );
+
     str = str.trim();
 
     return str;
@@ -775,9 +778,11 @@ export function newDBConverter ( newDB: TS.newDB ) {
 
 // .. ======================================================================
 
-export function dbCleaner ( db: TS.db ) {
+export function dbCleaner ( db: TS.db, deep: boolean ) {
     for ( let p of db ) {
-        delete p.cDB;
+        if ( deep ) delete p.cDB;
+        delete p.j;
+        if ( p.cDB ) for ( let q of p.cDB ) delete q.j;
         delete p.tmp_inFarsiLetter;
         delete p.tmp_kalamat;
     }

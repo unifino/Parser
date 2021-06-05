@@ -734,6 +734,7 @@ export function _h_01 ( str: string ) {
     str = str.replace( /- علیها السلام -/g, " عليها‌السلام " );
     str = str.replace( /علیها السلام/g, " عليها‌السلام " );
     str = str.replace( /عليهم السلام/g, " عليهم‌السلام " );
+    str = str.replace( /- عليهما السلام -/g, " عليهما‌السلام " );
     str = str.replace( /\(علیهما السلام\)/g, " عليهما‌السلام " );
     str = str.replace( /علیهما السلام/g, " عليهما‌السلام " );
     str = str.replace( /علیهم السلام/g, " عليهم‌السلام " );

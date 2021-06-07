@@ -729,6 +729,7 @@ export function _h_00 ( str: string ) {
 export function _h_01 ( str: string ) {
 
     str = str.replace( /عَزَّوَجلَّ \.\.\./g, " عزوجل " );
+    str = str.replace( /عَزَّوجلَّ/g, " عزوجل " );
     str = str.replace( /عزّوجلّ/g, " عزوجل " );
     str = str.replace( /عز و جل/g, " عزوجل " );
     str = str.replace( /\( عليه‌السلام \)/g, " عليه‌السلام " );
@@ -752,17 +753,15 @@ export function _h_01 ( str: string ) {
     str = str.replace( /صلی الله علیه و آله/g, " صلى‌الله‌عليه‌وآله‌وسلم " );
     str = str.replace( /- رَحِمَهُ اللهُ -/g, " رحمه‌الله " );
     str = str.replace( /رَحِمَهُ اللهُ/g, " رحمه‌الله " );
-    
 
     str = str.replace( /قَالَ : ثُمَّ قَالَ :/g, " قَالَ : " );
-
 
     str = str.replace( /\. \. \./g, " ... " ).replace( /  +/g, " " );
     str = str.replace( /\.\. \./g, " ... " ).replace( /  +/g, " " );
     str = str.replace( /\. ،/g, " ، " ).replace( /  +/g, " " );
     str = str.replace( /\. :/g, " . " ).replace( /  +/g, " " );
     str = str.replace( /\. \./g, " . " ).replace( /  +/g, " " );
-     
+
     str = str.trim();
 
     return str;

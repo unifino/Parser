@@ -61,18 +61,10 @@ tools.dbCleaner( mox, false );
 mox = tools.finalEditor( mox );
 // .. save it
 tools.dbExporter( mox );
+// .. reset new_JSON
+let temp = { a:"", b:"", c:null, d:"" };
+storage.info_save( [temp,temp], "base", "new" );
 // .. save it
-// .. done! :)
-// .. ======================================================================
-
-
-// newDB.forEach( x => {
-//     console.log(x);
-    
-// } )
-
-
-// .. ======================================================================
 // .. done! :)
 // .. ======================================================================
 tools.notify( null, true );

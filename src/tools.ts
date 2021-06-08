@@ -727,7 +727,8 @@ export function _h_00 ( str: string ) {
 // .. ======================================================================
 
 export function _h_01 ( str: string ) {
-
+    
+    str = str.replace( /عَزَّ وَ جَلَّ/g, " عزوجل " );
     str = str.replace( /عَزَّوَجلَّ \.\.\./g, " عزوجل " );
     str = str.replace( /عَزَّوجلَّ/g, " عزوجل " );
     str = str.replace( /عزّوجلّ/g, " عزوجل " );

@@ -706,9 +706,16 @@ export function finalEditor ( db: TS.db ) {
         p.a = _h_00( p.a );
         p.a = _h_01( p.a );
         p.a = _h_02( p.a );
+        p.a = basic_tools.arabicDigits( p.a );
 
-        if ( p.b ) p.b = _h_01( p.b );
-        if ( typeof p.d === "string" ) p.d = _h_01( p.d );
+        if ( p.b ) {
+            p.b = _h_01( p.b );
+            p.b = basic_tools.arabicDigits( p.b );
+        }
+        if ( typeof p.d === "string" ) {
+            p.d = _h_01( p.d );
+            p.d = basic_tools.arabicDigits( p.d );
+        }
 
     }
     return db;
@@ -727,7 +734,7 @@ export function _h_00 ( str: string ) {
 // .. ======================================================================
 
 export function _h_01 ( str: string ) {
-    
+
     str = str.replace( /عَزَّ وَ جَلَّ/g, " عزوجل " );
     str = str.replace( /عَزَّوَجلَّ \.\.\./g, " عزوجل " );
     str = str.replace( /عَزَّوجلَّ/g, " عزوجل " );

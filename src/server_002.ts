@@ -1,233 +1,266 @@
 import * as tools                       from "./tools";
 import * as TS                          from "./types";
 import * as storage                     from "./storage";
+import * as basic_tools                 from "./basic_tools";
 import * as fs                          from "fs";
-// .. ======================================================================
-
-let SimpleHadisBox = [];
-let HadisBox = [];
-let PagesBox = [];
-
 // .. ======================================================================
 
 export async function init () {
 
-    for ( let i=1; i<=29; i ++ ) await readSrcBook (i);
+    fs.rmSync( "src/db/tmp/01.txt", { force: true } );
+    fs.rmSync( "src/db/tmp/02.txt", { force: true } );
 
-    // let tmpBox = [];
-    // for ( let lineNum in SimpleHadisBox ) {
-    //     let hasNum = id_extractor ( SimpleHadisBox[ lineNum ] );
-    //     if ( hasNum ) {
-    //         HadisBox.push( tmpBox );
-    //         tmpBox = [];
-    //         tmpBox.push( SimpleHadisBox[ lineNum ] );
-    //         if ( ( hasNum - HadisBox.length ) ) { 
-    //             console.log( hasNum , HadisBox.length );
-    //             // break;
-    //         }
-    //     }
-    //     else tmpBox.push( SimpleHadisBox[ lineNum ] );
-    // }
-    // HadisBox.push( tmpBox );
+    let textBook: string,
+        book_v0: string[][],
+        book_v1: string[][],
+        set_v1: string[][] = [],
+        set_v2: string[] = [];
 
-    // // .. omit empty cell
-    // if ( !HadisBox[0].length ) HadisBox.shift();
+    for ( let i=1; i<=29; i ++ ) {
+        textBook = readSrcBook(i);
+        book_v0 = getBook_v0( textBook );
+        book_v1 = getBook_v1( book_v0 );
+        set_v1 = [ ...set_v1, ...book_v1 ];
+    }
 
-    // let exp = "../db/tmp/01.json";
-    // fs.writeFileSync( exp, JSON.stringify( HadisBox, null, "\t" ) );
+    for ( let i in set_v1 ) set_v2 = [ ...set_v2, ...set_v1[i] ];
 
-    // console.log( "\n... Done!\n" );
+    for ( let i in set_v2 ) set_v2[i] = pre_id_executer ( set_v2[i] );
+    set_v2 = set_v2.filter( x => x );
+
+    fs.writeFileSync( "src/db/tmp/01.txt", JSON.stringify(set_v2,null,"\t") );
 
 }
 
 // .. ======================================================================
 
-async function readSrcBook ( num: number ) {
+function readSrcBook ( num: number ): string {
 
     console.log( "reading book num: " + num + "...");
 
     let filePath = "src/db/source/وسائل الشيعة/" + num + ".htm";
     // .. check
-    await fs.promises.access( filePath, fs.constants.F_OK )
-    // .. file is found
-    .then( () => {} )
-    // .. file is NOT found
-    .catch( e => console.log(e) );
-
+    fs.accessSync( filePath, fs.constants.R_OK );
     // .. get source
-    let source = fs.readFileSync( filePath , 'utf8' );
+    let txt = fs.readFileSync( filePath, 'utf8' );
+
     // .. cut beginning and end of the book
-    let a = source.indexOf( "<a name='aaa'></a>" );
-    let b = source.indexOf( "<a name='xxx'></a>" );
+    let a = txt.indexOf( "<a name='aaa'></a>" );
+    let b = txt.indexOf( "<a name='xxx'></a>" );
+
     if ( a>0 && b>0 ) {
-        source = source.slice( a, b );
-        source = pureSource2Lines( source );
-        let lines = linesBox( source );
-        fs.writeFileSync( "src/db/tmp/01.txt", JSON.stringify(lines,null,"\t") );
-        // createSimpleHadisBox( source );
+        txt = txt.slice( a, b );
+        txt = lines_PureText( txt );
+        return txt;
     }
-    else console.log( "err-01", a , b )
+    else console.log( "err-01", a, b );
 
 }
 
 // .. purify ===============================================================
 
-function pureSource2Lines ( source: string ) {
+function lines_PureText ( txt: string ) {
+
     // .. remove arabic numbers:
-    source = removeArabicDigits( source );
+    txt = basic_tools.removeArabicDigits( txt );
     // .. remove break-Lines
-    source = source.replace( /\n/g, " " );
+    txt = txt.replace( /\n/g, " " );
     // .. add break-Line
-    source = source.replace( /<p/g, "\n<p" );
-    source = source.replace( /<a/g, "\n<a" );
-    source = source.replace( /<t/g, "\n<t" );
-    source = source.replace( /<\/t/g, "\n</t" );
-    // source = source.replace( /<h1/g, "\n<h1" );
-
-
+    txt = txt.replace( /<p/g, "\n<p" );
+    txt = txt.replace( /<a/g, "\n<a" );
+    txt = txt.replace( /<t/g, "\n<t" );
+    txt = txt.replace( /<\/t/g, "\n</t" );
     // .. remove tables
-    source = source.replace( /<.?t(.*?)>/g, " " );
-    // // .. remove footnote marks
-    // let footNoteSpanRegExp = /<span class=libFootnotenum>(.*?)<\/span>/g;
-    // source = source.replace( footNoteSpanRegExp, " " );
+    txt = txt.replace( /<.?t(.*?)>/g, " " );
+    // .. remove footnote marks
+    let regx = /<span class=libFootnotenum>(.*?)<\/span>/g;
+    txt = txt.replace( regx, " " );
     // .. some trims
-    source = source.replace( /<br clear=all>/g, " " );
-    source = source.replace( /<br>/g, " " );
-    source = source.replace( / +/g, " " );
-    // source = source.replace( /<p class='MsoNormal'>/g, " " );
-    // source = source.replace( /<p><\/p>/g, " " );
-    // source = source.replace( /<p> +<\/p>/g, " " );
-    // source = source.replace( /<b>/g, " " );
-    // source = source.replace( /<\/b>/g, " " );
-    // source = source.replace( /&nbsp;/g, " " );
-    // source = source.replace( /&quot;/g, "\"" );
-    // // .. some edits
-    // source = source.replace( /<p>/g, "<p class=libNormal>" );
-    // source = source.replace( /<p class=libFootnote>__________________<\/p>/g, "<p class=libLine></p>" );
-    // // .. some trims
-    // source = source.replace( /<p class=libNormal><\/p>/g, "" );
-
-    return source;
+    txt = txt.replace( /<br clear=all>/g, " " );
+    txt = txt.replace( /<br>/g, " " );
+    txt = txt.replace( / +/g, " " );
+    return txt;
 
 }
 
 // .. ======================================================================
 
-function linesBox ( source: string ): string[][] {
+function getBook_v0 ( source: string ): string[][] {
 
     let book: string[][] = [],
         tmpPage: string[] = [],
         lines = source.split( "\n" );
 
+    // ..  do some trims
+    for ( let i in lines ) lines[i] = lines[i].trim();
+
+    // .. do the Action f
     for ( let line of lines.filter( x => x ) ) {
 
-        line = line.trim();
-
-        if ( line === "" ) {
-            // .. do nothing
-        }
-        else if ( line.startsWith( "<a name=" ) && line.endsWith( "</a>" ) ) {
+        if ( line.startsWith( "<a name=" ) && line.endsWith( "</a>" ) ) {
+            // .. add Page to the Book
             book.push( tmpPage );
+            // .. get a new Page
             tmpPage = [];
         }
-        else if ( line.startsWith( "<p" ) && line.endsWith( "</p>" ) ) {
-            // tmpPage.push( line );
-        }
-        else {
+        // .. add to the Page
+        else if ( line.startsWith( "<p" ) && line.endsWith( "</p>" ) )
             tmpPage.push( line );
-            console.warn( "\n", line );
-        }
+        // .. report error
+        else console.warn( "\n", line );
 
     }
 
+    // .. return it back
     return book.filter( x => x.length );
 
 }
 
 // .. ======================================================================
 
-function createSimpleHadisBox ( source ) {
+function getBook_v1 ( book: string[][] ) {
 
     // .. remove FootNote Sections
-    for ( let pageNum in PagesBox ) {
-        let x = 0;
-        let p = -1;
-        // .. if this page has One and Just One <p class=libLine>?!
-        for ( let lineNum in PagesBox[ pageNum ] ) {
-            let f = "<p class=libLine>";
-            if ( PagesBox[ pageNum ][ lineNum ].startsWith( f ) ) {
-                x++;
-                p = Number( lineNum );
-            }
+    for ( let i=0; i<book.length; i++ ) {
+
+        let page = book[i];
+        let hr_ID = -1;
+        let hr: RegExpMatchArray;
+        let HR = "<p class=libLine>";
+
+        [ hr, page ] = hrCtr( page, HR );
+
+        // .. page has multiple divide lines!
+        if ( hr.length > 1 ) console.log( "Unexpected Page: ", page );
+        // .. divide page by the LineID
+        else if ( hr.length === 1 ) {
+            hr_ID = page.findIndex( x => x.startsWith(HR) );
+            // .. just Upper-Part of Pages remains!
+            if ( ~hr_ID ) book[i] = page.filter( (x,i) => i < hr_ID );
+            else console.log( "Unexpected HR Location: ", page );
         }
-        if ( x > 1 ) { console.log( "err-02" ); }
-        // .. just Actual Pages remains!
-        if ( x === 1 ) PagesBox[ pageNum ] = PagesBox[ pageNum ].filter( (x,i) => i < p );
+        // .. do nothing
+        else {}
+
+        book[i] = removeAlaemTags( book[i] );
+        book[i] = removeUnimportantLines( book[i] );
+
     }
 
-    // .. remove some other lines
-    for ( let page of PagesBox ) {
-        for ( let lineNum in page ) {
-            // .. remove some lines
-            if ( 
-                page[ lineNum ].startsWith( "<p class=libCenterBold2>" ) ||
-                page[ lineNum ].startsWith( "<p class=Heading1Center>" ) ||
-                page[ lineNum ].startsWith( "<p class=Heading2Center>" ) ||
-                page[ lineNum ].startsWith( "<p class=libFootnote0>(" ) ||
-                page[ lineNum ].startsWith( "<p class=libFootnote0></p>" )
-            )
-                delete page[ lineNum ];
-            // .. if line is ok; check if recognize it?
-            if ( page[ lineNum ] )
-                if ( !page[ lineNum ].startsWith( "<p class=libNormal" ) ) {
-                    if (
-                        !page[ lineNum ].startsWith( "<p class=libPoem>" ) &&
-                        !page[ lineNum ].startsWith( "<p class=libCente" ) &&
-                        !page[ lineNum ].startsWith( "<p class=libBold" ) &&
-                        !page[ lineNum ].startsWith( "<p class=libFootn" )
-                    )
-                    console.log( page[ lineNum ] );
-                }
-        }
-    }
+    book = book.filter( p => p.length );
 
-    // .. put together in SimpleHadisBox
-    for ( let page of PagesBox ) {
-        for ( let lineNum in page ) { 
-            if ( page[ lineNum ] ) SimpleHadisBox.push( page[ lineNum ] );
-        }
-    }
-
-    // .. reset PageBox
-    PagesBox = [];
+    return book;
 
 }
 
 // .. ======================================================================
 
-function removeArabicDigits ( str ) {
+function removeAlaemTags ( page: string[] ) {
 
-    str = str.replace( /۰/g, "0" );
-    str = str.replace( /۱/g, "1" );
-    str = str.replace( /۲/g, "2" );
-    str = str.replace( /۳/g, "3" );
-    str = str.replace( /۴/g, "4" );
-    str = str.replace( /۵/g, "5" );
-    str = str.replace( /۶/g, "6" );
-    str = str.replace( /۷/g, "7" );
-    str = str.replace( /۸/g, "8" );
-    str = str.replace( /۹/g, "9" );
+    let regx: RegExp;
+    let salam = [ 
+        "عليها‌السلام","صلى‌الله‌عليه‌وآله‌وسلم","صلى‌الله‌عليه‌وآله","صلى‌الله‌عليه‌وآله‌","عليه‌السلام",
+        "عليهم‌السلام","عليهما‌السلام","رضي‌الله‌عنه","رحمه‌الله","رحمهم‌الله","قدس‌سره",""
+    ];
 
-    str = str.replace( /٠/g, "0" );
-    str = str.replace( /١/g, "1" );
-    str = str.replace( /٢/g, "2" );
-    str = str.replace( /٣/g, "3" );
-    str = str.replace( /٤/g, "4" );
-    str = str.replace( /٥/g, "5" );
-    str = str.replace( /٦/g, "6" );
-    str = str.replace( /٧/g, "7" );
-    str = str.replace( /٨/g, "8" );
-    str = str.replace( /٩/g, "9" );
+    for ( let j=0; j<page.length; j++ ) {
+        page[j] = page[j].replace( /<span class=libAlaem><\/span>/g, " " );
+        page[j] = page[j].replace( /<span class=libNormal><\/span>/g, " " );
+        for ( let p of salam ) {
+            regx = new RegExp( "<span class=libAlaem>" + p + "<\/span>", "g" );
+            page[j] = page[j].replace( regx, " " + p + " " );
+            regx = new RegExp( "<span class=libAlaemHeading2>" + p + "<\/span>", "g" );
+            page[j] = page[j].replace( regx, " " + p + " " );
+        }
+        for ( let p of salam ) {
+            regx = new RegExp( "<span class=libFootnoteAlaem>" + p + "<\/span>", "g" );
+            page[j] = page[j].replace( regx, " " + p + " " );
+            regx = new RegExp( "<span class=libFootnoteAlaem>" + p + "<\/span>", "g" );
+            page[j] = page[j].replace( regx, " " + p + " " );
+        }
+        page[j] = page[j].replace( /<span class=libAlaem>\(<\/span>/g, ' ( ' );
+        page[j] = page[j].replace( /<span class=libAlaem>\)<\/span>/g, ' ) ' );
+        page[j] = page[j].replace( /<span class=libAlaem>\)\.<\/span>/g, ' ) . ' );
+        page[j] = page[j].replace( /<span class=libAlaem>\*<\/span>/g, ' * ' );
+        page[j] = page[j].replace( /<span class=libAlaemHeading2>\*<\/span>/g, ' * ' );
+        page[j] = page[j].replace( /<span class=libAlaemHeading2>\*\*<\/span>/g, ' ** ' );
+        // .. replace libAie with native Q tag
+        let q = ( page[j].match( /<span class=libAie>(.*?)<\/span>/g ) || [] );
+        for ( let c of q ) {
+            let r = c;
+            r = r.replace( "<span class=libAie>", " #Q# ) " );
+            r = r.replace( "<\/span>", " ( #/Q# " );
+            page[j] = page[j].replace( c, r );
+        }
+    }
+
+    return page;
+
+}
+
+// .. ======================================================================
+
+function hrCtr ( page: string[], HR: string ) {
+
+    let hr: RegExpMatchArray;
+
+    for ( let i in page ) {
+        page[i] = page[i].replace( /libNormal0/g, 'libNormal' );
+        page[i] = page[i].replace( /libFootnote0/g, 'libFootnote' );
+        page[i] = page[i].replace( /<p class=libFootnote>______+/g, HR );
+        page[i] = page[i].replace( /<p class=libNormal>______+/g, HR );
+        page[i] = page[i].replace( /<p>______+/g, HR );
+    }
+
+    hr = page.join("").match( /<p class=libLine>/ ) || [];
+
+    return [ hr, page ];
+
+}
+
+// .. ======================================================================
+
+function removeUnimportantLines ( page: string[] ) {
+    page = page.filter( x => { 
+        if ( x.replace( /(<([^>]+)>)/ig, '' ).trim().length < 2 ) return false;
+        if ( x === "<p class=libFootnote>" ) return false;
+        if ( x.startsWith( "<p class=libCenterBold2>" ) ) return false;
+        if ( x.startsWith( "<p class=Heading1Center>" ) ) return false;
+        if ( x.startsWith( "<p class=Heading2Center>" ) ) return false;
+
+        // ! double check
+        if ( x.startsWith( "<p class=libCenterBold1" ) ) return false;
+
+        return true;
+    } );
+    return page;
+}
+
+// .. ======================================================================
+
+function pre_id_executer ( str: string ) {
+
+    str = str.replace( /<span class=libFootnote>/g, "" );
+    str = str.replace( "<p class=libFootnote>", "" );
+    str = str.replace( "<p class=libNormal>", "" );
+    str = str.replace( "<span class=libNormal>", "" );
+    str = str.replace( "<span class=libNum>", "" );
+    str = str.replace( "<p class=libPoem>", "" );
+    str = str.replace( "<p class=libPoemCenter>", "" );
+    str = str.replace( /<\/span>/g, "" );
+    str = str.replace( /<p>/g, "" );
+    str = str.replace( /<\/p>/g, "" );
+
+    str = ( str.startsWith( "أقول: " ) ) ? "" : str;
+    str = ( str.startsWith( "ورواه " ) ) ? "" : str;
+    // str = ( str.startsWith( "ورواه الصدوق مرسلا" ) ) ? "" : str;
+    // str = ( str.startsWith( "ورواه الشيخ أيضاً بإسناده" ) ) ? "" : str;
+    // str = ( str.startsWith( "ورواه الشيخ بإسناده" ) ) ? "" : str;
+    str = str.replace( /(<([^>]+)>)/ig, '' );
+
+    let a = ( str.match( /\[/g ) || [] ).length;
+    let b = ( str.match( /\]/g ) || [] ).length;
+    if ( a !== b ) console.log(a,b,str);
 
     return str;
 

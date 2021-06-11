@@ -12,7 +12,7 @@ let PagesBox = [];
 
 export async function init () {
 
-    for ( let i=1; i<=1; i ++ ) await readSrcBook ( i );
+    for ( let i=1; i<=29; i ++ ) await readSrcBook (i);
 
     // let tmpBox = [];
     // for ( let lineNum in SimpleHadisBox ) {
@@ -61,18 +61,18 @@ async function readSrcBook ( num: number ) {
     let b = source.indexOf( "<a name='xxx'></a>" );
     if ( a>0 && b>0 ) {
         source = source.slice( a, b );
-        source = step01( source );
-        source = step02( source );
-        createPagesBox( source );
-        createSimpleHadisBox( source );
+        source = pureSource2Lines( source );
+        let lines = linesBox( source );
+        fs.writeFileSync( "src/db/tmp/01.txt", JSON.stringify(lines,null,"\t") );
+        // createSimpleHadisBox( source );
     }
-    else console.log( "err-01",a , b )
+    else console.log( "err-01", a , b )
 
 }
 
 // .. purify ===============================================================
 
-function step01 ( source ) {
+function pureSource2Lines ( source: string ) {
     // .. remove arabic numbers:
     source = removeArabicDigits( source );
     // .. remove break-Lines
@@ -80,68 +80,67 @@ function step01 ( source ) {
     // .. add break-Line
     source = source.replace( /<p/g, "\n<p" );
     source = source.replace( /<a/g, "\n<a" );
+    source = source.replace( /<t/g, "\n<t" );
+    source = source.replace( /<\/t/g, "\n</t" );
+    // source = source.replace( /<h1/g, "\n<h1" );
+
+
     // .. remove tables
-    source = source.replace( /<table(.*?)>/g, " " );
-    source = source.replace( /<td(.*?)>/g, " " );
-    source = source.replace( /<tr(.*?)>/g, " " );
-    source = source.replace( /<\/tr>/g, " " );
-    source = source.replace( /<\/td>/g, " " );
-    source = source.replace( /<\/table>/g, " " );
-    // .. remove footnote marks
-    let footNoteSpanRegExp = /<span class=libFootnotenum>(.*?)<\/span>/g;
-    source = source.replace( footNoteSpanRegExp, " " );
+    source = source.replace( /<.?t(.*?)>/g, " " );
+    // // .. remove footnote marks
+    // let footNoteSpanRegExp = /<span class=libFootnotenum>(.*?)<\/span>/g;
+    // source = source.replace( footNoteSpanRegExp, " " );
     // .. some trims
-    source = source.replace( /<p class='MsoNormal'>/g, " " );
-    source = source.replace( /<p><\/p>/g, " " );
-    source = source.replace( /<p> +<\/p>/g, " " );
     source = source.replace( /<br clear=all>/g, " " );
-    source = source.replace( /<b>/g, " " );
-    source = source.replace( /<\/b>/g, " " );
     source = source.replace( /<br>/g, " " );
-    source = source.replace( /&nbsp;/g, " " );
-    source = source.replace( /&quot;/g, "\"" );
     source = source.replace( / +/g, " " );
-    // .. some edits
-    source = source.replace( /<p>/g, "<p class=libNormal>" );
-    source = source.replace( /<p class=libFootnote>__________________<\/p>/g, "<p class=libLine></p>" );
-    // .. some trims
-    source = source.replace( /<p class=libNormal><\/p>/g, "" );
+    // source = source.replace( /<p class='MsoNormal'>/g, " " );
+    // source = source.replace( /<p><\/p>/g, " " );
+    // source = source.replace( /<p> +<\/p>/g, " " );
+    // source = source.replace( /<b>/g, " " );
+    // source = source.replace( /<\/b>/g, " " );
+    // source = source.replace( /&nbsp;/g, " " );
+    // source = source.replace( /&quot;/g, "\"" );
+    // // .. some edits
+    // source = source.replace( /<p>/g, "<p class=libNormal>" );
+    // source = source.replace( /<p class=libFootnote>__________________<\/p>/g, "<p class=libLine></p>" );
+    // // .. some trims
+    // source = source.replace( /<p class=libNormal><\/p>/g, "" );
 
     return source;
 
-}
-
-// .. book to pages =========================================================
-
-function step02 ( source ) {
-    // .. divide book to pages
-    let pages = source.split( "<a name=" );
-    return source;
 }
 
 // .. ======================================================================
 
-function createPagesBox ( source ) {
+function linesBox ( source: string ): string[][] {
 
-    let lines = source.split( "\n" );
-    let tmpPage = [];
+    let book: string[][] = [],
+        tmpPage: string[] = [],
+        lines = source.split( "\n" );
 
-    for ( let line of lines ) {
+    for ( let line of lines.filter( x => x ) ) {
 
-        if ( line.startsWith( "<a name=") && line.endsWith( "</a> " ) ) {
-            PagesBox.push( tmpPage );
+        line = line.trim();
+
+        if ( line === "" ) {
+            // .. do nothing
+        }
+        else if ( line.startsWith( "<a name=" ) && line.endsWith( "</a>" ) ) {
+            book.push( tmpPage );
             tmpPage = [];
         }
-        else if ( line.startsWith( "<p ") && line.endsWith( "</p> " ) ) {
-            tmpPage.push( line );
+        else if ( line.startsWith( "<p" ) && line.endsWith( "</p>" ) ) {
+            // tmpPage.push( line );
         }
-        else if ( line.startsWith( "<p ") && line.endsWith( "</p>" ) ) {
+        else {
             tmpPage.push( line );
+            console.warn( "\n", line );
         }
-        else if ( !line || line === " " ) {}
-        else console.warn( line );
 
     }
+
+    return book.filter( x => x.length );
 
 }
 

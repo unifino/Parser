@@ -29,6 +29,6 @@
             "src"
         ],
         "exec": "npm start",
-        "ext": "ts"
+        "ext": "ts,htm"
     }
 }

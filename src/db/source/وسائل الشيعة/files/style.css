@@ -1,0 +1,195 @@
+#ja-main {
+  width:75%;
+  float:left;
+}
+
+#ja-main2 {
+  width:24.8%;
+  float:right;
+  position: fixed;
+  overflow-y: auto;
+  height: calc(100% - 150px);
+}
+
+#pgnum {
+  text-align: center;
+  border: 1px #999 solid;
+  border-radius: 3px;
+  width: 45px;
+  direction: ltr;
+}
+
+#bookInfo {
+  width: 99.8%;
+  float: right;
+}
+
+#bookDetails {
+  
+}
+
+#bookDetails img {
+  float: left;
+}
+
+#bookDet {
+  font-size: 120%;
+  text-align: center;
+}
+
+#bookDet p {
+  text-align: right;
+}
+
+#bookIndex {
+  height: 100px;
+  width: 99%;
+  float: right;
+  /*border: 1px red solid;*/
+  overflow: auto;
+}
+
+#bookIndex h3 {
+  margin: 3px 0;
+}
+
+#bookIndex li {
+	list-style: none;
+	padding: 0 10px;
+	background: none;
+}
+
+#bookIndex li.indent1 {margin-right: 0px;}
+#bookIndex li.indent2 {margin-right: 10px;}
+#bookIndex li.indent3 {margin-right: 20px;}
+#bookIndex li.indent4 {margin-right: 30px;}
+#bookIndex li.indent5 {margin-right: 40px;}
+#bookIndex li.indent6 {margin-right: 50px;}
+
+#infoHeader {
+  width: 100%;
+  float: right;
+  border-bottom: 1px #383 solid;
+}
+
+#infoHeader ul {
+  height: 22px;
+  margin: 5px 0 0 0;
+}
+
+#infoHeader ul li {
+  float: right;
+  width: 65px;
+  background: #FDF7EC;
+  color: #333;
+  font-size: 16px;
+  border-radius: 5px 5px 0 0;
+  /*border: 1px #FDF7EC solid;*/
+  padding: 0 1px;
+  margin: 0 1px;
+  text-align: center;
+}
+
+#infoHeader ul li a {
+  text-decoration: none;
+  color: #333;
+}
+
+#infoHeader ul li.active {
+  background: #333;
+  color: #FDF7EC;
+}
+
+#infoHeader ul li.active a {
+  background: #333;
+  color: #FDF7EC;
+}
+
+#bookContent {
+  background: #FFF;
+  width: 100%;
+  position: relative;
+  top: 0;
+  margin: 0 auto;
+  z-index: 5;
+}
+
+#bookContent .page {
+  width: 100%;
+  height: auto;
+  margin: 10px auto;
+  background: #FFF;
+  border: 1px #666 solid;
+  font-size: 130%;
+  float: right;
+}
+
+#bookContent.newStyle {
+  height: auto;
+  margin: 0 auto 1px;
+  float: right;
+}
+
+#bookContent.newStyle .page {
+  width: 100%;
+  min-height: 0;
+  border: none;
+  border-top: 1px #666 solid;
+  font-size: 130%;
+}
+
+.page .pageContent {
+  margin: 10px;
+  width: 92%;
+  float: right;
+}
+
+.newStyle .page .pageContent {
+  margin: 20px 30px 10px;
+  width: 93%;
+  min-height: 0;
+  
+  float: right;
+}
+
+.page p {
+  text-indent: 20px;
+}
+
+.page .pageNum {
+  margin: 10px 20px;
+  padding-top: 5px;
+  width: 94%;
+  float: right;
+  text-align: center;
+}
+
+ul.buttons {
+  float: left;
+  position: relative;
+  left: 300px;
+}
+
+ul.buttons li {
+  float: right;
+  width: 32px;
+  background: none;
+  padding: 0;
+  margin: 0;
+  text-align: center;
+}
+
+ul.buttons li.separator {
+  border-right: 1px #888 solid;
+  width: 8px;
+}
+
+#bookContent .newStyle pre {
+	border: none !important;
+	padding: 0 !important;
+	background: none !important;
+}
+
+span.bookHighlight {
+	background: #FCEED4;
+}

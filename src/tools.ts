@@ -675,9 +675,9 @@ export function dbExporter ( db: TS.db ) {
 
 // .. ======================================================================
 
-export function notify ( title = " Parser Script", end?: boolean ) {
+export function notify ( title = " Server Script", end?: boolean ) {
 
-    const version = "2.0.5";
+    const version = "2.1.0";
     let pad = "        ",
         msg = "";
 

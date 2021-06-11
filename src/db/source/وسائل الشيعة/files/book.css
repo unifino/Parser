@@ -1,0 +1,322 @@
+/* Book Styles
+--------------------------------------------------------- */
+@media all {
+	.page-break {
+		display: none;
+	}
+}
+
+@media print {
+	.page-break {
+		display: block;
+		page-break-before: always;
+	}
+}
+
+@font-face {
+	font-family: "Alaem";
+	src: url('rfdAlaem05.eot');
+	src: local('rfdAlaem05.ttf'), url('rfdAlaem05.ttf') format('truetype'), url('rfdAlaem05.woff') format('woff'), url('rfdAlaem05.svg#webfontYBMgNOwD') format('svg');
+}
+
+@font-face {
+	font-family: "KFC_naskh";
+	src: url('KFC_naskh.eot');
+	src: local('KFC_naskh.otf'), url('KFC_naskh.otf') format('truetype'), url('KFC_naskh.woff') format('woff'), url('KFC_naskh.svg#webfontYBMgNOwD') format('svg');
+}
+
+@font-face {
+	font-family: 'BLotus';
+	src: url('BLotus.eot');
+	src: local('BLotus.ttf'), url('BLotus.ttf') format('truetype'), url('BLotus.woff') format('woff'), url('BLotus.svg#webfontYBMgNOwD') format('svg');
+
+	/*font-family: "BLotus";
+	src: local('BLotus.eot');
+	src: url('BLotus.ttf') format("truetype");*/
+	font-size: 130%;
+}
+
+#bookText-wrap,#rightwraper {
+	font-family: Traditional Arabic;
+	font-size: 30px;
+}
+#bookText,#rightwraper p {
+	
+}
+
+#bookContent .page,
+h1, h2, h3, h4, h5, h6  {
+	font-family: "Traditional Arabic","Times New Roman","Tahoma";
+}
+
+.page p {
+	color: #242424;
+	
+	margin:5px 0;
+	text-align:justify;
+	direction:rtl;
+	font-size: 100%;
+}
+
+.pageContent {
+	font-size: 100%;
+	direction: rtl;
+}
+
+/* Indent */
+.page p, .page h1, .page h2, .page h3, .page h4, .page h5 {
+	text-indent:.7cm;
+}
+p.libNormal0, p.libFootnote0, p.libVar0, p.libLine, p.libCenter, p.libFootnoteCenterBold, p.libLeftBold, p.libCenterBold1, p.libCenterBold2, p.libEn {
+	text-indent:0;
+}
+/* Bold Type */
+.Heading1Char {
+  font-weight:bold;
+}
+
+.Heading2Char {
+  font-weight:bold;
+}
+
+p.libBold1, p.libBold2, p.libCenterBold1, p.libCenterBold1Char, p.libCenterBold2, p.libLeftBold, p.libFootnoteBold, p.libFootnoteCenterBold {
+	font-weight:bold;
+}
+p.libBold2, p.libBold2Char, p.libCenterBold2, p.libLeftBold, p.libFootnoteBold, p.libFootnoteCenterBold {
+	font-size:95%;
+}
+/* Center Style */
+p.libCenter, p.libCenterBold1, p.libCenterBold1Char, p.libCenterBold2, p.Heading1Center, p.Heading2Center, p.Heading3Center, p.Heading4Center, p.Heading5Center, p.libFootnoteCenter, p.libFootnoteCenterBold, p.libVarCenter, p.libPoemFootnoteCenter, p.libPoemCenter , p.Heading1CenterChar{
+	text-align:center;
+	text-indent: 0px;
+}
+/* Left Style */
+.libLeft, .libLeftBold, .libFootnoteLeft {
+	text-align:left;
+}
+.libEnFootnote, .libEn {
+  direction: ltr;
+  text-align:left;
+}
+/* Alaem Style */
+.libAlaem,.libAlaemChar {
+  font-family: Alaem;
+  font-size: 120%;
+  line-height: 1;
+}
+.treeview li .libAlaem,
+.treeview li .libAlaemChar {
+  font-family: Alaem;
+  font-size: 150%;
+  line-height: 1
+}
+.libAlaemHeading2 {
+	font-family: Alaem;
+}
+.libFootnoteAlaem {
+	font-family: Alaem;
+}
+/* Number of Footnote Style */
+.libFootnotenum, .libFootnotenumChar {
+	color: #CB6521;
+	font-size: 70%;
+	line-height: 50%;
+	vertical-align: super;
+	font-weight: normal;
+}
+.libBold2 .libFootnotenum, .libCenterBold2 .libFootnotenum, .libLeftBold .libFootnotenum,
+.libBold2 .libFootnotenumChar, .libCenterBold2 .libFootnotenumChar, .libLeftBold .libFootnotenumChar {
+	font-size: 95%;
+}
+h1 .libFootnotenum, .Heading1 .libFootnotenum, .Heading1Center .libFootnotenum, 
+h2 .libFootnotenum, .Heading2 .libFootnotenum, .Heading2Center .libFootnotenum, 
+h3 .libFootnotenum, h4 .libFootnotenum, h5 .libFootnotenum, 
+.Heading3 .libFootnotenum, .Heading3Center .libFootnotenum, 
+.Heading4 .libFootnotenum, .Heading4Center .libFootnotenum, 
+.Heading5 .libFootnotenum, .Heading5Center .libFootnotenum, 
+.libBold1 .libFootnotenum, .libCenterBold1 .libFootnotenum {
+	font-size: 80%;
+}
+.libFootnote_num_par {
+	color: #336600;
+	font-size: 70%;
+	line-height: 50%;
+	vertical-align: super;
+}
+/*  */
+.libVar, .libVar0, .libVarCenter {
+	font-size:90%;
+}
+.libMid{
+	font-size:85%;
+}
+/* Footnote Style */
+.libFootnote, .libFootnote0, .libFootnote0Char , .libPoemFootnote, .libPoemFootnoteCenter, .libFootnoteCenter, .libFootnoteCenterBold , .libFootnoteLeft, .libFootnoteBold {
+	font-size:78%;
+}
+.libFootnote .libFootnote0, .libFootnote0 .libFootnote, .libFootnote0 .libFootnote0, .libFootnote .libFootnote,
+.libFootnote0 .libFootnoteCenter, .libFootnote0 .libFootnoteCenterBold , .libFootnote0 .libFootnoteLeft, .libFootnote0 .libFootnoteBold {
+	font-size:95%;
+}
+.libFootnote, .libLine, .libFootnote0 {
+	color: #6B7E6D;
+}
+/* Quran Style */
+p.libAie, p.libAieChar , p.libFootnoteAie, p.libArAie,
+.libAie, .libAieChar , .libFootnoteAie, .libArAie {
+	font-family: "KFC_naskh","Traditional Arabic";
+	color:green !important;
+	font-weight:bold;
+	font-size: 110%;
+}
+.libAie, .libAieChar, .libArAie {
+	font-size:95%;
+}
+p.libFootnoteAie {
+	font-size:75%;
+}
+p.libFootnote0 .libFootnoteAie, p.libFootnote .libFootnoteAie{
+	font-size:100%;
+}
+.libArAie {
+	direction: rtl;
+}
+/* Heading Style */
+.page h1, p.Heading1, p.Heading1Center, p.Heading1CenterChar{
+	margin-top:12.0pt;
+	margin-bottom:3.0pt;
+	padding:0;
+	font-size:110%;
+	font-weight:bold;
+	color:#4F3320;
+}
+.page h2, p.Heading2, p.Heading2Center {
+	margin-top:12.0pt;
+	margin-bottom:3.0pt;
+	padding:0;
+	font-size:110%;
+	font-weight:bold;
+	color:#369;
+}
+.page h3, .page h4, .page h5, p.Heading3, p.Heading3Center, p.Heading4, p.Heading4Center, p.Heading5, p.Heading5Center {
+	margin-top:12.0pt;
+	margin-bottom:3.0pt;
+	padding:0;
+	font-size:110%;
+	font-weight:bold;
+	color:#963;
+}
+
+.page h1, .page h2, .page h3, p.Heading1, p.Heading2, p.Heading3 {
+	text-align: right;
+}
+
+/* Bold Style */
+.libBold1, .libBold1Char, .libCenterBold1, .libCenterBold1Char{
+	margin-top:21.0pt;/*12pt*/
+	margin-bottom:9.0pt;/*3pt*/
+	padding:0;
+	font-size:110%;
+	font-weight:bold;
+	/*color:#369;*/
+}
+/* Poem Style */
+.libPoem, .libPoemFootnote {
+	text-align: justify;
+}
+.libPoem:after , .libPoemFootnote:after {
+	content: "";
+	display: inline-block;
+	width: 100%;
+}
+.libPoem, .libPoemFootnote, .libPoemFootnoteCenter, .libPoemCenter {
+	color: #493D2C;
+}
+.libPoemTini, .libPoemTiniChar{
+	display: none;
+}
+/* Number of Pages Style */
+.page_number {
+	margin-top: 15px;
+}
+/* Toc Style */
+.libToc1, .libToc2, .libToc3, .libToc4, .libToc5 {
+	font-size:90%;
+	text-indent: 0px;
+}
+
+.libToc1:hover, .libToc2:hover, .libToc3:hover, .libToc4:hover, .libToc5:hover {
+	background: #EEE;
+}
+
+.libTocNum {
+	float: left;
+}
+
+
+/* English content */
+.libEn {
+	direction: ltr;
+}
+
+.LibAr,.libArabic {
+	direction: rtl;
+	text-align: justify;
+	font-family: "Traditional Arabic";
+}
+/* Colored Text */
+.libNormalHashieh,
+.libNormal0Hashieh {
+	color: #341212;
+}
+.libJamed {
+	font-weight: bold;
+	color: #C00000;
+}
+
+.libMoshtaq {
+	color: #C00000;
+}
+
+.libRevaya {
+	color: #17365D;
+}
+
+.libSanad{
+}
+.libRight ,p.libRight {
+	direction: ltr;
+	text-align: right;
+}
+p.libCenterTitr,
+.libCenterTitr {
+	font-size: 200%;
+	text-align: center;
+}
+.libItalic {
+	font-style: italic;
+}
+.libUnderline {
+	text-decoration: underline;
+}
+.libBold {
+	font-weight: bold;
+}
+.libUnderlineBold {
+	text-decoration: underline;
+	font-weight: bold;
+}
+.libUnderlineItalic {
+	font-style: italic;
+	text-decoration: underline;
+}
+.libBoldItalic {
+	font-style: italic;
+	font-weight: bold;
+}
+.libUnderlineBoldItalic {
+	font-style: italic;
+	text-decoration: underline;
+	font-weight: bold;
+}
+

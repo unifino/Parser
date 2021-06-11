@@ -12,7 +12,7 @@ let PagesBox = [];
 
 export async function init () {
 
-    for ( let i=1; i<=30; i ++ ) await readSrcBook ( i );
+    for ( let i=1; i<=1; i ++ ) await readSrcBook ( i );
 
     // let tmpBox = [];
     // for ( let lineNum in SimpleHadisBox ) {
@@ -57,10 +57,8 @@ async function readSrcBook ( num: number ) {
     // .. get source
     let source = fs.readFileSync( filePath , 'utf8' );
     // .. cut beginning and end of the book
-    let a = num === 1 ? 
-        source.indexOf( "<a name='21'></a>" ) : 
-        source.indexOf( "<a name='7'></a>" );
-    let b = source.indexOf( "<p class=libTocHeading></p>" );
+    let a = source.indexOf( "<a name='aaa'></a>" );
+    let b = source.indexOf( "<a name='xxx'></a>" );
     if ( a>0 && b>0 ) {
         source = source.slice( a, b );
         source = step01( source );

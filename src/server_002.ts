@@ -18,7 +18,7 @@ export async function init () {
         db_v1: TS.db;
 
     // .. convert all sourceText => set v1
-    for ( let i=1; i<=5; i ++ ) {
+    for ( let i=7; i<=7; i ++ ) {
         textBook = readSrcBook(i);
         book_v0 = getBook_v0( textBook );
         book_v1 = getBook_v1( book_v0 );
@@ -39,11 +39,11 @@ export async function init () {
     for ( let i in db_v1 ) db_v1[i] = c_executer( db_v1[i] );
     db_v1 = db_v1.filter( x => x );
     console.log(db_v1.length);
-    let c = 0;
+    let c = 8559;
     let e = [ 
         4742, 4744, 5079, 5301, 5368, 5429, 5430, 5727, 5912, 
         5995, 6128, 6161, 6221, 6273, 6465, 6494, 6517, 6759,
-        6803
+        6803, 7735, 7963, 8422, 
     ];
     for ( let i=1; i <= db_v1.length; i++ ) {
         // .. correct idx

@@ -18,8 +18,8 @@ export async function init () {
         db_v1: TS.db;
 
     // .. convert all sourceText => set v1
-    let c = 24029+1;
-    for ( let i=19; i<=19; i ++ ) {
+    let c = 0;
+    for ( let i=1; i<=20; i ++ ) {
         textBook = readSrcBook(i);
         book_v0 = getBook_v0( textBook );
         book_v1 = getBook_v1( book_v0 );
@@ -51,7 +51,8 @@ export async function init () {
         14970, 15040, 15083, 15209,
         19427,
         22070, 
-        24211, 24282, 24288
+        24211, 24282, 24288,
+        25022, 26100, 
     ];
     for ( let i=1; i <= db_v1.length; i++ ) {
         // .. correct idx

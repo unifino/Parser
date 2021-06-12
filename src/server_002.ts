@@ -19,7 +19,7 @@ export async function init () {
 
     // .. convert all sourceText => set v1
     let c = 0;
-    for ( let i=1; i<=22; i ++ ) {
+    for ( let i=24; i<=24; i ++ ) {
         textBook = readSrcBook(i);
         book_v0 = getBook_v0( textBook );
         book_v1 = getBook_v1( book_v0 );

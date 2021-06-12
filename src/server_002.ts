@@ -14,8 +14,10 @@ export async function init () {
         book_v0: string[][],
         book_v1: string[][],
         set_v1: string[][] = [],
-        set_v2: string[] = [];
+        set_v2: string[] = [],
+        db_v1: TS.db;
 
+    // .. convert all sourceText => set v1
     for ( let i=1; i<=29; i ++ ) {
         textBook = readSrcBook(i);
         book_v0 = getBook_v0( textBook );
@@ -23,12 +25,21 @@ export async function init () {
         set_v1 = [ ...set_v1, ...book_v1 ];
     }
 
+    // .. convert set v1 to v2 [ string[][]=>string[] ]
     for ( let i in set_v1 ) set_v2 = [ ...set_v2, ...set_v1[i] ];
-
-    for ( let i in set_v2 ) set_v2[i] = pre_id_executer ( set_v2[i] );
+    // .. get hadith prepared for extraction id from sourceText
+    for ( let i in set_v2 ) set_v2[i] = pre_d_executer ( set_v2[i] );
+    // .. trim set v2
     set_v2 = set_v2.filter( x => x );
+    // .. get hadith-id from sourceText [ assign d & j ]
+    db_v1 = d_executer( set_v2 );
+    // .. text unifier
+    for ( let i in db_v1 ) db_v1[i].a = basic_tools.charSpacer( db_v1[i].a );
+    // .. assign c
+    for ( let i in db_v1 ) db_v1[i] = c_executer( db_v1[i] );
 
-    fs.writeFileSync( "src/db/tmp/01.txt", JSON.stringify(set_v2,null,"\t") );
+
+    fs.writeFileSync( "src/db/tmp/01.txt", JSON.stringify(db_v1,null,"\t") );
 
 }
 
@@ -238,7 +249,7 @@ function removeUnimportantLines ( page: string[] ) {
 
 // .. ======================================================================
 
-function pre_id_executer ( str: string ) {
+function pre_d_executer ( str: string ) {
 
     str = str.replace( /<span class=libFootnote>/g, "" );
     str = str.replace( "<p class=libFootnote>", "" );
@@ -253,16 +264,53 @@ function pre_id_executer ( str: string ) {
 
     str = ( str.startsWith( "أقول: " ) ) ? "" : str;
     str = ( str.startsWith( "ورواه " ) ) ? "" : str;
-    // str = ( str.startsWith( "ورواه الصدوق مرسلا" ) ) ? "" : str;
-    // str = ( str.startsWith( "ورواه الشيخ أيضاً بإسناده" ) ) ? "" : str;
-    // str = ( str.startsWith( "ورواه الشيخ بإسناده" ) ) ? "" : str;
+
     str = str.replace( /(<([^>]+)>)/ig, '' );
 
     let a = ( str.match( /\[/g ) || [] ).length;
     let b = ( str.match( /\]/g ) || [] ).length;
-    if ( a !== b ) console.log(a,b,str);
+    // .. report errors
+    if ( a !== b ) console.log( "Unexpected ID Format: ", a, b, str );
 
     return str;
+
+}
+
+// .. ======================================================================
+
+function d_executer ( book: string[] ) {
+
+    let newBook: TS.db = [],
+        hadith: TS.db_item = {} as any;
+
+    for ( let p of book ) {
+        let cdn = p.match( /\[ ?[0-9]+ ?\] [0-9]+ - /g) || [];
+        if ( cdn.length === 0 ) {
+            // .. append line
+            hadith.a += " " + p;
+        }
+        else if ( cdn.length === 1 ) {
+            newBook.push( hadith );
+            hadith = {} as any;
+            hadith.a = p.slice( cdn[0].length );
+            let dp = cdn[0].split( "-" )[0].split( "]" );
+            hadith.d = dp[0].replace( "[", "" ).trim();
+            hadith.j = dp[1].trim() as any;
+        }
+        else console.log( "Unexpected Line: ", p );
+    }
+
+    return newBook;
+
+}
+
+// .. ======================================================================
+
+function c_executer ( item: TS.db_item ) {
+
+    
+
+    return item;
 
 }
 

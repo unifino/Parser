@@ -18,7 +18,7 @@ export async function init () {
         db_v1: TS.db;
 
     // .. convert all sourceText => set v1
-    for ( let i=11; i<=11; i ++ ) {
+    for ( let i=13; i<=13; i ++ ) {
         textBook = readSrcBook(i);
         book_v0 = getBook_v0( textBook );
         book_v1 = getBook_v1( book_v0 );
@@ -39,7 +39,6 @@ export async function init () {
     for ( let i in db_v1 ) db_v1[i] = c_executer( db_v1[i] );
     db_v1 = db_v1.filter( x => x );
     console.log(db_v1.length);
-    let c = 8559+1427+1+1395+3+1+1308+1+1+1408+1+1;
     let e = [ 
         4742, 4744, 5079, 5301, 5368, 5429, 5430, 5727, 5912, 
         5995, 6128, 6161, 6221, 6273, 6465, 6494, 6517, 6759,
@@ -48,7 +47,9 @@ export async function init () {
         11855, 
         13995,
         14181, 14296, 14645,
+        14970, 15040, 15083, 15209
     ];
+    let c = 17060 + e.length +1;
     for ( let i=1; i <= db_v1.length; i++ ) {
         // .. correct idx
         for ( let p of e ) if ( i+c === p ) c++;
@@ -306,7 +307,7 @@ function d_executer ( book: string[] ) {
         hadith: TS.db_item = {} as any;
 
     for ( let p of book ) {
-        let cdn = p.match( /\[ ?[0-9 ]+ ?\] ?[0-9]+ ?- ?/g) || [];
+        let cdn = p.match( /\[ ?[0-9 ]+ ?\] ?([0-9]+)? ?- ?/g) || [];
         if ( cdn.length === 0 ) {
             // .. append line
             hadith.a += " " + p;
@@ -317,7 +318,7 @@ function d_executer ( book: string[] ) {
             hadith.a = p.slice( cdn[0].length );
             let dp = cdn[0].split( "-" )[0].split( "]" );
             hadith.d = dp[0].replace( "[", "" ).replace( / /g, "" );
-            hadith.j = dp[1].trim() as any;
+            hadith.j = (dp[1].trim() || null)as any;
         }
         else console.log( "Unexpected Line: ", p );
     }

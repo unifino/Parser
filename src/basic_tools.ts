@@ -24,7 +24,8 @@ export function charSpacer ( str: string ) {
     str = str.replace( /\[/g , " [ " );
     str = str.replace( /\]/g , " ] " );
     str = str.replace( /\./g, ' . ' );
-    str = str.replace( /  +/g , " " );
+    str = str.replace( / /g , " " );
+    str = str.replace( / +/g , " " );
     str = simple_trimmer( str );
     return str;
 }

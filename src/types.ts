@@ -12,6 +12,7 @@ export type db_item = {
     d: string|number,
     n: number,
     j: number,
+    idInSection?: number,
     tmp_inFarsiLetter: string,
     tmp_kalamat: string[],
     cDB: child_item[]

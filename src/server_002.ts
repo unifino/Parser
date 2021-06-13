@@ -43,11 +43,10 @@ export async function init () {
 
     db_v1 = lastTrim ( db_v1 );
 
-    let rss = getQuoter( db_v1 );
+    // let rss = getQuoter( db_v1 );
+    // db_v1 = removeCuter( db_v1, rss );
+    // fs.writeFileSync( "src/db/tmp/02.json", JSON.stringify(rss,null,"\t") );
 
-    db_v1 = removeCuter( db_v1, rss );
-
-    fs.writeFileSync( "src/db/tmp/02.json", JSON.stringify(rss,null,"\t") );
     fs.writeFileSync( "src/db/tmp/01.json", JSON.stringify(db_v1,null,"\t") );
 
 }
@@ -384,6 +383,7 @@ function cPlus ( item: TS.db_item ) {
         { text: " سمعت علي بن الحسين عليه‌السلام يقول :", c: 4, excludesText: true },
         { text: " سمعت أبا عبدالله عليه‌السلام يقول", c: 6, excludesText: true },
         { text: " قال الرضا عليه‌السلام :", c: 8, excludesText: true },
+        { text: " عن أبي عبد الله عليه‌السلام :", c: 6, excludesText: true },
 
         // .. includesText
         { text: " لأبي عبدالله عليه‌السلام :", c: 6, excludesText: false },
@@ -450,7 +450,7 @@ function endOfHadith_Cuter ( item: TS.db_item ) {
 
     // .. cut EndOfHadith "STRICK"
     for ( let p of cdnBOX ) {
-        cut_ID = item.a.indexOf( p.text );
+        cut_ID = item.a.lastIndexOf( p.text );
         if ( ~cut_ID ) {
             item[9] = item[9] ? " " +item[9] : "";
             cut_ID_p = cut_ID + ( p.clear ? p.text.length : 0 );
@@ -489,10 +489,38 @@ function lastTrim ( db: TS.db ) {
         p.a = p.a.trim();
         if ( p.a.endsWith( " ." ) ) p.a = p.a.slice( 0, p.a.length -2 ) + ".";
         p.a = p.a.trim();
+
+        // ! remove it
+        delete p[0]
+        delete p[9]
+        delete p.idInSection
+        delete p.d
     }
+    
+    // ! remove it
+    db = db.filter( x => !x.c );
+    let pp = [];
+    for ( let p of db ) pp.push( findAll( /عن (.+?)،/, p.a ) );
+    pp = pp.filter( x => x.length > 2 );
+    console.log(pp.length);
+    fs.writeFileSync( "src/db/tmp/04.json", JSON.stringify(pp,null,"\t") );
+
 
     return db;
 
+}
+
+// .. ======================================================================
+
+function findAll( regx:RegExp, str: string ) {
+    let output = [];
+    let match;
+    let some = RegExp( regx, [...new Set( "g" + regx.flags ) ].join("") );
+    while ( match = some.exec(str) ) {
+        delete match.input;
+        output.push(match);
+    } 
+    return output.map( x => { return { text: x[0], id: x.index } } );
 }
 
 // .. ======================================================================
@@ -515,8 +543,6 @@ function getQuoter ( db: TS.db ) {
 
     rss = [ ...new Set(rss) ];
 
-    console.log(rss.length);
-
     return rss;
 
 }
@@ -526,15 +552,19 @@ function getQuoter ( db: TS.db ) {
 function removeCuter( db: TS.db, rss: string[] ) {
 
     let i = 0;
+    let max: number;
     let time = new Date().getTime();
 
     for ( let p of db ) {
         tools.timer( db.length, i++, time, "RSS Remover" );
-        for( let r of rss ) p.a = p.a.replace( r + " ،", "" );
-        // ! remove it
-        delete p[0];
-        delete p[9];
-        delete p.idInSection;
+        rss.reduce( (head,nextOne) =>
+            p.a.indexOf( nextOne ) > head ?
+                p.a.indexOf( nextOne ) + nextOne.length : head
+        , -1 );
+        if ( ~max ) {
+            p[0] = p.a.slice( 0, max ) + p[0];
+            p.a = p.a.slice( max );
+        }
     }
 
     return db;

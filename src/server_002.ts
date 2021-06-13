@@ -8,6 +8,7 @@ import * as fs                          from "fs";
 export async function init () {
 
     fs.rmSync( "src/db/tmp/01.json", { force: true } );
+    fs.rmSync( "src/db/tmp/02.json", { force: true } );
 
     let textBook: string,
         book_v0: string[][],
@@ -42,6 +43,11 @@ export async function init () {
 
     db_v1 = lastTrim ( db_v1 );
 
+    let rss = getQuoter( db_v1 );
+
+    db_v1 = removeCuter( db_v1, rss );
+
+    fs.writeFileSync( "src/db/tmp/02.json", JSON.stringify(rss,null,"\t") );
     fs.writeFileSync( "src/db/tmp/01.json", JSON.stringify(db_v1,null,"\t") );
 
 }
@@ -311,105 +317,10 @@ function d_executer ( book: string[] ) {
 
 function divide_executer ( item: TS.db_item ) {
 
-    let cut_ID: number = -1,
-        cdnBOX: { text: string, c: number, excludesText: boolean }[];
-
     // .. cut EndOfHadith "STRICK"
     item = endOfHadith_Cuter( item );
     // .. cut BeginningOfHadith "STRICK" & Assign C
     item = cPlus( item );
-    // endHadithCDN = " قال :";
-    // endHadithCDN = "قال الكليني :";
-    cut_ID = -1;
-
-    cdnBOX = [
-        { text: "عن أبي جعفر عليه‌السلام", c: 5, excludesText: true },
-        { text: "قلت لأبي عبدالله عليه‌السلام", c: 6, excludesText: false },
-        { text: "يسأل أبا عبدالله عليه‌السلام", c: 6, excludesText: false },
-        { text: "قال أبو جعفر عليه‌السلام", c: 5, excludesText: true },
-        { text: "خطب أمير المؤمنين عليه‌السلام", c: 6, excludesText: true },
-        { text: "عن زينب بنت علي عليه‌السلام", c: 77, excludesText: true },
-        { text: "سمعت أبا جعفر عليه‌السلام يقول :", c: 5, excludesText: true },
-        { text: "قال الصادق عليه‌السلام", c: 6, excludesText: true },
-        { text: "قال أبوجعفر عليه‌السلام", c: 5, excludesText: true },
-        { text: "سمعت أبا الحسن عليه‌السلام يقول", c: 8, excludesText: true },
-        { text: "عن الصادق جعفر بن محمد عليهما‌السلام قال", c: 6, excludesText: true },
-        { text: "كتبت إلى الرضا عليه‌السلام", c: 8, excludesText: false },
-        { text: "سألت أبا عبدالله عليه‌السلام", c: 6, excludesText: false },
-        { text: "عن الرضا عليه‌السلام قال", c: 8, excludesText: true },
-        { text: "رفع الحديث إلى علي عليه‌السلام", c: 1, excludesText: false },
-        { text: "عن أمير المؤمنين عليه‌السلام", c: 1, excludesText: true },
-        { text: "قال أبوعبدالله عليه‌السلام :", c: 6, excludesText: true },
-        { text: "قلت لأبي جعفر عليه‌السلام", c: 5, excludesText: false },
-        { text: "سألت أبا جعفر عليه‌السلام", c: 5, excludesText: false },
-        { text: "موسى بن جعفر عليه‌السلام قال", c: 7, excludesText: true },
-        { text: "عن جعفربن محمد", c: 6, excludesText: true },
-        { text: "موسى بن جعفر عليه‌السلام قال", c: 7, excludesText: true },
-        { text: "عن علي بن الحسين عليه‌السلام", c: 4, excludesText: true },
-        { text: "عن أحدهما عليه‌السلام قال", c: 5, excludesText: true },
-        { text: "عن أبي الحسن موسى عليه‌السلام", c: 7, excludesText: true },
-        { text: "سألنا أبا عبدالله عليه‌السلام", c: 6, excludesText: false },
-        { text: "قال أبو عبدالله عليه‌السلام", c: 6, excludesText: true },
-        { text: "عن أبي الحسن الرضا عليه‌السلام", c: 8, excludesText: true },
-        { text: "كنا جلوسا عند أبي عبدالله عليه‌السلام", c: 6, excludesText: false },
-        { text: "سمعت أبا عبدالله عليه‌السلام يقول", c: 6, excludesText: true },
-        { text: "قال الصادق جعفربن محمد عليه‌السلام", c: 6, excludesText: true },
-        { text: "، عن جعفر بن محمد ،", c: 5, excludesText: true },
-        { text: "، عن أبي عبدالله ،", c: 6, excludesText: true },
-        { text: "قال أبوذر رحمه‌الله", c: 77, excludesText: true },
-        { text: "قال لي أبوعبدالله عليه‌السلام", c: 6, excludesText: true },
-        { text: "الصادق جعفر بن محمد عليه‌السلام", c: 6, excludesText: true },
-        { text: "الصادق جعفر بن محمد", c: 6, excludesText: true },
-        { text: "قلت لأبي عبد الله عليه‌السلام", c: 6, excludesText: false },
-        { text: "عن أحدهما عليهما‌السلام", c: 5, excludesText: true },
-        { text: "عن أبي عبد الله عليه‌السلام", c: 6, excludesText: true },
-        { text: "قلت لابي عبدالله عليه‌السلام", c: 6, excludesText: false },
-        { text: " عن أبي الحسن عليه‌السلام ", c: 7, excludesText: true },
-        { text: "سألت أبا الحسن عليه‌السلام", c: 7, excludesText: false },
-        { text: "قال أبو عبد الله عليه‌السلام", c: 6, excludesText: true },
-        { text: "سألت أبا عبد الله عليه‌السلام", c: 6, excludesText: false },
-        { text: "قال لي أبو عبد الله عليه‌السلام", c: 6, excludesText: true },
-        { text: "عن الرضا عليه‌السلام", c: 8, excludesText: true },
-        { text: "عن أبي الحسن الماضي", c: 77, excludesText: true },
-        { text: "موسى بن جعفر عليهما‌السلام", c: 7, excludesText: true },
-        { text: "عن أبي جعفر الباقر عليه‌السلام", c: 6, excludesText: true },
-        { text: "سئل أبو عبد الله عليه‌السلام", c: 6, excludesText: false },
-        { text: "سمعت أبا عبد الله عليه‌السلام", c: 6, excludesText: false },
-        { text: "عن أخيه موسى عليه‌السلام", c: 7, excludesText: true },
-        { text: "دخلت على أبي جعفر عليه‌السلام", c: 5, excludesText: false },
-        // { text: "قال أمير المؤمنين عليه‌السلام", c: 1, excludesText: true },
-        { text: "عن علي عليه‌السلام", c: 1, excludesText: true },
-        { text: "قال علي بن الحسين", c: 4, excludesText: true },
-        { text: "عن أبي جعفر وأبي عبدالله عليهما‌السلام", c: 5, excludesText: true },
-        { text: "قلت للرضا عليه‌السلام", c: 8, excludesText: false },
-        { text: "قلت لأبي الحسن", c: 7, excludesText: false },
-        { text: "محمد بن علي بن الحسين قال", c: 5, excludesText: true },
-        { text: "كنت عند أبي عبدالله عليه‌السلام", c: 6, excludesText: false },
-        // ! put in end
-        { text: "، عن جعفر ،", c: 6, excludesText: true },
-        { text: "سمعت علي بن الحسين", c: 4, excludesText: true },
-        { text: "عن أبي جعفر الثاني عليه‌السلام", c: 77, excludesText: true },
-        { text: "عن أبي جعفر ،", c: 5, excludesText: true },
-        { text: "عن الرضا ،", c: 8, excludesText: true },
-        { text: "قال الرضا عليه‌السلام", c: 8, excludesText: true },
-        { text: "، عن الصادق ،", c: 6, excludesText: true },
-        { text: "عن جعفر بن محمّد", c: 6, excludesText: true },
-        { text: "دخلت على سيدي علي بن محمد عليهما‌السلام", c: 10, excludesText: false },
-        // ! check again
-        { text: " موسى بن جعفر عليه‌السلام ", c: 7, excludesText: true },
-        { text: "علي بن أبي طالب", c: 1, excludesText: true },
-        { text: "قال رسول الله صلى‌الله‌عليه‌وآله", c: 13, excludesText: true },
-        { text: "عن النبي صلى‌الله‌عليه‌وآله‌وسلم", c: 13, excludesText: true },
-        { text: "عن النبي صلى‌الله‌عليه‌وآله", c: 13, excludesText: true },
-        { text: "الرضا عليه‌السلام", c: 8, excludesText: true },
-        { text: "أبي جعفر عليه‌السلام", c: 5, excludesText: true },
-        { text: "عند أبي عبدالله عليه‌السلام", c: 6, excludesText: false },
-        // ! end???
-        { text: "قال :", c: 77, excludesText: true },
-        { text: "قال عليه‌السلام :", c: 77, excludesText: true },
-        { text: ":", c: 77, excludesText: true },
-
-    ]
 
     return item;
 
@@ -423,18 +334,79 @@ function cPlus ( item: TS.db_item ) {
 
     cdnBOX = [
         // .. excludesText
-        { text: "عن أبي جعفر عليه‌السلام قال :", c: 6, excludesText: true },
-        { text: "قال أبو عبدالله عليه‌السلام :", c: 6, excludesText: true },
-        { text: "كتب إلى أبي الحسن عليه‌السلام :", c: 8, excludesText: false },
-        { text: "عن الصادق عليه‌السلام قال :", c: 6, excludesText: true },
-        { text: "عن أبي عبدالله عليه‌السلام قال :", c: 6, excludesText: true },
-        { text: "قال أبو الحسن عليه‌السلام :", c: 7, excludesText: true },
-        { text: "أخيه أبي الحسن عليه‌السلام قال :", c: 7, excludesText: true },
-        { text: "قال لي أبو عبدالله عليه‌السلام", c: 6, excludesText: true },
-        { text: "قال لي أبوعبدالله عليه‌السلام", c: 6, excludesText: true },
+        { text: " عن أبي جعفر عليه‌السلام قال :", c: 6, excludesText: true },
+        { text: " قال أبو عبدالله عليه‌السلام :", c: 6, excludesText: true },
+        { text: " كتب إلى أبي الحسن عليه‌السلام :", c: 8, excludesText: false },
+        { text: " عن الصادق عليه‌السلام قال :", c: 6, excludesText: true },
+        { text: " عن أبي عبدالله عليه‌السلام قال :", c: 6, excludesText: true },
+        { text: " قال أبو الحسن عليه‌السلام :", c: 7, excludesText: true },
+        { text: " أخيه أبي الحسن عليه‌السلام قال :", c: 7, excludesText: true },
+        { text: " قال لي أبو عبدالله عليه‌السلام", c: 6, excludesText: true },
+        { text: " قال لي أبوعبدالله عليه‌السلام", c: 6, excludesText: true },
+        { text: " موسى بن جعفر عليه‌السلام قال :", c: 7, excludesText: true },
+        { text: " قال لي أبو عبد الله عليه‌السلام", c: 6, excludesText: true },
+        { text: " عن أبي جعفر الباقر عليه‌السلام قال :", c: 6, excludesText: true },
+        { text: " قال الصادق عليه‌السلام :", c: 6, excludesText: true },
+        { text: " قال أبوعبدالله عليه‌السلام :", c: 6, excludesText: true },
+        { text: " عن أبي جعفر عليه‌السلام أنه قال :", c: 5, excludesText: true },
+        { text: " عن أبي جعفر عليه‌السلام قال - في حديث -", c: 5, excludesText: true },
+        { text: " عن أبي جعفر عليه‌السلام - في حديث - قال :", c: 5, excludesText: true },
+        { text: " قال أبوجعفر عليه‌السلام :", c: 5, excludesText: true },
+        { text: " عن زينب بنت علي عليه‌السلام قالت :", c: 77, excludesText: true },
+        { text: " سمعت أبا جعفر عليه‌السلام يقول :", c: 5, excludesText: true },
+        { text: " سمعت أبا الحسن عليه‌السلام يقول", c: 8, excludesText: true },
+        { text: " عن الرضا عليه‌السلام قال :", c: 8, excludesText: true },
+        { text: " محمد بن علي بن الحسين قال", c: 5, excludesText: true },
+        { text: " عن أبي جعفر وأبي عبدالله عليهما‌السلام أنهما قالا :", c: 5, excludesText: true },
+        { text: " عن أبي جعفر وأبي عبدالله عليهما‌السلام قالا :", c: 5, excludesText: true },
+        { text: " عن أبي جعفر وأبي عبدالله عليهما‌السلام ، قال :", c: 5, excludesText: true },
+        { text: " عن أبي جعفر وأبي عبدالله عليهما‌السلام ، قالا :", c: 5, excludesText: true },
+        { text: " عن أبي جعفر وأبي عبدالله عليهما‌السلام ، أنهما قالا :", c: 5, excludesText: true },
+        { text: " عن أبي جعفر وأبي عبدالله عليه‌السلام قالا :", c: 5, excludesText: true },
+        { text: " عن أبي جعفر وأبي عبدالله عليهما‌السلام قال :", c: 5, excludesText: true },
+        { text: " عن أبي الحسن الرضا عليه‌السلام قال :", c: 8, excludesText: true },
+        { text: " عن أحدهما عليه‌السلام قال :", c: 5, excludesText: true },
+        { text: " قال أبو عبد الله عليه‌السلام :", c: 6, excludesText: true },
+        { text: " عن أحدهما عليهما‌السلام قال :", c: 5, excludesText: true },
+        { text: " قال الصادق جعفربن محمد عليه‌السلام :", c: 6, excludesText: true },
+        { text: " عن أبيه عليهما‌السلام قال :", c: 5, excludesText: true },
+        { text: " عن أبي الحسن موسى عليه‌السلام قال :", c: 7, excludesText: true },
+        { text: " قال علي بن الحسين عليه‌السلام :", c: 4, excludesText: true },
+        { text: " عن أخيه موسى عليه‌السلام قال :", c: 7, excludesText: true },
+        { text: " موسى بن جعفر عليهما‌السلام قال :", c: 7, excludesText: true },
+        { text: " عن أبي الحسن الماضي عليه‌السلام قال :", c: 77, excludesText: true },
+        { text: " عن الرضا عليه‌السلام - في حديث - قال :", c: 8, excludesText: true },
+        { text: " عن أبي الحسن عليه‌السلام قال :", c: 7, excludesText: true },
+        { text: " عن أبي عبد الله عليه‌السلام قال :", c: 6, excludesText: true },
+        { text: " عن الصادق جعفر بن محمد عليهما‌السلام قال :", c: 6, excludesText: true },
+        { text: " قال أبوذر رحمه‌الله :", c: 77, excludesText: true },
+        { text: " عن علي بن الحسين عليه‌السلام قال :", c: 4, excludesText: true },
+        { text: " سمعت علي بن الحسين عليه‌السلام يقول :", c: 4, excludesText: true },
+        { text: " سمعت أبا عبدالله عليه‌السلام يقول", c: 6, excludesText: true },
+        { text: " قال الرضا عليه‌السلام :", c: 8, excludesText: true },
+
         // .. includesText
-        { text: "لأبي عبدالله عليه‌السلام :", c: 6, excludesText: false },
-        { text: "سأل أبا عبدالله عليه‌السلام", c: 6, excludesText: false },
+        { text: " لأبي عبدالله عليه‌السلام :", c: 6, excludesText: false },
+        { text: " سأل أبا عبدالله عليه‌السلام", c: 6, excludesText: false },
+        { text: " قلت لأبي عبدالله عليه‌السلام", c: 6, excludesText: false },
+        { text: " قلت لابي عبدالله عليه‌السلام", c: 6, excludesText: false },
+        { text: " سألت أبا الحسن عليه‌السلام", c: 7, excludesText: false },
+        { text: " سألت أبا عبد الله عليه‌السلام", c: 6, excludesText: false },
+        { text: " سئل أبو عبد الله عليه‌السلام", c: 6, excludesText: false },
+        { text: " دخلت على أبي جعفر عليه‌السلام", c: 5, excludesText: false },
+        { text: " قلت للرضا عليه‌السلام", c: 8, excludesText: false },
+        { text: " قلت لأبي الحسن", c: 7, excludesText: false },
+        { text: " كنت عند أبي عبدالله عليه‌السلام", c: 6, excludesText: false },
+        { text: " يسأل أبا عبدالله عليه‌السلام", c: 6, excludesText: false },
+        { text: " كتبت إلى الرضا عليه‌السلام", c: 8, excludesText: false },
+        { text: " سألت أبا عبدالله عليه‌السلام", c: 6, excludesText: false },
+        { text: " قلت لأبي جعفر عليه‌السلام", c: 5, excludesText: false },
+        { text: " كنا جلوسا عند أبي عبدالله عليه‌السلام", c: 6, excludesText: false },
+        { text: " سمعت أبا عبد الله عليه‌السلام", c: 6, excludesText: false },
+        { text: " قلت لأبي عبد الله عليه‌السلام", c: 6, excludesText: false },
+        { text: " سألنا أبا عبدالله عليه‌السلام", c: 6, excludesText: false },
+        { text: " سألت أبا جعفر عليه‌السلام", c: 5, excludesText: false },
+        { text: " دخلت على سيدي علي بن محمد عليهما‌السلام", c: 10, excludesText: false },
 
     ];
 
@@ -450,10 +422,6 @@ function cPlus ( item: TS.db_item ) {
         }
     }
 
-    // ! remove it 
-    delete item[9];
-    delete item[0];
-    delete item.idInSection;
     return item;
 
 }
@@ -509,14 +477,15 @@ function leakage ( db: TS.db ) {
 
 function lastTrim ( db: TS.db ) {
 
-    // ! remove it
-    db = db.filter( x => !x.c && x.a );
-
     for ( let p of db ) {
         p.a = p.a.trim();
         if ( p.a.startsWith( ":" ) ) p.a = p.a.slice(1);
         p.a = p.a.trim();
         if ( p.a.endsWith( "،" ) ) p.a = p.a.slice( 0, p.a.length -1 );
+        p.a = p.a.trim();
+        if ( p.a.startsWith( "؛" ) ) p.a = p.a.slice(1);
+        p.a = p.a.trim();
+        if ( p.a.endsWith( "؛" ) ) p.a = p.a.slice( 0, p.a.length -1 ) + ".";
         p.a = p.a.trim();
         if ( p.a.endsWith( " ." ) ) p.a = p.a.slice( 0, p.a.length -2 ) + ".";
         p.a = p.a.trim();
@@ -527,3 +496,47 @@ function lastTrim ( db: TS.db ) {
 }
 
 // .. ======================================================================
+
+function getQuoter ( db: TS.db ) {
+
+    let rss: string[] = [],
+        tmp: string[];
+
+    for ( let p of db ) {
+        if ( p[0] ) {
+            tmp = p[0].split("،");
+            tmp = tmp.filter( x => x.includes( "بن" ) && x.includes( "عن " ) );
+            tmp = tmp.filter( x => !x.includes( ":" ) && !x.includes( "." ) );
+            tmp = tmp.filter( x => !x.includes("عليه‌السلام") && !x.includes("أبيه") );
+            tmp = tmp.filter( x => !x.includes(" قلت ") && !x.includes(" قال") );
+            rss = [ ...rss, ...tmp ];
+        }
+    }
+
+    rss = [ ...new Set(rss) ];
+
+    console.log(rss.length);
+
+    return rss;
+
+}
+
+// .. ======================================================================
+
+function removeCuter( db: TS.db, rss: string[] ) {
+
+    let i = 0;
+    let time = new Date().getTime();
+
+    for ( let p of db ) {
+        tools.timer( db.length, i++, time, "RSS Remover" );
+        for( let r of rss ) p.a = p.a.replace( r + " ،", "" );
+        // ! remove it
+        delete p[0];
+        delete p[9];
+        delete p.idInSection;
+    }
+
+    return db;
+
+}

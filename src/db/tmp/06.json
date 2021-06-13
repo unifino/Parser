@@ -1,0 +1,53 @@
+[
+	[
+		{
+			"text": "عن الحلبي ،",
+			"id": 31,
+			"nextExp": 42,
+			"myDistanceToNextOne": 34
+		},
+		{
+			"text": "عن الرجل يقتل البقة والبرغوث والقملة والذباب في الصلاة ،",
+			"id": 76,
+			"nextExp": 132,
+			"myDistanceToNextOne": 52
+		},
+		{
+			"text": "عن علي بن إبراهيم ،",
+			"id": 184,
+			"nextExp": 203,
+			"myDistanceToNextOne": 1
+		},
+		{
+			"text": "عن أبيه ،",
+			"id": 204,
+			"nextExp": 213,
+			"myDistanceToNextOne": 1
+		},
+		{
+			"text": "عن ابن أبي عمير ،",
+			"id": 214,
+			"nextExp": 231,
+			"myDistanceToNextOne": 1
+		},
+		{
+			"text": "عن حماد ،",
+			"id": 232,
+			"nextExp": 241,
+			"myDistanceToNextOne": 1
+		},
+		{
+			"text": "عن الحلبي ،",
+			"id": 242,
+			"nextExp": 253
+		}
+	],
+	[
+		{
+			"text": "عن الحلبي ،",
+			"id": 31,
+			"nextExp": 42,
+			"myDistanceToNextOne": 34
+		}
+	]
+]

@@ -42,7 +42,7 @@ export async function init () {
     for ( let i in db_v0 ) db_v1[i] = divide_executer( db_v0[i] );
 
     db_v1 = lastTrim ( db_v1 );
-
+    db_v1 = i_rss_cuter ( db_v1 );
     // let rss = getQuoter( db_v1 );
     // db_v1 = removeCuter( db_v1, rss );
     // fs.writeFileSync( "src/db/tmp/02.json", JSON.stringify(rss,null,"\t") );
@@ -384,7 +384,8 @@ function cPlus ( item: TS.db_item ) {
         { text: " سمعت أبا عبدالله عليه‌السلام يقول", c: 6, excludesText: true },
         { text: " قال الرضا عليه‌السلام :", c: 8, excludesText: true },
         { text: " عن أبي عبد الله عليه‌السلام :", c: 6, excludesText: true },
-
+        { text: " وقال أبو عبدالله عليه‌السلام :", c: 6, excludesText: true },
+        
         // .. includesText
         { text: " لأبي عبدالله عليه‌السلام :", c: 6, excludesText: false },
         { text: " سأل أبا عبدالله عليه‌السلام", c: 6, excludesText: false },
@@ -496,31 +497,12 @@ function lastTrim ( db: TS.db ) {
         delete p.idInSection
         delete p.d
     }
-    
+
     // ! remove it
     db = db.filter( x => !x.c );
-    let pp = [];
-    for ( let p of db ) pp.push( findAll( /عن (.+?)،/, p.a ) );
-    pp = pp.filter( x => x.length > 2 );
-    console.log(pp.length);
-    fs.writeFileSync( "src/db/tmp/04.json", JSON.stringify(pp,null,"\t") );
-
-
+    
     return db;
 
-}
-
-// .. ======================================================================
-
-function findAll( regx:RegExp, str: string ) {
-    let output = [];
-    let match;
-    let some = RegExp( regx, [...new Set( "g" + regx.flags ) ].join("") );
-    while ( match = some.exec(str) ) {
-        delete match.input;
-        output.push(match);
-    } 
-    return output.map( x => { return { text: x[0], id: x.index } } );
 }
 
 // .. ======================================================================
@@ -570,3 +552,97 @@ function removeCuter( db: TS.db, rss: string[] ) {
     return db;
 
 }
+
+
+// .. ======================================================================
+
+function findAll ( str: string ): TS.rss_item[] {
+    let output = [],
+        match: RegExpExecArray,
+        regx = /عن (.+?)،/g;
+
+    regx = RegExp( regx, [...new Set( "g" + regx.flags ) ].join("") );
+    while ( match = regx.exec(str) ) {
+        delete match.input;
+        output.push(match);
+    }
+    output = output.map( x => { 
+        return {
+            text: x[0],
+            id: x.index,
+            nextExp: x[0].length +x.index
+        }
+    } );
+    return output;
+}
+
+// .. ======================================================================
+
+function i_rss_cuter ( db: TS.db ) {
+
+    let rss: TS.rss_item[] = [],
+        test: TS.rss_item[][] = [],
+        cut_ID: number;
+
+    for ( let p of db ) {
+        cut_ID = getRSSCutPoint( rss );
+        if ( ~cut_ID ) {
+            p[0] = p[0] ? p[0] + " " : "";
+            p[0] = p[0] + p.a.slice( 0, cut_ID );
+            p.a = p.a.slice( cut_ID );
+        }
+    }
+
+    return db;
+
+}
+
+// .. ======================================================================
+
+function rss_validator ( rss: TS.rss_item[] ) {
+
+    let distance: number;
+    let cdnBox = [
+        ":",
+        "صلى‌الله‌عليه‌وآله‌وسلم", "صلى‌الله‌عليه‌وآله", 
+        "عليه‌السلام", "عليهما‌السلام", "عليهم‌السلام"
+    ];
+
+    MajorLoop:
+    for ( let i in rss ) {
+        for ( let q of cdnBox ) {
+            if ( rss[i].text.includes(q) ) {
+                rss = rss.slice( 0, Number(i) );
+                break MajorLoop;
+            }
+        }
+    }
+
+    for ( let i in rss ) {
+        try {
+            distance = rss[ Number(i) +1 ].id - rss[i].nextExp;
+            rss[i].myDistanceToNextOne = distance;
+        } catch {}
+    }
+
+    MajorLoop:
+    for ( let i in rss ) {
+        if ( rss[i].myDistanceToNextOne > 7 ) {
+            rss = rss.slice( 0, Number(i) +1 );
+            break MajorLoop;
+        }
+    }
+
+    return rss;
+
+}
+
+// .. ======================================================================
+
+function getRSSCutPoint ( rss: TS.rss_item[] ) {
+    let id: number = -1;
+    try { id = rss[ rss.length -1 ].nextExp } catch {}
+    return id;
+}
+
+// .. ======================================================================

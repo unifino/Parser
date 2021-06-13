@@ -43,10 +43,16 @@ export async function init () {
 
     db_v1 = lastTrim ( db_v1 );
     db_v1 = i_rss_cuter ( db_v1 );
-    // let rss = getQuoter( db_v1 );
-    // db_v1 = removeCuter( db_v1, rss );
-    // fs.writeFileSync( "src/db/tmp/02.json", JSON.stringify(rss,null,"\t") );
 
+    // let html = "<html><body>";
+    // for ( let p of db_v1 ) {
+    //     html += "<div class='p_0'>" + (p[0]||'') + "</div>";
+    //     html += "<div class='a'>" + p.a + "</div>";
+    //     html += "<div class='p_9'>" + (p[9]||'') + "</div>";
+    // }
+    // html += "</body></html>";
+
+    // fs.writeFileSync( "src/db/tmp/test.html", html );
     fs.writeFileSync( "src/db/tmp/01.json", JSON.stringify(db_v1,null,"\t") );
 
 }
@@ -385,7 +391,7 @@ function cPlus ( item: TS.db_item ) {
         { text: " قال الرضا عليه‌السلام :", c: 8, excludesText: true },
         { text: " عن أبي عبد الله عليه‌السلام :", c: 6, excludesText: true },
         { text: " وقال أبو عبدالله عليه‌السلام :", c: 6, excludesText: true },
-        
+
         // .. includesText
         { text: " لأبي عبدالله عليه‌السلام :", c: 6, excludesText: false },
         { text: " سأل أبا عبدالله عليه‌السلام", c: 6, excludesText: false },
@@ -491,68 +497,11 @@ function lastTrim ( db: TS.db ) {
         if ( p.a.endsWith( " ." ) ) p.a = p.a.slice( 0, p.a.length -2 ) + ".";
         p.a = p.a.trim();
 
-        // ! remove it
-        delete p[0]
-        delete p[9]
-        delete p.idInSection
-        delete p.d
-    }
-
-    // ! remove it
-    db = db.filter( x => !x.c );
-    
-    return db;
-
-}
-
-// .. ======================================================================
-
-function getQuoter ( db: TS.db ) {
-
-    let rss: string[] = [],
-        tmp: string[];
-
-    for ( let p of db ) {
-        if ( p[0] ) {
-            tmp = p[0].split("،");
-            tmp = tmp.filter( x => x.includes( "بن" ) && x.includes( "عن " ) );
-            tmp = tmp.filter( x => !x.includes( ":" ) && !x.includes( "." ) );
-            tmp = tmp.filter( x => !x.includes("عليه‌السلام") && !x.includes("أبيه") );
-            tmp = tmp.filter( x => !x.includes(" قلت ") && !x.includes(" قال") );
-            rss = [ ...rss, ...tmp ];
-        }
-    }
-
-    rss = [ ...new Set(rss) ];
-
-    return rss;
-
-}
-
-// .. ======================================================================
-
-function removeCuter( db: TS.db, rss: string[] ) {
-
-    let i = 0;
-    let max: number;
-    let time = new Date().getTime();
-
-    for ( let p of db ) {
-        tools.timer( db.length, i++, time, "RSS Remover" );
-        rss.reduce( (head,nextOne) =>
-            p.a.indexOf( nextOne ) > head ?
-                p.a.indexOf( nextOne ) + nextOne.length : head
-        , -1 );
-        if ( ~max ) {
-            p[0] = p.a.slice( 0, max ) + p[0];
-            p.a = p.a.slice( max );
-        }
     }
 
     return db;
 
 }
-
 
 // .. ======================================================================
 
@@ -580,17 +529,28 @@ function findAll ( str: string ): TS.rss_item[] {
 
 function i_rss_cuter ( db: TS.db ) {
 
-    let rss: TS.rss_item[] = [],
-        test: TS.rss_item[][] = [],
-        cut_ID: number;
+    let rss: TS.rss_item[] = [];
+    let info: { id: number; target: 0 | 9 };
 
     for ( let p of db ) {
-        cut_ID = getRSSCutPoint( rss );
-        if ( ~cut_ID ) {
+
+        rss = findAll( p.a );
+        rss = rss_validator( rss );
+        info = getRSSCutPoint( rss );
+
+        // .. append to section 0
+        if ( info.target === 0 ) {
             p[0] = p[0] ? p[0] + " " : "";
-            p[0] = p[0] + p.a.slice( 0, cut_ID );
-            p.a = p.a.slice( cut_ID );
+            p[0] = p[0] + p.a.slice( 0, info.id );
+            p.a = p.a.slice( info.id );
         }
+        // .. append to section 9
+        if ( info.target === 9 ) {
+            p[9] = p[9] ? " " + p[9] : "";
+            p[9] = p.a.slice( info.id ) + p[9];
+            p.a = p.a.slice( 0, info.id );
+        }
+
     }
 
     return db;
@@ -640,9 +600,24 @@ function rss_validator ( rss: TS.rss_item[] ) {
 // .. ======================================================================
 
 function getRSSCutPoint ( rss: TS.rss_item[] ) {
-    let id: number = -1;
-    try { id = rss[ rss.length -1 ].nextExp } catch {}
-    return id;
+
+    let limit = 50,
+        id: number = -1,
+        target: 0|9 = null;
+
+    try {
+        if ( rss[0].id <= limit ) {
+            id = rss[ rss.length -1 ].nextExp;
+            target = 0;
+        }
+        else {
+            id = rss[0].id;
+            target = 9;
+        }
+    } catch {}
+
+    return { id: id, target: target };
+
 }
 
 // .. ======================================================================

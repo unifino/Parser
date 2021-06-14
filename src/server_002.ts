@@ -43,16 +43,19 @@ export async function init () {
 
     db_v1 = lastTrim ( db_v1 );
     db_v1 = i_rss_cuter ( db_v1 );
+    db_v1 = rss_patches( db_v1 );
 
-    // let html = "<html><body>";
-    // for ( let p of db_v1 ) {
-    //     html += "<div class='p_0'>" + (p[0]||'') + "</div>";
-    //     html += "<div class='a'>" + p.a + "</div>";
-    //     html += "<div class='p_9'>" + (p[9]||'') + "</div>";
-    // }
-    // html += "</body></html>";
+    let html = "<!DOCTYPE html><html><head>"+
+        '<link rel="stylesheet" type="text/css" href="test.css" />'+
+        "</head><body><div class='c'>";
+    for ( let p of db_v1 ) {
+        // html += "<div class='p_0'>" + (p[0]||'') + "</div>";
+        html += "<div class='a'>" + p.a + "</div>";
+        // html += "<div class='p_9'>" + (p[9]||'') + "</div>";
+    }
+    html += "</div></body></html>";
 
-    // fs.writeFileSync( "src/db/tmp/test.html", html );
+    fs.writeFileSync( "src/db/tmp/test.html", html );
     fs.writeFileSync( "src/db/tmp/01.json", JSON.stringify(db_v1,null,"\t") );
 
 }
@@ -391,12 +394,12 @@ function cPlus ( item: TS.db_item ) {
         { text: " قال الرضا عليه‌السلام :", c: 8, excludesText: true },
         { text: " عن أبي عبد الله عليه‌السلام :", c: 6, excludesText: true },
         { text: " وقال أبو عبدالله عليه‌السلام :", c: 6, excludesText: true },
-
+        { text: " - في حديث طويل - قال :", c: 77, excludesText: true },
+        
         // .. includesText
-        { text: " لأبي عبدالله عليه‌السلام :", c: 6, excludesText: false },
+        { text: " قلت لأبي عبدالله عليه‌السلام :", c: 6, excludesText: false },
         { text: " سأل أبا عبدالله عليه‌السلام", c: 6, excludesText: false },
         { text: " قلت لأبي عبدالله عليه‌السلام", c: 6, excludesText: false },
-        { text: " قلت لابي عبدالله عليه‌السلام", c: 6, excludesText: false },
         { text: " سألت أبا الحسن عليه‌السلام", c: 7, excludesText: false },
         { text: " سألت أبا عبد الله عليه‌السلام", c: 6, excludesText: false },
         { text: " سئل أبو عبد الله عليه‌السلام", c: 6, excludesText: false },
@@ -414,6 +417,10 @@ function cPlus ( item: TS.db_item ) {
         { text: " سألنا أبا عبدالله عليه‌السلام", c: 6, excludesText: false },
         { text: " سألت أبا جعفر عليه‌السلام", c: 5, excludesText: false },
         { text: " دخلت على سيدي علي بن محمد عليهما‌السلام", c: 10, excludesText: false },
+        { text: " قال لأبي عبدالله عليه‌السلام :", c: 6, excludesText: false },
+        { text: " قال لابي عبدالله عليه‌السلام :", c: 6, excludesText: false },
+        // ! END
+        { text: " قلت لابي عبدالله عليه‌السلام", c: 6, excludesText: false },
 
     ];
 
@@ -426,6 +433,7 @@ function cPlus ( item: TS.db_item ) {
             item[0] = item.a.slice( 0, cut_ID ) + item[0];
             item.a = item.a.slice( cut_ID );
             item.c = p.c;
+            break;
         }
     }
 
@@ -457,7 +465,8 @@ function endOfHadith_Cuter ( item: TS.db_item ) {
 
     // .. cut EndOfHadith "STRICK"
     for ( let p of cdnBOX ) {
-        cut_ID = item.a.lastIndexOf( p.text );
+        // ! IMPORTANT : indexOf OR lastIndexOf ?!
+        cut_ID = item.a.indexOf( p.text );
         if ( ~cut_ID ) {
             item[9] = item[9] ? " " +item[9] : "";
             cut_ID_p = cut_ID + ( p.clear ? p.text.length : 0 );
@@ -538,11 +547,14 @@ function i_rss_cuter ( db: TS.db ) {
         rss = rss_validator( rss );
         info = getRSSCutPoint( rss );
 
-        // .. append to section 0
-        if ( info.target === 0 ) {
-            p[0] = p[0] ? p[0] + " " : "";
-            p[0] = p[0] + p.a.slice( 0, info.id );
-            p.a = p.a.slice( info.id );
+        // .. it has not been cut by STRICT Mode
+        if ( typeof p.c !== "number" ) {
+            // .. append to section 0
+            if ( info.target === 0 ) {
+                p[0] = p[0] ? p[0] + " " : "";
+                p[0] = p[0] + p.a.slice( 0, info.id );
+                p.a = p.a.slice( info.id );
+            }
         }
         // .. append to section 9
         if ( info.target === 9 ) {
@@ -563,7 +575,7 @@ function rss_validator ( rss: TS.rss_item[] ) {
 
     let distance: number;
     let cdnBox = [
-        ":",
+        ":", "#",
         "صلى‌الله‌عليه‌وآله‌وسلم", "صلى‌الله‌عليه‌وآله", 
         "عليه‌السلام", "عليهما‌السلام", "عليهم‌السلام"
     ];
@@ -587,7 +599,7 @@ function rss_validator ( rss: TS.rss_item[] ) {
 
     MajorLoop:
     for ( let i in rss ) {
-        if ( rss[i].myDistanceToNextOne > 7 ) {
+        if ( rss[i].myDistanceToNextOne > 23 ) {
             rss = rss.slice( 0, Number(i) +1 );
             break MajorLoop;
         }
@@ -617,6 +629,86 @@ function getRSSCutPoint ( rss: TS.rss_item[] ) {
     } catch {}
 
     return { id: id, target: target };
+
+}
+
+// .. ======================================================================
+
+function rss_patches ( db: TS.db ) {
+    db = rss_patch_01( db );
+    db = rss_patch_02( db );
+    return db;
+}
+
+// .. ======================================================================
+
+function rss_patch_01 ( db: TS.db ) {
+
+    let cdn = "^محمد بن يعقوب";
+    let id: number;
+
+    for( let p of db ) {
+        id = p.a.lastIndexOf( cdn );
+        if ( ~id ) {
+            p[9] = p[9] ? " " + p[9] : "";
+            p[9] = p.a.slice( id ) + p[9];
+            p.a = p.a.slice( 0, id );
+        }
+    }
+
+    return db;
+}
+
+// .. ======================================================================
+
+function rss_patch_02 ( db: TS.db ) {
+
+    let id: number;
+    let rgx = /عن(.*?)عليه‌السلام(.*?)حديث(.*?):/;
+    let q: RegExpMatchArray;
+    let cdnBox: [number,string][] = [
+        [ 6 , "عبد الله" ],
+        [ 6 , "أبي عبدالله" ],
+        [ 1 , "عليّ عليه‌السلام" ],
+        [ 5 , "أبي جعفر" ],
+        [ 7 , "موسى عليه‌السلام" ],
+        [ 5 , "أبي جعفر" ],
+        [ 8 , "الرضا" ],
+        [ 6 , "الصادق" ],
+        [ 5 , "أحدهما" ],
+        [ 77 , "أبي الحسن الثاني" ],
+        [ 4 , "علي بن الحسين" ],
+        [ 1 , "أبي الحسن الاول" ],
+        [ 1 , "أبي الحسن الأوّل" ],
+        [ 1 , "أبي الحسن الأول" ],
+        [ 1 , "أمير المؤمنين" ],
+        [ 6 , "ابي عبدالله" ],
+        [ 7 , "العبد الصالح" ],
+        [ 13 , "صلى‌الله‌عليه‌وآله" ],
+        [ 77 , "عليهم‌السلام" ],
+        [ 5 , "أبا جعفر" ],
+        [ 6 , "أبو عبدالله" ],
+        [ 6 , "أبى عبدالله" ],
+        [ 77 , "أبي الحسن عليه‌السلام" ],
+        [ 1 , "علي عليه‌السلام"]
+    ];
+    for( let p of db ) {
+        q = ( p.a.match( rgx ) || [] );
+        for ( let c of q ) {
+            if ( !p.c && c.length < 50 && c.length > 30 ) {
+                id = cdnBox.findIndex( x => c.includes(x[1]) )
+                if ( ~id ) {
+                    p.c = cdnBox[id][0];
+                    id = p.a.indexOf(c) + c.length;
+                    p[0] = p[0] ? p[0] + " " : "";
+                    p[0] = p[0] + p.a.slice( 0, id );
+                    p.a = p.a.slice( id );
+                }
+            }
+        }
+    }
+
+    return db;
 
 }
 

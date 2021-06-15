@@ -83,6 +83,6 @@ export type Repo = {
 export type rss_item = { 
     text:string, 
     id:number, 
-    nextExp: number, 
-    myDistanceToNextOne?: number 
+    _n: number, 
+    dxd?: number 
 };

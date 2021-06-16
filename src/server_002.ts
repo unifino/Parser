@@ -414,7 +414,6 @@ function a_0_9 ( db: TS.db ) {
 function a_9 ( item: TS.db_item ) {
 
     let cut_ID: number = -1,
-        cut_ID_p: number = -1,
         cdnBOX: string[];
 
     item.a = item.a.replace( /اقول/g, "أقول" );
@@ -423,12 +422,6 @@ function a_9 ( item: TS.db_item ) {
         " الحديث .",
         "^أقول :",
         "^ أقول :",
-        // "^ورواء",
-        // "^وراوه",
-        // "^ورواه",
-        // "^ ورواه",
-        // "^رواه",
-        // "^وروى",
         "رواية اُخرى ",
     ];
 
@@ -476,17 +469,18 @@ function a_0 ( item: TS.db_item ) {
         { text: " قال لابي عبدالله عليه‌السلام :", c: 6, excludesText: false },
         { text: ": رأيت أبا عبدالله عليه‌السلام ", c: 6, excludesText: false },
         { text: ": رأيت أبا جعفر عليه‌السلام ", c: 5, excludesText: false },
-        { text: ": رأيت أبا الحسن عليه‌السلام ", c: 77, excludesText: false },
+        { text: ": رأيت أبا الحسن عليه‌السلام ", c: 7, excludesText: false },
         { text: ": رأيت أمير المؤمنين ", c: 1, excludesText: false },
-        { text: ": رأيت أبا جعفر الثاني ", c: 77, excludesText: false },
+        { text: ": رأيت أبا جعفر الثاني ", c: 9, excludesText: false },
         { text: " قلت للصادق عليه‌السلام :", c: 6, excludesText: false },
-        { text: ": قلت لابي جعفر الثاني عليه‌السلام :", c: 6, excludesText: false },
+        { text: ": قلت لابي جعفر الثاني عليه‌السلام :", c: 9, excludesText: false },
         { text: ": قلت لابي جعفر عليه‌السلام :", c:5, excludesText: false },
         { text: ": قلت لابي عبدالله عليه‌السلام :", c:6, excludesText: false },
         { text: ": كتبت إلى أبي الحسن عليه‌السلام :", c:7, excludesText: false },
+        { text: "قلت لابي جعفر الثاني عليه‌السلام :", c:9, excludesText: false },
         // .. excludesText
         { text: "قال رسول الله صلى‌الله‌عليه‌وآله‌وسلم - في حديث -", c:13, excludesText: true },
-        { text: " - في حديث المناهي - قال :", c:99, excludesText: true },
+        { text: " - في حديث المناهي - قال :", c:null, excludesText: true },
         { text: "عن أبي عبدالله عليه‌السلام إنه قال :", c:6, excludesText: true },
         { text: "عن الصادق عليه‌السلام أنّه قال :", c:6, excludesText: true },
         { text: " عن أبي عبدالله عليه‌السلام أنه قال :", c:6, excludesText: true },
@@ -494,8 +488,8 @@ function a_0 ( item: TS.db_item ) {
         { text: "موسى بن جعفر عليه‌السلام ، قال :", c:7, excludesText: true },
         { text: "قال أبو الحسن موسى بن جعفر عليه‌السلام :", c:7, excludesText: true },
         { text: "عن أبي عبدالله عليه‌السلام ، قال :", c:6, excludesText: true },
-        { text: ": وروي في حديث آخر :", c:99, excludesText: true },
-        { text: "عن ابيه عليه‌السلام قال :", c:99, excludesText: true },
+        { text: ": وروي في حديث آخر :", c:null, excludesText: true },
+        { text: "عن ابيه عليه‌السلام قال :", c:null, excludesText: true },
         { text: "عن أبي عبدالله عليه‌السلام قال - في حديث - :", c:6, excludesText: true },
         { text: "عن أبي ^جعفر عليه‌السلام قال :", c:5, excludesText: true },
         { text: "عن أبي جعفر عليه‌السلام قال :", c:5, excludesText: true },
@@ -530,7 +524,7 @@ function a_0 ( item: TS.db_item ) {
         { text: " عن أبي جعفر عليه‌السلام قال - في حديث -", c: 5, excludesText: true },
         { text: " عن أبي جعفر عليه‌السلام - في حديث - قال :", c: 5, excludesText: true },
         { text: " قال أبوجعفر عليه‌السلام :", c: 5, excludesText: true },
-        { text: " عن زينب بنت علي عليه‌السلام قالت :", c: 77, excludesText: true },
+        { text: " عن زينب بنت علي عليه‌السلام قالت :", c: 888, excludesText: true },
         { text: " سمعت أبا جعفر عليه‌السلام يقول :", c: 5, excludesText: true },
         { text: " سمعت أبا الحسن عليه‌السلام يقول", c: 8, excludesText: true },
         { text: " عن الرضا عليه‌السلام قال :", c: 8, excludesText: true },
@@ -552,12 +546,12 @@ function a_0 ( item: TS.db_item ) {
         { text: " قال علي بن الحسين عليه‌السلام :", c: 4, excludesText: true },
         { text: " عن أخيه موسى عليه‌السلام قال :", c: 7, excludesText: true },
         { text: " موسى بن جعفر عليهما‌السلام قال :", c: 7, excludesText: true },
-        { text: " عن أبي الحسن الماضي عليه‌السلام قال :", c: 77, excludesText: true },
+        { text: " عن أبي الحسن الماضي عليه‌السلام قال :", c: 7, excludesText: true },
         { text: " عن الرضا عليه‌السلام - في حديث - قال :", c: 8, excludesText: true },
         { text: " عن أبي الحسن عليه‌السلام قال :", c: 7, excludesText: true },
         { text: " عن أبي عبد الله عليه‌السلام قال :", c: 6, excludesText: true },
         { text: " عن الصادق جعفر بن محمد عليهما‌السلام قال :", c: 6, excludesText: true },
-        { text: " قال أبوذر رحمه‌الله :", c: 77, excludesText: true },
+        { text: " قال أبوذر رحمه‌الله :", c: 111, excludesText: true },
         { text: " عن علي بن الحسين عليه‌السلام قال :", c: 4, excludesText: true },
         { text: " سمعت علي بن الحسين عليه‌السلام يقول :", c: 4, excludesText: true },
         { text: " سمعت أبا عبدالله عليه‌السلام يقول", c: 6, excludesText: true },
@@ -745,6 +739,7 @@ function i_rss_cuter_patcher ( db: TS.db ) {
         p = i_rss_cuter_patch_1(p);
         p = i_rss_cuter_patch_2(p);
         p = i_rss_cuter_patch_3(p);
+        p = i_rss_cuter_patch_4(p);
     }
     return db;
 }
@@ -951,6 +946,45 @@ function i_rss_cuter_patch_3 ( item: TS.db_item ) {
 
     cdn = "عن حمران بن أعين قال :"; idx = item.a.indexOf( cdn );
     if ( ~idx ) if ( idx < 10 ) item = append_0( item, idx + cdn.length );
+
+    return item;
+
+}
+
+// .. ======================================================================
+
+function i_rss_cuter_patch_4 ( item: TS.db_item ) {
+
+    let cut_ID: number,
+        cdnBOX: string[];
+
+    cdnBOX = [
+        "^ورواء",
+        "^وراوه",
+        "^ورواه",
+        "ورواه",
+        "^ ورواه",
+        "^رواه",
+        "^وروى",
+    ];
+
+    for ( let p of cdnBOX ) {
+        cut_ID = item.a.indexOf( p );
+        if ( ~cut_ID ) 
+            if ( cut_ID > 20 )
+                item = append_9( item, cut_ID );
+    }
+
+    cdnBOX = [
+        "قال الكليني : وروي أيضاً",
+        "قال الكليني : وروي أيضا",
+    ];
+
+    for ( let p of cdnBOX ) {
+        cut_ID = item.a.indexOf( p );
+        if ( ~cut_ID ) 
+            item = append_9( item, cut_ID );
+    }
 
     return item;
 

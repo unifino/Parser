@@ -33,16 +33,35 @@ export function addTmpProps ( db: TS.db ) {
 
 // .. ======================================================================
 
-export function R ( newDB: TS.db, reference: TS.db ) {
+export function R ( item: TS.db_item, reference: TS.db ) {
+
+    let R: TS.R[] = [];
+    for ( let x of reference ) R.push( R_Calc( item, x ) );
+    return R;
+
+}
+
+// .. ======================================================================
+
+export function R_old ( newDB: TS.db, reference: TS.db, detour: boolean ) {
 
     let R: TS.R[] = [],
-        title = " R Calculation";
+        title = " R Calculation",
+        start_time = new Date().getTime();
 
     for ( let i=0; i<newDB.length; i++ ) {
-        timer( newDB.length, i, new Date().getTime(), title );
-        for ( let x of reference ) {
-            R.push( R_Calc( newDB[i], x ) );
-        }
+
+        timer( newDB.length, i, start_time, title );
+
+        // .. detour mode just for same : db-db mode
+        if ( detour )
+            for ( let j = i+1; j < newDB.length; j++)
+                R.push( R_Calc( newDB[i], newDB[j] ) );
+
+        // .. normal | long mode
+        else
+            for ( let x of reference ) R.push( R_Calc( newDB[i], x ) );
+
     }
 
     return R;
@@ -341,14 +360,14 @@ export function getPepticR ( peptic: TS.ClusterBox, R: TS.R[] ) {
 
 // .. ======================================================================
 
-export function timer ( 
-    length: number, 
-    i: number, 
-    startTime: number, 
-    title: string = "Timer", 
-    version: string = "1.0.4", 
-    quality: number = null, 
-    dupC: number = null 
+export function timer (
+    length: number,
+    i: number,
+    startTime: number,
+    title: string = "     Timer    ",
+    version: string = "1.0.4",
+    quality: number = null,
+    dupC: number = null
 ) {
 
     let passedTime, ets,

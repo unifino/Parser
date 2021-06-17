@@ -71,6 +71,7 @@ function load_db_v0 ( mode: "Scratch"|"Cached" ) {
             book_v1 = getBook_v1( book_v0 );
             set_v1 = [ ...set_v1, ...book_v1 ];
         }
+        tools.notify( " Books Loaded!" );
         // .. convert set v1 to v2 [ string[][]=>string[] ]
         for ( let i in set_v1 ) set_v2 = [ ...set_v2, ...set_v1[i] ];
         // .. get hadith prepared for extraction id from sourceText
@@ -127,7 +128,7 @@ function rename ( db: TS.db, reverse: boolean ) {
 
 function readSrcBook ( num: number ): string {
 
-    console.log( "reading book num: " + num + "...");
+    tools.notify( "  book num: " + num + ( num > 9 ? "" : " ") );
 
     let filePath = "src/db/source/وسائل الشيعة/" + num + ".htm";
     // .. check

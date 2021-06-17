@@ -15,14 +15,15 @@ export async function init () {
 
     tools.notify( "     الکافی   " );
 
-    let db = [];
+    let db: TS.db = [];
     saveDB( db );
 
     // .. get v0 [ Scratch | Cached ]
-    db = load_db_v0( "Scratch" );
-
-    db = db.map( x => x.a.split("^") );
-    for( let i in db ) db[i] = db[i].filter( x => x !== " " );
+    db = load_db_v0( "Cached" );
+    // .. main dividers
+    db = a_0_9( db );
+    // ! remove it
+    // db = db.filter( x => !x.c );
 
     // .. write-down DB
     saveDB( db, true );
@@ -53,10 +54,15 @@ function load_db_v0 ( mode: "Scratch"|"Cached" ) {
         // .. convert all sourceText => set v1
         for ( let i=1; i<=15; i ++ ) {
             textBook = readSrcBook(i);
+            textBook = some_edits( textBook );
             book_v0 = getBook_v0( textBook );
             book_v1 = getBook_v1( book_v0 );
             set_v1 = [ ...set_v1, ...book_v1 ];
         }
+
+        // .. notify up to this step
+        tools.notify( " Books Loaded!" );
+
         // .. convert set v1 to v2 [ string[][]=>string[] ]
         for ( let i in set_v1 ) set_v2 = [ ...set_v2, ...set_v1[i] ];
         // .. get hadith prepared for extraction id from sourceText
@@ -65,8 +71,7 @@ function load_db_v0 ( mode: "Scratch"|"Cached" ) {
         set_v2 = set_v2.filter( x => x );
         // .. get hadith from sourceText and [ assign d & j ]
         db_v0 = hadith_db_generator( set_v2 );
-        // // .. text unifier
-        // db_v0 = text_unifier( db_v0 );
+
         // .. save it in storage
         fs.writeFileSync( _00_Path, JSON.stringify( db_v0, null, "\t" ) );
 
@@ -80,7 +85,7 @@ function load_db_v0 ( mode: "Scratch"|"Cached" ) {
 
 function readSrcBook ( num: number ): string {
 
-    console.log( "reading book num: " + num + "...");
+    tools.notify( "  book num: " + num + ( num > 9 ? "" : " ") );
 
     let filePath = "src/db/source/الكافي/" + num + ".htm";
     // .. check
@@ -100,6 +105,49 @@ function readSrcBook ( num: number ): string {
     else console.log( "err-01",a , b )
 
 }
+
+// .. ======================================================================
+
+function some_edits ( text: string ) {
+
+    text = text.replace( / +/g, " " );
+    text = text.replace( /\.\.\.\.\.+/g, "....." );
+    text = text.replace( /\.\.\.\.\./g, " " );
+    text = text.replace( /\[\.\.\.\]/g, " " );
+    text = text.replace( / +/g, " " );
+    text = text.trim();
+
+    text = text.replace( /- جَلَّ وعَزَّ -/g, " عزوجل " );
+    text = text.replace( /- عَزَّ وجَلَّ -/g, " عزوجل " );
+    text = text.replace( /- عز وجل -/g, " عزوجل " );
+    text = text.replace( /عَزَّ وجَلَّ/g, " عزوجل " );
+    text = text.replace( /جَلَّ وعَزَّ/g, " عزوجل " );
+    text = text.replace( /عز وجل/g, " عزوجل " );
+    text = text.replace( /- عَزَّ وَجَلَّ -/g, " عزوجل " );
+    text = text.replace( /عَزَّ وَجَلَّ/g, " عزوجل " );
+    text = text.replace( /- عَزَّ وَجَلَ -/g, " عزوجل " );
+    text = text.replace( /عَزَّ وَجَلَ/g, " عزوجل " );
+    text = text.replace( /- عَزّ وَجَلَّ -/g, " عزوجل " );
+    text = text.replace( /عَزّ وَجَلَّ/g, " عزوجل " );
+    text = text.replace( /- عَزَّ وجلَّ -/g, " عزوجل " );
+    text = text.replace( /عَزَّ وجلَّ/g, " عزوجل " );
+    text = text.replace( /- عَزَّ وَ جَلَّ -/g, " عزوجل " );
+    text = text.replace( /عَزَّ وَ جَلَّ/g, " عزوجل " );
+    text = text.replace( /- عزَّ وَ جَلَّ -/g, " عزوجل " );
+    text = text.replace( /- عزَّ وَ جَلَّ -/g, " عزوجل " );
+    text = text.replace( /عزَّ وَ جَلَّ/g, " عزوجل " );
+    text = text.replace( /- عَزَّوَ جَلَّ -/g, " عزوجل " );
+
+    text = text.replace( /، +/g, "،" );
+    text = text.replace( / +،/g, "،" );
+    text = text.replace( / ، /g, "،" );
+    text = text.replace( /،/g, " ، " );
+    text = text.replace( /،  ،/g, " ، " );
+
+    return text;
+
+}
+
 
 // .. purify ===============================================================
 
@@ -401,6 +449,111 @@ function hadith_db_generator ( book: string[] ) {
     if ( hadith.a ) newBook.push( hadith );
 
     return newBook;
+
+}
+
+// .. ======================================================================
+
+function a_0_9 ( db: TS.db ) {
+
+    let lines: string[],
+        firstLineIndex: number,
+        a_ID: number,
+        z_ID: number;
+
+    for( let p of db ) {
+
+        lines = p.a.split("^").filter( x => x !== " " );
+        firstLineIndex = lines.findIndex( x => x.includes( ":" ) );
+
+        // .. Purge Mode!
+        if ( !~firstLineIndex ) { p[0] = p.a; p.a = null; }
+
+        // .. Actual Mode
+        else  {
+            p[0] = lines.slice( 0, firstLineIndex +1 ).join( " " );
+            p.a = lines.slice( firstLineIndex +1 ).join( " " );
+            p = a_0(p);
+            a_ID = p.a.indexOf( "«" );
+            if ( ~a_ID && a_ID < 2 ) p = append_0( p, a_ID +1 );
+            a_ID = p.a.indexOf( "«" );
+            z_ID = p.a.indexOf( "»" );
+            // .. in case of : «---»
+            if ( !~a_ID && ~z_ID )
+                if ( z_ID > p.a.length - 4 )
+                    p = append_9( p, z_ID );
+            p.a = p.a.trim();
+        }
+
+
+    }
+
+    return db;
+
+}
+
+
+// .. ======================================================================
+
+function a_0 ( item: TS.db_item ) {
+
+    let cut_ID: number = -1,
+        cdnBOX: { text: string, c: number, excludesText: boolean }[];
+
+    cdnBOX = [
+
+        // .. includesText
+        { text: "عَنْ أَبِي جَعْفَرٍ عليه‌السلام ، قَالَ :", c: 5, excludesText: true },
+
+        // .. excludesText
+        { text: "قال رسول الله صلى‌الله‌عليه‌وآله‌وسلم - في حديث -", c:13, excludesText: true },
+
+    ];
+
+    // .. cut BeginningOfHadith "STRICK"
+    for ( let p of cdnBOX ) {
+        cut_ID = item.a.indexOf( p.text );
+        if ( ~cut_ID ) {
+            if ( ~cut_ID < 3 ) {
+                if ( p.excludesText ) cut_ID += p.text.length;
+                item = append_0 ( item, cut_ID );
+                item.c = p.c;
+                break;
+            }
+        }
+    }
+
+    return item;
+
+}
+
+// .. ======================================================================
+
+function append_0 ( item: TS.db_item, idx: number ) {
+
+    // .. skip
+    if ( !~idx ) return item;
+
+    item[0] = item[0] ? item[0] +" " : "";
+    item[0] = item[0] + item.a.slice( 0, idx );
+    item.a = item.a.slice( idx );
+
+    return item;
+
+}
+
+// .. ======================================================================
+
+function append_9 ( item: TS.db_item, idx: number ) {
+
+    // .. skip
+    if ( !~idx ) return item;
+
+    item[9] = item[9] ? " " +item[9] : "";
+    item[9] = item.a.slice( idx ) + item[9];
+    item.a = item.a.slice( 0, idx );
+
+    return item;
 
 }
 

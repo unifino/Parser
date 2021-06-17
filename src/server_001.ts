@@ -23,8 +23,13 @@ export async function init () {
     // .. main dividers
     db = a_0_9( db );
     // ! remove it
-    // db = db.filter( x => !x.c );
-
+    let cdnBOX = [
+        121,350,492,649,652,653,777,859,907,999,1307,1316,1367,1876,2314,
+        2867,2965,4749,5258,6729,8154,11802,11836,13481,14620,14927,15195,
+    ];
+    db = db.filter( x => !x.c && !cdnBOX.includes(x.d as any) );
+    console.log(db.length);
+    
     // .. write-down DB
     saveDB( db, true );
 
@@ -117,6 +122,7 @@ function some_edits ( text: string ) {
     text = text.replace( / +/g, " " );
     text = text.trim();
 
+    text = text.replace( /عَزَّوَجَلَّ/g, " عزوجل " );
     text = text.replace( /- جَلَّ وعَزَّ -/g, " عزوجل " );
     text = text.replace( /- عَزَّ وجَلَّ -/g, " عزوجل " );
     text = text.replace( /- عز وجل -/g, " عزوجل " );
@@ -137,6 +143,9 @@ function some_edits ( text: string ) {
     text = text.replace( /- عزَّ وَ جَلَّ -/g, " عزوجل " );
     text = text.replace( /عزَّ وَ جَلَّ/g, " عزوجل " );
     text = text.replace( /- عَزَّوَ جَلَّ -/g, " عزوجل " );
+    text = text.replace( /تَبَارَكَ اسْمُهُ/g, " عزوجل " );
+    text = text.replace( /- تَبَارَكَ وَتَعَالى -/g, " عزوجل " );
+    text = text.replace( /تَبَارَكَ وَتَعَالى/g, " عزوجل " );
 
     text = text.replace( /، +/g, "،" );
     text = text.replace( / +،/g, "،" );
@@ -147,7 +156,6 @@ function some_edits ( text: string ) {
     return text;
 
 }
-
 
 // .. purify ===============================================================
 
@@ -459,21 +467,40 @@ function a_0_9 ( db: TS.db ) {
     let lines: string[],
         firstLineIndex: number,
         a_ID: number,
-        z_ID: number;
+        z_ID: number,
+        cdnBOX = [
+            121,350,492,649,652,653,777,859,907,999,1307,1316,1367,1876,2314,
+            2867,2965,4749,5258,6729,8154,11802,11836,13481,14620,14927,15195,
+        ];
 
     for( let p of db ) {
 
         lines = p.a.split("^").filter( x => x !== " " );
         firstLineIndex = lines.findIndex( x => x.includes( ":" ) );
 
+        // .. Skip Mode!
+        if ( cdnBOX.includes( p.d as number ) ) {
+            let patchFilePath = "src/db/source/الكافي/patches.json";
+            let patches = JSON.parse( fs.readFileSync( patchFilePath, 'utf8' ) );
+            p = patches.find( x => x.d === p.d );
+            if ( !p ) console.log( "Unexpected ID from Patches: ", p.d );
+        }
+
         // .. Purge Mode!
-        if ( !~firstLineIndex ) { p[0] = p.a; p.a = null; }
+        else if ( !~firstLineIndex ) { p[0] = p.a; p.a = null; }
 
         // .. Actual Mode
         else  {
+
+            // .. prepare
             p[0] = lines.slice( 0, firstLineIndex +1 ).join( " " );
             p.a = lines.slice( firstLineIndex +1 ).join( " " );
+            // .. patch
+            if ( p.a === "" ) { p.a = p[0]; delete p[0] }
+
+            // .. actual step
             p = a_0(p);
+            // .. trim
             a_ID = p.a.indexOf( "«" );
             if ( ~a_ID && a_ID < 2 ) p = append_0( p, a_ID +1 );
             a_ID = p.a.indexOf( "«" );
@@ -483,6 +510,7 @@ function a_0_9 ( db: TS.db ) {
                 if ( z_ID > p.a.length - 4 )
                     p = append_9( p, z_ID );
             p.a = p.a.trim();
+
         }
 
 
@@ -491,7 +519,6 @@ function a_0_9 ( db: TS.db ) {
     return db;
 
 }
-
 
 // .. ======================================================================
 
@@ -503,22 +530,239 @@ function a_0 ( item: TS.db_item ) {
     cdnBOX = [
 
         // .. includesText
-        { text: "عَنْ أَبِي جَعْفَرٍ عليه‌السلام ، قَالَ :", c: 5, excludesText: true },
+        { text: "قُلْتُ لِأَبِي الْحَسَنِ عليه‌السلام :", c:7, excludesText: false },
+        { text: "قُلْتُ لِأَبِي عَبْدِ اللهِ عليه‌السلام :", c:6, excludesText: false },
+        { text: "قُلْتُ لِأَبِي جَعْفَرٍ عليه‌السلام :", c:5, excludesText: false },
+        { text: "سَأَلْتُ أَبَا جَعْفَرٍ عليه‌السلام", c:5, excludesText: false },
+        { text: "سُئِلَ أَبُو عَبْدِ اللهِ عليه‌السلام", c:6, excludesText: false },
+        { text: "كُنَّا عِنْدَ الرِّضَا عليه‌السلام ،", c:8, excludesText: false },
+        { text: "قَالَ ابْنُ السِّكِّيتِ لِأَبِي الْحَسَنِ عليه‌السلام :", c:7, excludesText: false },
+        { text: "سُئِلَ أَبُو الْحَسَنِ عليه‌السلام :", c:7, excludesText: false },
+        { text: "سَمِعْتُ أَبَا جَعْفَرٍ عليه‌السلام يَقُولُ :", c:5, excludesText: false },
+        { text: "سَمِعْتُ أَمِيرَ الْمُؤْمِنِينَ عليه‌السلام", c:1, excludesText: false },
+        { text: "قُلْتُ لِأَبِي الْحَسَنِ مُوسى عليه‌السلام :", c:7, excludesText: false },
+        { text: "قُلْتُ لِأَبِي الْحَسَنِ الْأَوَّلِ عليه‌السلام :", c:1, excludesText: false },
+        { text: "سَأَلْتُ أَبَا الْحَسَنِ مُوسى عليه‌السلام", c:7, excludesText: false },
+        { text: "سَأَلْتُ أَبَا عَبْدِ اللهِ عليه‌السلام", c:6, excludesText: false },
+        { text: "سَأَلَ رَجُلٌ أَبَا عَبْدِ اللهِ عليه‌السلام", c:6, excludesText: false },
+        { text: "عَنْ أَبِي الْحَسَنِ مُوسى عليه‌السلام ، قَالَ", c:7, excludesText: false },
+        { text: "قُلْتُ لِأَمِيرِ الْمُؤْمِنِينَ عليه‌السلام :", c:1, excludesText: false },
+        { text: "سَأَلْتُ أَبَا الْحَسَنِ عليه‌السلام :", c:7, excludesText: false },
+        { text: "سَأَلْتُ أَبَا الْحَسَنِ الرِّضَا عليه‌السلام", c:7, excludesText: false },
+        { text: "كَتَبْتُ إِلى أَبِي الْحَسَنِ عليه‌السلام", c:7, excludesText: false },
+        { text: "سَأَلْتُ أَبَا الْحَسَنِ الرِّضَا عليه‌السلام :", c:8, excludesText: false },
+        { text: "قُلْتُ لِأَبِي عَبْدِ اللهِ أَوْ لِأَبِي جَعْفَرٍ عليهما‌السلام :", c:5, excludesText: false },
+        { text: "سأل رجل أبا جعفر عليه‌السلام", c:5, excludesText: false },
+        { text: "كنت عند أبي عبد الله عليه‌السلام", c:6, excludesText: false },
+        { text: "كان علي بن الحسين عليهما‌السلام", c:4, excludesText: false },
+        { text: "قلت لأبي عبد الله عليه‌السلام :", c:6, excludesText: false },
+        { text: "دخلت على أبي الحسن الرضا عليه‌السلام", c:8, excludesText: false },
+        { text: "سألت علي بن الحسين عليهما‌السلام :", c:4, excludesText: false },
+        { text: "عن أبي عبد الله عليه‌السلام أنه سئل :", c:6, excludesText: false },
+        { text: "سَأَلْتُ الرِّضَا عليه‌السلام", c:8, excludesText: false },
+        { text: "مَرَرْتُ مَعَ أَبِي جَعْفَرٍ عليه‌السلام", c:5, excludesText: false },
+        { text: "كَتَبْتُ إِلى أَبِي جَعْفَرٍ عليه‌السلام :", c:5, excludesText: false },
+        { text: "سَأَلْتُهُ عَنْ قَوْلِ اللهِ عزوجل :", c:-1, excludesText: false },
+        { text: "كُنْتُ عِنْدَ أَبِي جَعْفَرٍ عليه‌السلام", c:5, excludesText: false },
+        { text: "رَأَيْتُ أَبَا الْحَسَنِ عليه‌السلام", c:7, excludesText: false },
+        { text: "سَمِعْتُ أَبَا الْحَسَنِ مُوسى عليه‌السلام", c:7, excludesText: false },
+        { text: "سَأَلْتُ أَبَا الْحَسَنِ عليه‌السلام", c:7, excludesText: false },
+        { text: "قُلْنَا لِأَبِي عَبْدِ اللهِ عليه‌السلام :", c:6, excludesText: false },
+        { text: "رَأَيْتُ أَبَا جَعْفَرٍ عليه‌السلام", c:5, excludesText: false },
+        { text: "سَأَلْتُ أَبَا عَبْدِ اللهِ وَأَبَا الْحَسَنِ عليهما‌السلام", c:6, excludesText: false },
+        { text: "سَأَلَ زُرَارَةُ أَبَا عَبْدِ اللهِ عليه‌السلام", c:6, excludesText: false },
+        { text: "سَأَلْتُ أَبَا إِبْرَاهِيمَ عليه‌السلام", c:7, excludesText: false },
+        { text: "دَخَلْتُ عَلى أَبِي الْحَسَنِ عليه‌السلام ،", c:7, excludesText: false },
+        { text: "كَتَبْتُ إِلى أَبِي مُحَمَّدٍ عليه‌السلام", c:11, excludesText: false },
+        { text: "كَانَ لِأَبِي مُحَمَّدٍ عليه‌السلام", c:11, excludesText: false },
+        { text: "دَخَلْتُ عَلى أَبِي مُحَمَّدٍ عليه‌السلام", c:11, excludesText: false },
+        { text: "أَنَّ أَبَا مُحَمَّدٍ عليه‌السلام", c:11, excludesText: false },
+        { text: "خَرَجَ عَنْ أَبِي مُحَمَّدٍ عليه‌السلام", c:11, excludesText: false },
+        { text: "سَمِعْتُ أَبَا عَبْدِ اللهِ عليه‌السلام يَقُولُ فِي الْإِيلَاءِ :", c:6, excludesText: false },
+        { text: "عَنْ أَبِي جَعْفَرٍ عليه‌السلام فِي الْأَمَةِ :", c:5, excludesText: false },
+        { text: "رَأَيْتُ أَبَا عَبْدِ اللهِ عليه‌السلام", c:6, excludesText: false },
+        { text: "كَانَ أَبُو الْحَسَنِ عليه‌السلام", c:7, excludesText: false },
+        { text: "قُلْتُ لِأَبِي الْحَسَنِ الرِّضَا عليه‌السلام :", c:8, excludesText: false },
+        { text: "قُلْتُ لِأَبِي جَعْفَرٍ الثَّانِي عليه‌السلام :", c:9, excludesText: false },
+        { text: "سُئِلَ أَبُو جَعْفَرٍ عليه‌السلام :", c:6, excludesText: false },
+        { text: "سُئِلَ أَمِيرُ الْمُؤْمِنِينَ عليه‌السلام :", c:1, excludesText: false },
+        { text: "أَنَّهُ سَأَلَ أَبَا عَبْدِ اللهِ عليه‌السلام", c:6, excludesText: true },
+        { text: "كَتَبْتُ إِلى أَبِي الْحَسَنِ الرِّضَا عليه‌السلام", c:8, excludesText: false },
+        { text: "كَتَبْتُ إِلى أَبِي الْحَسَنِ الثَّالِثِ عليه‌السلام", c:10, excludesText: false },
+        { text: "دَخَلْنَا عَلى أَبِي الْحَسَنِ عَلِىِّ بْنِ مُوسىَ الرِّضَا عليه‌السلام", c:8, excludesText: false },
+        { text: "قُلْتُ لِأَبِي الْحَسَنِ مُوسَى بْنِ جَعْفَرٍ عليهما‌السلام :", c:5, excludesText: false },
+        { text: "وَصَفْتُ لِأَبِي الْحَسَنِ عليه‌السلام", c:7, excludesText: false },
+        { text: "أَنَّهُ كَتَبَ إِلى أَبِي الْحَسَنِ عليه‌السلام", c:7, excludesText: false },
+        { text: "سَأَلَ رَجُلٌ فَارِسِيٌّ أَبَا الْحَسَنِ عليه‌السلام ، فَقَالَ :", c:7, excludesText: false },
+        { text: "سُئِلَ أَبُو جَعْفَرٍ الثَّانِي عليه‌السلام :", c:10, excludesText: false },
+        { text: "كَتَبْتُ إِلى أَبِي جَعْفَرٍ عليه‌السلام ، أَوْ قُلْتُ لَهُ :", c:5, excludesText: false },
+        { text: "سَأَلْتُ أَبَا جَعْفَرٍ الثَّانِيَ عليه‌السلام :", c:10, excludesText: false },
+        { text: "قُلْتُ لِلرِّضَا عليه‌السلام :", c:8, excludesText: false },
+        { text: "أَنَّهُ كَتَبَ إِلَيْهِ الرِّضَا عليه‌السلام :", c:8, excludesText: false },
+        { text: "", c:null, excludesText: false },
+        { text: "", c:null, excludesText: false },
+        { text: "", c:null, excludesText: false },
+        { text: "", c:null, excludesText: false },
+        { text: "", c:null, excludesText: false },
+
+        // ! important
+        { text: "قَالَ :", c:-11, excludesText: false },
 
         // .. excludesText
-        { text: "قال رسول الله صلى‌الله‌عليه‌وآله‌وسلم - في حديث -", c:13, excludesText: true },
+        { text: "", c:null, excludesText: true },
+        { text: "", c:null, excludesText: true },
+        { text: "", c:null, excludesText: true },
+        { text: "قُلْتُ لِأَبِي إِبْرَاهِيمَ عليه‌السلام :", c:7, excludesText: true },
+        { text: "عَنْ أَبِي الْحَسَنِ عليه‌السلام أَنَّهُ قَالَ :", c:8, excludesText: true },
+        { text: "فَقَالَ أَبُو جَعْفَرٍ :", c:5, excludesText: true },
+        { text: "حَدَّثَنِي مُوسَى بْنُ جَعْفَرٍ عليهما‌السلام ، قَالَ :", c:7, excludesText: true },
+        { text: "عَنْ أَبِي الْحَسَنِ الرِّضَا عليه‌السلام فِي قَوْلِ اللهِ عزوجل :", c:8, excludesText: true },
+        { text: "عَنْ أَبِي جَعْفَرٍ وَأَبِي عَبْدِ اللهِ عليهما‌السلام ، قَالَ :", c:5, excludesText: true },
+        { text: "أَنَّهُ سَمِعَ أَبَا جَعْفَرٍ وَأَبَا عَبْدِ اللهِ عليهما‌السلام يَقُولَانِ :", c:5, excludesText: true },
+        { text: "سَمِعْتُ أَبَا جَعْفَرٍ وَأَبَا عَبْدِ اللهِ عليهما‌السلام يَقُولَانِ :", c:5, excludesText: true },
+        { text: "عَنْ أَبِي الْحَسَنِ الْأَوَّلِ مُوسى عليه‌السلام ، قَالَ : قَالَ :", c:7, excludesText: true },
+        { text: "أَنَّ أَبَا الْحَسَنِ الرِّضَا عليه‌السلام قَالَ لَهُ :", c:8, excludesText: true },
+        { text: "حَدَّثَنِي أَخِي ، عَنْ جَعْفَرٍ ، عَنْ أَبِيهِ :", c:6, excludesText: true },
+        { text: "عَنْ أَبِي جَعْفَرٍ الثَّانِي عليه‌السلام ، قَالَ عليه‌السلام :", c:10, excludesText: true },
+        { text: "دَخَلْتُ عَلى أَبِي عَبْدِ اللهِ عليه‌السلام ، فَقَالَ :", c:6, excludesText: true },
+        { text: "سَأَلَ أَبَا عَبْدِ اللهِ عليه‌السلام بَعْضُ أَصْحَابِنَا عَنِ الْجَفْرِ ، فَقَالَ :", c:6, excludesText: true },
+        { text: "دَخَلْتُ عَلى أَبِي عَبْدِ اللهِ عليه‌السلام ،", c:6, excludesText: true },
+        { text: "كُنْتُ عِنْدَ أَبِي عَبْدِ اللهِ عليه‌السلام", c:6, excludesText: true },
+        { text: "عَنْ أَبِي الْحَسَنِ صَاحِبِ الْعَسْكَرِ عليه‌السلام ، قَالَ", c:11, excludesText: true },
+        { text: "عَنْ أَبِي الْحَسَنِ صَاحِبِ الْعَسْكَرِ عليه‌السلام ، قَالَ : سَمِعْتُهُ يَقُولُ :", c:11, excludesText: true },
+        { text: "كُنْتُ عِنْدَ أَبِي عَبْدِ اللهِ عليه‌السلام وَعِنْدَهُ أَبُو بَصِيرٍ ، فَقَالَ أَبُو عَبْدِ اللهِ عليه‌السلام :", c:6, excludesText: true },
+        { text: "عَنْ جَعْفَرِ بْنِ مُحَمَّدٍ ، عَنْ أَبِيهِ عليهما‌السلام ، قَالَ :", c:5, excludesText: true },
+        { text: "كُنْتُ عِنْدَ أَبِي عَبْدِ اللهِ عليه‌السلام ، فَسَأَلَهُ رَجُلٌ عَنْ قَوْلِ اللهِ عزوجل :", c:6, excludesText: true },
+        { text: "كُنْتُ عِنْدَ أَبِي عَبْدِ اللهِ عليه‌السلام ،", c:6, excludesText: true },
+        { text: "تَلَا أَبُو عَبْدِ اللهِ عليه‌السلام هذِهِ الْآيَةَ :", c:6, excludesText: true },
+        { text: "قَالَ أَبُو جَعْفَرٍ عليه‌السلام فِي هذِهِ الْآيَةِ :", c:5, excludesText: true },
+        { text: "عَنْ أَحَدِهِمَا عليهما‌السلام فِي قَوْلِ اللهِ عزوجل :", c:5, excludesText: true },
+        { text: "سَأَلَ الْهَيْثَمُ أَبَا عَبْدِ اللهِ عليه‌السلام - وَأَنَا عِنْدَهُ - عَنْ قَوْلِ اللهِ عزوجل :", c:6, excludesText: true },
+        { text: "عَنْ أَبِي الْحَسَنِ عليه‌السلام فِي قَوْلِ اللهِ عزوجل :", c:8, excludesText: true },
+        { text: "قَالَ أَبُو عَبْدِ اللهِ عليه‌السلام فِي قَوْلِ اللهِ تَعَالى :", c:6, excludesText: true },
+        { text: "عَنْ أَمِيرِ الْمُؤْمِنِينَ عليه‌السلام ، قَالَ :", c:1, excludesText: true },
+        { text: "قَالَ أَبُو عَبْدِ اللهِ عليه‌السلام فِي قَوْلِ اللهِ عزوجل :", c:6, excludesText: true },
+        { text: "أَشْهَدُ أَنِّي سَمِعْتُ أَبَا عَبْدِ اللهِ عليه‌السلام يَقُولُ :", c:6, excludesText: true },
+        { text: "قَالَ لِي أَبُو جَعْفَرٍ عليه‌السلام : «", c:5, excludesText: true },
+        { text: "أَنَّ أَمِيرَ الْمُؤْمِنِينَ عليه‌السلام قَالَ :", c:1, excludesText: true },
+        { text: "عَنِ الْعَبْدِ الصَّالِحِ عليه‌السلام ، قَالَ :", c:7, excludesText: true },
+        { text: "قَالَ لِي أَبُو الْحَسَنِ الرِّضَا عليه‌السلام :", c:8, excludesText: true },
+        { text: "قَالَ أَبُو الْحَسَنِ الرِّضَا عليه‌السلام :", c:8, excludesText: true },
+        { text: "سَمِعْتُ أَبَا الْحَسَنِ مُوسَى بْنَ جَعْفَرٍ عليهما‌السلام يَقُولُ :", c:7, excludesText: true },
+        { text: "عَنْ أَبِي الْحَسَنِ مُوسَى بْنِ جَعْفَرٍ عليهما‌السلام", c:7, excludesText: true },
+        { text: "عَنْ أَبِي إِبْرَاهِيمَ عليه‌السلام أَنَّهُ قَالَ :", c:7, excludesText: true },
+        { text: "ذَكَرْتُ لِأَبِي عَبْدِ اللهِ عليه‌السلام قَوْلَنَا فِي الْأَوْصِيَاءِ :", c:6, excludesText: true },
+        { text: "حَمَّادُ بْنُ عُثْمَانَ ، عَنْ بَشِيرٍ الْعَطَّارِ ، قَالَ :  سَمِعْتُ أَبَا عَبْدِ اللهِ عليه‌السلام يَقُولُ :", c:6, excludesText: true },
+        { text: "سَمِعْتُ أَبَا عَبْدِ اللهِ عليه‌السلام", c:6, excludesText: true },
+        { text: "عَنْ أَبِي جَعْفَرٍ عليه‌السلام", c:5, excludesText: true },
+        { text: "كَتَبَ أَبُو الْحَسَنِ مُوسَى بْنُ جَعْفَرٍ عليهما‌السلام إِلى أَبِي :", c:5, excludesText: true },
+        { text: "قَالَ لِي عَلِيُّ بْنُ الْحُسَيْنِ عليهما‌السلام :", c:4, excludesText: true },
+        { text: "عَنْ أَبِي عَبْدِ اللهِ ، عَنْ آبَائِهِ عليهم‌السلام ، قَالَ :", c:6, excludesText: true },
+        { text: "عَنْ جَعْفَرٍ ، عَنْ آبَائِهِ ، عَنْ أَمِيرِ الْمُؤْمِنِينَ عليهم‌السلام ، قَالَ :", c:1, excludesText: true },
+        { text: "قَالَ لِي أَبُو الْحَسَنِ عليه‌السلام :", c:7, excludesText: true },
+        { text: "أَنَّ أَمِيرَ الْمُؤْمِنِينَ عليه‌السلام قَالَ فِي بَعْضِ خُطَبِهِ :", c:1, excludesText: true },
+        { text: "رَفَعَهُ إِلى أَبِي عَبْدِ اللهِ عليه‌السلام ، قَالَ :", c:6, excludesText: true },
+        { text: "كَانَ أَمِيرُ الْمُؤْمِنِينَ عليه‌السلام يَقُولُ :", c:1, excludesText: true },
+        { text: "قَالَ لُقْمَانُ لِابْنِهِ :", c:321, excludesText: true },
+        { text: "سَمِعْتُ أَبَا الْحَسَنِ مُوسَى بْنَ جَعْفَرٍ عليه‌السلام يَقُولُ :", c:7, excludesText: true },
+        { text: "قَالَ عِيسَى بْنُ مَرْيَمَ عليه‌السلام :", c:963, excludesText: true },
+        { text: "عَنْ عَلِيِّ بْنِ الْحُسَيْنِ عليهما‌السلام ، قَالَ :", c:4, excludesText: true },
+        { text: "قَالَ أَمِيرُ المـُؤْمِنِينَ عليه‌السلام :", c:1, excludesText: true },
+        { text: "رَفَعَهُ إِلَى أَبِي عَبْدِ اللهِ عليه‌السلام ، قَالَ :", c:6, excludesText: true },
+        { text: "قَالَ أَمِيرُ الْمُؤْمِنِينَ عليه‌السلام :", c:1, excludesText: true },
+        { text: "قَالَ أَبُو الْحَسَنِ الْمَاضِي عليه‌السلام :", c:7, excludesText: true },
+        { text: "قَالَ لَنَا أَبُو الْحَسَنِ عليه‌السلام :", c:7, excludesText: true },
+        { text: "عَنْ أَخِيهِ مُوسى عليه‌السلام :", c:7, excludesText: true },
+        { text: "قَالَ أَبُو عَبْدِ اللهِ عليه‌السلام لِزُرَارَةَ وَمُحَمَّدِ بْنِ مُسْلِمٍ :", c:6, excludesText: true },
+        { text: "سَمِعْتُ أَبَا الْحَسَنِ الرِّضَا عليه‌السلام يَقُولُ :", c:8, excludesText: true },
+        { text: "سَمِعْتُ سَلْمَانَ يَقُولُ :", c:789, excludesText: true },
+        { text: "عَنْ أَبِي جَعْفَرٍ وَأَبِي عَبْدِ اللهِ عليهما‌السلام :", c:5, excludesText: true },
+        { text: "عَنْ عَلِيِّ بْنِ الْحُسَيْنِ عليهما‌السلام :", c:4, excludesText: true },
+        { text: "سَمِعْتُ أَبَا إِبْرَاهِيمَ عليه‌السلام يَقُولُ :", c:7, excludesText: true },
+        { text: "سَمِعْتُ أَبَا الْحَسَنِ عليه‌السلام يَقُولُ :", c:7, excludesText: true },
+        { text: "إِنَّ أَبَا الْحَسَنِ عليه‌السلام كَتَبَ إِلَيْهِ :", c:7, excludesText: true },
+        { text: "عَنْ أَخِيهِ أَبِي الْحَسَنِ مُوسى ، عَنْ أَبِيهِ ، عَنْ جَدِّهِ عليهما‌السلام ، قَالَ :", c:7, excludesText: true },
+        { text: "عَنْ أَبِي عَبْدِ اللهِ عليهما‌السلام ، قَالَ :", c:6, excludesText: true },
+        { text: "عَنْ أَبِي إِبْرَاهِيمَ عليه‌السلام ، قَالَ :", c:7, excludesText: true },
+        { text: "قَالَ أَبُو الْحَسَنِ عليه‌السلام :", c:7, excludesText: true },
+        { text: "عَنْ أَخِيهِ أَبِي الْحَسَنِ عليه‌السلام ، قَالَ :", c:7, excludesText: true },
+        { text: "عَنْ أَبِي جَعْفَرٍ عليه‌السلام : أَنَّهُ قَالَ :", c:5, excludesText: true },
+        { text: "عَنْ أَبِي جَعْفَرٍ وَأَبِي عَبْدِ اللهِ عليهما‌السلام : أَنَّهُمَا كَانَا يَقُولَانِ :", c:5, excludesText: true },
+        { text: "عَنْ أَبِي جَعْفَرٍ وَأَبِي عَبْدِ اللهِ عليهما‌السلام أَنَّهُمَا قَالَا :", c:5, excludesText: true },
+        { text: "عَنْ أَبِي عَبْدِ الله عليه‌السلام :", c:6, excludesText: true },
+        { text: "عَنْ أَبِي جَعْفَرٍ عليه‌السلام فِي قَوْلِ اللهِ عزوجل :", c:5, excludesText: true },
+        { text: "عَنْ‌أَبِي عَبْدِ اللهِ عليه‌السلام ، قَالَ :", c:6, excludesText: true },
+        { text: "عَنْ أَبِي الْحَسَنِ عليه‌السلام ، قَالَ :", c:7, excludesText: true },
+        { text: "عَنْ أَحَدِهِمَا عليهما‌السلام ، قَالَ :", c:5, excludesText: true },
+        { text: "سمعت أبا الحسن عليه‌السلام يقول في قول الله تبارك وتعالى :", c:7, excludesText: true },
+        { text: "سمعت أبا الحسن عليه‌السلام يقول :", c:7, excludesText: true },
+        { text: "عن أبي عبد الله عليه‌السلام في قول الله عزوجل :", c:6, excludesText: true },
+        { text: "عن أبي جعفر عليه‌السلام في قول الله تبارك وتعالى :", c:5, excludesText: true },
+        { text: "سألت أبا جعفر عليه‌السلام عن قول الله عزوجل :", c:5, excludesText: true },
+        { text: "سمعت سلمان الفارسي ـ رضي‌الله‌عنه ـ يقول :", c:789, excludesText: true },
+        { text: "عن أحدهما عليهما‌السلام ، قال :", c:5, excludesText: true },
+        { text: "قال لي أبو عبد الله عليه‌السلام :", c:6, excludesText: true },
+        { text: "عن أبي عبد الله عليه‌السلام في قول الله تبارك وتعالى :", c:6, excludesText: true },
+        { text: "سمعت أبا عبد الله عليه‌السلام ، يقول :", c:6, excludesText: true },
+        { text: "سمعت أبا عبد الله عليه‌السلام يقول :", c:6, excludesText: true },
+        { text: "قال أبو عبد الله عليه‌السلام :", c:6, excludesText: true },
+        { text: "عن الرضا عليه‌السلام :", c:8, excludesText: true },
+        { text: "سمعت أبا عبد الله عليه‌السلام يقول في هذه الآية :", c:6, excludesText: true },
+        { text: "سئل أبو عبد الله عليه‌السلام عن قول الله عزوجل :", c:6, excludesText: true },
+        { text: "عن أبي جعفر عليه‌السلام في قول الله عزوجل :", c:5, excludesText: true },
+        { text: "قال لي أبو جعفر محمد بن علي عليهما‌السلام :", c:5, excludesText: true },
+        { text: "يرفعونه إلى أبي عبد الله عليه‌السلام ، قال :", c:6, excludesText: true },
+        { text: "بإسناده رفعه إلى أبي عبد الله عليه‌السلام ، قال :", c:6, excludesText: true },
+        { text: "عن أبي عبد الله عليه‌السلام ، قال :", c:6, excludesText: true },
+        { text: "خطب أمير المؤمنين عليه‌السلام ـ ورواها غيره بغير هذا الإسناد ، وذكر أنه خطب بذي قار ـ فحمد الله وأثنى عليه ، ثم قال :", c:1, excludesText: true },
+        { text: "عن علي بن الحسين عليهما‌السلام أنه كان يقول :", c:4, excludesText: true },
+        { text: "عن أبي عبد الله عليه‌السلام مثله إلا أنه قال في حديثه :", c:6, excludesText: true },
+        { text: "عن أبي جعفر عليه‌السلام :", c:5, excludesText: true },
+        { text: "عن أبي جعفر عليه‌السلام ، قال :", c:5, excludesText: true },
+        { text: "قال أبو عبد الله عليه‌السلام  لرجل :", c:6, excludesText: true },
+        { text: "قال أبو جعفر عليه‌السلام ،", c:6, excludesText: true },
+        { text: "عَنْ أَبِي الْحَسَنِ الرِّضَا عليه‌السلام :", c:8, excludesText: true },
+        { text: "قَالَ أَبُو عَبْدِ اللهِ عليه‌السلام لِي وَلِسُلَيْمَانَ بْنِ خَالِدٍ :", c:6, excludesText: true },
+        { text: "سَمِعْتُ أَبَا جَعْفَرٍ عليه‌السلام", c:5, excludesText: true },
+        { text: "قَالَ عَلِيُّ بْنُ الْحُسَيْنِ عليهما‌السلام :", c:4, excludesText: true },
+        { text: "قَالَ أَبُو جَعْفَرٍ عليه‌السلام :", c:5, excludesText: true },
+        { text: "حَدَّثَنِي جَعْفَرٌ ، عَنْ أَبِيهِ عليهما‌السلام :", c:6, excludesText: true },
+        { text: "عَنْ أَبِي جَعْفَرٍ وَأَبِي عَبْدِ اللهِ عليهما‌السلام ، قَالَا :", c:5, excludesText: true },
+        { text: "عَنْ أَبِي جَعْفَرٍ عليه‌السلام ، قَالَ :", c: 5, excludesText: true },
+        { text: "سَمِعْتُ الرِّضَا عليه‌السلام يَقُولُ :", c:8, excludesText: true },
+        { text: "قَالَ أَبُو عَبْدِ اللهِ عليه‌السلام :", c:6, excludesText: true },
+        { text: "عَنْ أَبِي عَبْدِ اللهِ عليه‌السلام ، قَالَ :", c:6, excludesText: true },
+        { text: "قَالَ رَسُولُ اللهِ صلى‌الله‌عليه‌وآله‌وسلم :", c:13, excludesText: true },
+        { text: "قَالَ لِي أَبُو الْحَسَنِ مُوسَى بْنُ جَعْفَرٍ عليه‌السلام :", c:7, excludesText: true },
+        { text: "عَنْ أَبِي عَبْدِ اللهِ عليه‌السلام ، قَالَ :", c:6, excludesText: true },
+        { text: "عَنِ الرِّضَا عليه‌السلام ، قَالَ :", c:8, excludesText: true },
+        { text: "سَمِعْتُ أَبَا عَبْدِ اللهِ عليه‌السلام يَقُولُ :", c:6, excludesText: true },
+        { text: "عَنْ أَبِي عَبْدِ اللهِ عليه‌السلام", c:6, excludesText: true },
+        { text: "عَنْ عَلِيٍّ عليه‌السلام ، قَالَ :", c:1, excludesText: true },
+        { text: "عَنْ جَعْفَرٍ ، عَنْ أَبِيهِ عليهما‌السلام ، قَالَ :", c:5, excludesText: true },
+        { text: "قال أَبُو عَبدِ اللهِ عليه‌السلام :", c:6, excludesText: true },
+        { text: "عَنْ أَبِي الْحَسَنِ الرِّضَا عليه‌السلام ، قَالَ :", c:8, excludesText: true },
+        { text: "سَمِعْنَا أَبَا عَبْدِ اللهِ عليه‌السلام يَقُولُ :", c:6, excludesText: true },
+        { text: "سَمِعْتُ أَمِيرَ الْمُؤْمِنِينَ عليه‌السلام يَقُولُ :", c:1, excludesText: true },
+        { text: "عَنْ أَبِي الْحَسَنِ مُوسَى بْنِ جَعْفَرٍ عليه‌السلام ، قَالَ :", c:7, excludesText: true },
+        { text: "قَالَ لِي أَبُو عَبْدِ اللهِ عليه‌السلام :", c:6, excludesText: true },
+        { text: "قَالَ أَمِيرُ الْمُؤْمِنِينَ عليه‌السلام فِي كَلَامٍ لَهُ خَطَبَ بِهِ عَلَى الْمِنْبَرِ :", c:1, excludesText: true },
+        { text: "سَمِعْتُ أَبَا جَعْفَرٍ عليه‌السلام يَقُولُ :", c:5, excludesText: true },
+        { text: "عَنْ أَمِيرِ الْمُؤْمِنِينَ عليه‌السلام أَنَّهُ قَالَ :", c:1, excludesText: true },
 
     ];
 
     // .. cut BeginningOfHadith "STRICK"
     for ( let p of cdnBOX ) {
-        cut_ID = item.a.indexOf( p.text );
-        if ( ~cut_ID ) {
-            if ( ~cut_ID < 3 ) {
-                if ( p.excludesText ) cut_ID += p.text.length;
-                item = append_0 ( item, cut_ID );
-                item.c = p.c;
-                break;
+        if ( p.c !== null ) {
+            cut_ID = item.a.indexOf( p.text );
+            if ( ~cut_ID ) {
+                if ( cut_ID < 3 ) {
+                    if ( p.excludesText ) cut_ID += p.text.length;
+                    item = append_0 ( item, cut_ID );
+                    item.c = p.c;
+                    break;
+                }
             }
         }
     }

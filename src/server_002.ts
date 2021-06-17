@@ -7,6 +7,8 @@ import * as fs                          from "fs";
 
 export async function init () {
 
+    tools.notify( "  وسائل‌الشيعه " );
+
     let db = [];
 
     // .. get v0 [ Scratch | Cached ]

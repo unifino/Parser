@@ -3,6 +3,12 @@ import * as TS                          from "./types";
 import * as storage                     from "./storage";
 import * as basic_tools                 from "./basic_tools";
 import * as fs                          from "fs";
+
+// .. ======================================================================
+
+let tmpFolder = "src/db/tmp/وسائل‌الشيعة/";
+try { fs.mkdirSync( tmpFolder ) } catch {}
+
 // .. ======================================================================
 
 export async function init () {
@@ -10,9 +16,10 @@ export async function init () {
     tools.notify( "  وسائل‌الشيعه " );
 
     let db = [];
+    saveDB( db );
 
     // .. get v0 [ Scratch | Cached ]
-    db = load_db_v0( "Cached" );
+    db = load_db_v0( "Scratch" );
     // .. some preparation A=>Z
     db = rename ( db, false );
     // .. main dividers
@@ -32,7 +39,7 @@ export async function init () {
     html_exporter( db );
 
     // .. write-down DB
-    fs.writeFileSync( "src/db/tmp/01.json", JSON.stringify(db,null,"\t") );
+    saveDB( db, true );
 
 }
 
@@ -41,7 +48,7 @@ export async function init () {
 function load_db_v0 ( mode: "Scratch"|"Cached" ) {
 
     let db_v0: TS.db,
-        _00_Path = "src/db/tmp/00.json";
+        _00_Path = tmpFolder + "00.json";
 
     if ( mode === "Cached" ) {
         db_v0 = JSON.parse( fs.readFileSync( _00_Path, 'utf8' ) );
@@ -1062,7 +1069,7 @@ function db_finalizer ( db: TS.db ) {
 function html_exporter ( db: TS.db ) {
 
     let html = "<!DOCTYPE html><html><head>"+
-        '<link rel="stylesheet" type="text/css" href="test.css" />'+
+        '<link rel="stylesheet" type="text/css" href="main.css" />'+
         "</head><body><div class='c'>";
 
     for ( let p of db ) {
@@ -1073,7 +1080,7 @@ function html_exporter ( db: TS.db ) {
 
     html += "</div></body></html>";
 
-    fs.writeFileSync( "src/db/tmp/test.html", html );
+    fs.writeFileSync( "src/db/tmp/preview_E.html", html );
 
 }
 
@@ -1089,3 +1096,10 @@ function lost_chcek ( db: TS.db ) {
 
 // .. ======================================================================
 
+function saveDB ( db: TS.db, realSave?: boolean ) {
+    let _01_path = tmpFolder + "01.json";
+    if ( !realSave ) fs.rmSync( _01_path, { force: true } );
+    else fs.writeFileSync( _01_path, JSON.stringify(db,null,"\t") );
+}
+
+// .. ======================================================================

@@ -16,7 +16,7 @@ async function ignite () {
     console.time( "App Clock" );
     // .. actual steps goes here:
     await server001.init();
-    // await server002.init();
+    await server002.init();
 
         // // .. load db
         // let db_Path = "src/db/tmp/01.json";

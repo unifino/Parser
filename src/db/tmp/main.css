@@ -1,0 +1,38 @@
+*{
+    direction: rtl;
+    padding: 5px;
+    margin: 15px;
+    position: relative;
+    font-family: Homa;
+} 
+
+.a {
+    color: white;
+    font-size: 20px;
+    background-color: green;
+    border-radius: 10px;
+    padding: 30px;
+}
+
+body{
+    background-color: #2e2d2d;
+    text-align: center;
+    position: relative;
+}
+
+.c {
+    display: inline-block;
+    width: 700px;
+    margin-left: auto;
+}
+
+.p_0 {
+    color: rgb(141, 191, 238);
+    font-size: 13.5px
+}
+
+.p_9 {
+    padding-bottom: 50px;
+    color: rgb(250, 194, 104);
+    font-size: 13.5px
+}

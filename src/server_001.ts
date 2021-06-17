@@ -3,6 +3,12 @@ import * as TS                          from "./types";
 import * as storage                     from "./storage";
 import * as basic_tools                 from "./basic_tools";
 import * as fs                          from "fs";
+
+// .. ======================================================================
+
+let tmpFolder = "src/db/tmp/الكافي/";
+try { fs.mkdirSync( tmpFolder ) } catch {}
+
 // .. ======================================================================
 
 export async function init () {
@@ -10,13 +16,16 @@ export async function init () {
     tools.notify( "     الکافی   " );
 
     let db = [];
+    saveDB( db );
 
     // .. get v0 [ Scratch | Cached ]
-    db = load_db_v0( "Cached" );
+    db = load_db_v0( "Scratch" );
 
     db = db.map( x => x.a.split("^") );
     for( let i in db ) db[i] = db[i].filter( x => x !== " " );
-    fs.writeFileSync( "src/db/tmp/01.json", JSON.stringify(db,null,"\t") );
+
+    // .. write-down DB
+    saveDB( db, true );
 
 }
 
@@ -25,7 +34,7 @@ export async function init () {
 function load_db_v0 ( mode: "Scratch"|"Cached" ) {
 
     let db_v0: TS.db,
-        _00_Path = "src/db/tmp/00_K.json";
+        _00_Path = tmpFolder + "00.json";
 
     if ( mode === "Cached" ) {
         db_v0 = JSON.parse( fs.readFileSync( _00_Path, 'utf8' ) );
@@ -393,6 +402,14 @@ function hadith_db_generator ( book: string[] ) {
 
     return newBook;
 
+}
+
+// .. ======================================================================
+
+function saveDB ( db: TS.db, realSave?: boolean ) {
+    let _01_path = tmpFolder + "01.json";
+    if ( !realSave ) fs.rmSync( _01_path, { force: true } );
+    else fs.writeFileSync( _01_path, JSON.stringify(db,null,"\t") );
 }
 
 // .. ======================================================================

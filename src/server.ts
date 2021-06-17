@@ -21,12 +21,17 @@ async function ignite () {
         // .. load db
         let db_Path = "src/db/tmp/01.json";
         let db: TS.db = JSON.parse( fs.readFileSync( db_Path, 'utf8' ) );
+        let k_db_Path = "src/db/ready/الکافی.json";
+        let k_db: TS.db = JSON.parse( fs.readFileSync( k_db_Path, 'utf8' ) );
+
         // .. [addTmpProps]
         tools.addTmpProps( db );
+        // tools.addTmpProps( k_db );
         for ( let cell of db ) { 
             cell.j = cell.d as number; 
             cell.n = cell.d as number; 
         }
+        // for ( let cell of k_db ) cell.j = cell.d as any;
         // .. ----------------------------------------------------------------
         // .. create new R for newDB
         let R: TS.R[] = [];
@@ -40,6 +45,8 @@ async function ignite () {
         }
         fs.writeFileSync( "src/db/tmp/R.json", JSON.stringify(R) );
 
+        // R = tools.R_old( db, k_db, false );
+        // fs.writeFileSync( "src/db/tmp/RK.json", JSON.stringify(R) );
 
 
     // .. end of the application

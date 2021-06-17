@@ -62,6 +62,8 @@ export function R_old ( newDB: TS.db, reference: TS.db, detour: boolean ) {
         else
             for ( let x of reference ) R.push( R_Calc( newDB[i], x ) );
 
+        // .. memory releaser
+        if ( Number(i) % 999 ) R = R.filter( x => x[2] > 30 );
     }
 
     return R;

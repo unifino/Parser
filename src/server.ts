@@ -1,5 +1,3 @@
-import * as dbExporter                  from "./server_db_exporter";
-import * as serverXXX                   from "./server_XXX";
 import * as server001                   from "./server_001";
 import * as server002                   from "./server_002";
 import * as storage                     from "./storage";
@@ -18,7 +16,7 @@ async function ignite () {
 
     // .. actual steps goes here:
 
-        // await server001.ignite( "Cached" );
+        await server001.ignite( "Cached" );
         await server002.ignite( "Cached" );
 
     // .. end of the application

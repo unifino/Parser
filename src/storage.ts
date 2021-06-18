@@ -4,7 +4,7 @@ import * as basic_tools                 from "./basic_tools";
 
 // .. ======================================================================
 
-export function db_save ( db: TS.db|TS.cDB, path: string, name: TS.source ) {
+export function db_save ( db: TS.db, path: string, name: TS.source ) {
     // .. write down db
     path = "src/db/" + path + "/" + name + ".json";
     fs.writeFileSync( path, JSON.stringify( db, null, "\t" ) );
@@ -12,7 +12,7 @@ export function db_save ( db: TS.db|TS.cDB, path: string, name: TS.source ) {
 
 // .. ======================================================================
 
-export function db_replace ( db: TS.db|TS.cDB, name: TS.source ) {
+export function db_replace ( db: TS.db, name: TS.source ) {
     // .. write down db
     let path = "../Moshaf/src/db/H/" + name + ".json";
     fs.writeFileSync( path, JSON.stringify( db, null, "\t" ) );

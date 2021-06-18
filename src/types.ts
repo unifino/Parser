@@ -15,23 +15,9 @@ export type db_item = {
     idInSection?: number,
     tmp_inFarsiLetter: string,
     tmp_kalamat: string[],
-    cDB: child_item[]
+    cDB: number[]
 };
 export type db = db_item[];
-
-type db_map_info_item = number[];
-export type db_map_info = db_map_info_item[];
-
-// .. ======================================================================
-
-export type child_item = {
-    a: string,
-    b: string,
-    c: number,
-    d: string|number,
-    j: number,
-};
-export type cDB = { [key: number]: child_item[] };
 
 // .. ======================================================================
 
@@ -48,7 +34,8 @@ export type Cluster = number[];
 
 export type ClusterBox = Cluster[];
 export type ClusterInfo = {
-    index: number,
+    id_in_book: number,
+    index_in_db: number,
     length: number
 }[];
 export type ClusterInfoBox = ClusterInfo[];
@@ -59,7 +46,6 @@ export type source =
       "الکافی"
     | "غررالحکم"
     | "متفرقه"
-    | "cDB"
     | "نهج‌الفصاحة"
     | "نهج‌البلاغة"
     | "كنز‌العمّال"

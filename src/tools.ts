@@ -180,9 +180,8 @@ export function R2Bound ( R: TS.R[], length: number ) {
 }
 
 // .. ======================================================================
-let test = []
+
 export function boundBoxDivider( boundBox: TS.boundBox ) {
-    storage.tmp_save( boundBox, "src/db/tmp/وسائل‌الشيعة/", "boundBox", true );
 
     let single: TS.s = [],
         double: TS.d = [],
@@ -202,7 +201,6 @@ export function boundBoxDivider( boundBox: TS.boundBox ) {
         if ( boundBox[i] ) {
             if ( boundBox[i].length === 1 ) {
                 child = boundBox[i][0];
-                if ( !boundBox[child]  ) test.push(child);
                 if ( boundBox[ child ] && boundBox[ child ].length === 1 ) {
                     if ( boundBox[ child ][0] === Number(i) ) {
                         double.push( [ Number(i), child ] );
@@ -213,7 +211,6 @@ export function boundBoxDivider( boundBox: TS.boundBox ) {
             }
         }
     }
-    storage.tmp_save( test, "src/db/tmp/وسائل‌الشيعة/", "aaa", true );
 
     for ( let i in boundBox ) 
         if ( boundBox[i] )
@@ -479,7 +476,8 @@ export function cluster_info ( clusterBox: TS.ClusterBox, ref_db: TS.db ) {
         tmp = [];
         for ( let p of cluster ) 
             tmp.push( { 
-                index: ref_db.findIndex( x => x.d === p ),
+                id_in_book: p,
+                index_in_db: ref_db.findIndex( x => x.d === p ),
                 length: ref_db.find( x => x.d === p ).a.length 
             } );
         return tmp;
@@ -500,57 +498,55 @@ export function head_cluster ( row: TS.ClusterInfo ) {
         // .. _1 has same length
         else if ( nextOne.length === lastSelected.length ) {
             // .. _1 comes first
-            if ( nextOne.index <= lastSelected.index ) return nextOne;
+            if ( nextOne.id_in_book <= lastSelected.id_in_book ) return nextOne;
             // .. _1 come later
             else return lastSelected
         }
         // .. _1 is shorter
         else return lastSelected;
 
-    }, { index: -1, length: -1 } );
+    }, { id_in_book: -1, index_in_db: -1, length: -1 } );
 
-    return head.index;
+    return head.index_in_db;
 
 }
 
 // .. ======================================================================
 
-export function db_info_Generator
-(
-    single: TS.s,
-    double: TS.d,
-    multi: TS.m,
-    other: TS.m,
-    db_v1: TS.db
-)
-{
+export function 
+relation_definer ( double: TS.d, multi: TS.m, other: TS.m, db_v1: TS.db ) {
 
     let mix = [ ...double, ...multi ],
         rich_mix = cluster_info( mix, db_v1 ),
-        map: TS.db_map_info = {} as any,
-        head: number,
-        children: number[];
+        idx_head: number,
+        i_children: TS.ClusterInfo;
 
-    for ( let p of db_v1 ) map[ p.d ] = null;
-
-    for ( let p of single ) map[ p ] = [];
+    // .. set cDB Slot
+    for ( let p of db_v1 ) p.cDB = [];
 
     for ( let p of rich_mix ) {
-        head = head_cluster(p);
-        children = p.filter( x => x.index !== head ).map( x => db_v1[x.index].d as number );
-        map[ db_v1[head].d ] = children;
+        idx_head = head_cluster(p);
+        i_children = p.filter( x => x.index_in_db !== idx_head );
+        // .. set cDB data to Head
+        db_v1[ idx_head ].cDB = i_children.map( x => x.id_in_book );
+        // .. set null in cDB data fot Children
+        for ( let q of i_children.map( x => x.index_in_db ) ) db_v1[ q ].cDB = null;
     }
 
-    // // ! .. control by Hand
+    // ! .. control by Hand
     // rich_mix = cluster_info( other, db_v1 );
+    // let ttt = rich_mix.map( x => {
+    //     let qqq = []
+    //     for ( let p of x ) qqq.push( db_v1[p.index_in_db].a );
+    //     return qqq
+    // } )
+    // storage.info_save( ttt,"/tmp/","test",true);
     // head = head_cluster( rich_mix[0] );
     // children = rich_mix[0].filter( x => x.index !== head ).map( x => x.index );
-    // cell = db_v1[ head ];
-    // cell.cDB = [];
-    // for ( child of children ) cell.cDB.push( db_v1[ child ] );
-    // mox.push( cell );
+    // db_v1[ head ].cDB = children.map( x => db_v1[x].d as number );
+    // for ( let q of children ) db_v1.find( x => x.d === q ).cDB = null;
 
-    return map;
+    return db_v1;
 
 }
 
@@ -583,7 +579,6 @@ function bookSaver ( books: TS.bookKeys, order: TS.source[], db: TS.db ) {
     let newBook: TS.db,
         library: { [key in TS.source]: TS.db } = {} as any,
         keys: string[],
-        cDB: TS.cDB = {},
         miscDB: TS.db,
         mox: TS.db = [],
         summery = {},
@@ -617,18 +612,10 @@ function bookSaver ( books: TS.bookKeys, order: TS.source[], db: TS.db ) {
     storage.db_save( mox, "base", "mox" );
     // ! IMPORTANT .. SAVE MOX REFERENCE FILE
 
-    // .. cDB & trim
+    // .. summery
     for ( let title of Object.keys( library ) ) {
-
-        for ( let p of library[ title ] ) {
-            cDB[ p.n ] = p.cDB;
-            delete p.cDB;
-            delete p.j;
-        }
-
         c += library[ title ].length;
         summery[ "$ Book " + title + " is "] = library[ title ].length;
-
     }
 
     console.table( summery );
@@ -639,8 +626,6 @@ function bookSaver ( books: TS.bookKeys, order: TS.source[], db: TS.db ) {
         storage.db_save( library[p], "ready", p );
         storage.db_replace( library[p], p );
     }
-    // .. save CDB
-    storage.db_save( cDB, "ready", "cDB" );
 
 }
 
@@ -759,11 +744,8 @@ export function newDBConverter ( newDB: TS.newDB ) {
 
 // .. ======================================================================
 
-export function dbCleaner ( db: TS.db, deep: boolean ) {
+export function dbCleaner ( db: TS.db ) {
     for ( let p of db ) {
-        if ( deep ) delete p.cDB;
-        delete p.j;
-        if ( p.cDB ) for ( let q of p.cDB ) delete q.j;
         delete p.tmp_inFarsiLetter;
         delete p.tmp_kalamat;
     }

@@ -64,7 +64,7 @@ export async function init ( mode: "Scratch"|"Cached" ) {
     db = heal( db, 35868 );
 
     // .. get HTML copy
-    html_exporter( db );
+    // html_exporter( db );
 
     // .. write-down DB
     saveDB( db, true );
@@ -1109,7 +1109,7 @@ function html_exporter ( db: TS.db ) {
 
     html += "</div></body></html>";
 
-    fs.writeFileSync( "src/db/tmp/preview_E.html", html );
+    fs.writeFileSync( tmpFolder + "preview_E.html", html );
 
 }
 
@@ -1197,12 +1197,7 @@ export function resultValidator () {
 
 export function db_exporter () {
 
-    let db_info;
-
-    db_info = tools.db_info_Generator( single, double, multi, other, db_v1 );
-    // ! need this line ! BAD Practice
-    delete db_info[0];
-    storage.info_save( db_info, "base", "وسائل‌الشيعة_info", true );
+    db_v1 = tools.relation_definer( double, multi, other, db_v1 );
 
     // .. last trims
     for ( let p of db_v1 ) {
@@ -1211,7 +1206,7 @@ export function db_exporter () {
         try { p.a = p.a.replace( / +/g, " " ).trim() } catch {}
     }
 
-    storage.db_save( db_v1, "base", "وسائل‌الشيعة" );
+    storage.db_save( db_v1, "ready", "وسائل‌الشيعة" );
 
 }
 

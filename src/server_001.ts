@@ -26,15 +26,17 @@ resource_update ();
 
 // .. ======================================================================
 
-function resource_update () {
-    try { fs.mkdirSync( tmpFolder ) } catch {}
-    try { db_v1  = JSON.parse( fs.readFileSync( db_v1_Path, 'utf8' ) ) } catch {}
-    try { R      = JSON.parse( fs.readFileSync( R_Path,     'utf8' ) ) } catch {}
-    try { single = JSON.parse( fs.readFileSync( single_Path,'utf8' ) ) } catch {}
-    try { double = JSON.parse( fs.readFileSync( double_Path,'utf8' ) ) } catch {}
-    try { multi  = JSON.parse( fs.readFileSync( multi_Path, 'utf8' ) ) } catch {}
-    try { other  = JSON.parse( fs.readFileSync( other_Path, 'utf8' ) ) } catch {}
-    try { R__ = tools.R_optimizer ( R, 67 ) } catch {}
+export async function ignite ( mode: "Scratch"|"Cached" ) {
+    // .. init server
+    await init( mode );
+    // .. search for optimizing
+    db_investigator();
+    // .. check optimized info
+    resultValidator();
+    // .. create and save DBs
+    db_exporter();
+    // .. clean the tmpFolder
+    janitor();
 }
 
 // .. ======================================================================
@@ -931,12 +933,7 @@ export function resultValidator () {
 
 export function db_exporter () {
 
-    let db_info;
-
-    db_info = tools.db_info_Generator( single, double, multi, other, db_v1 );
-    // ! need this line ! BAD Practice
-    delete db_info[0];
-    storage.info_save( db_info, "base", "الکافی_info", true );
+    db_v1 = tools.relation_definer( double, multi, other, db_v1 );
 
     // .. last trims
     for ( let p of db_v1 ) {
@@ -945,8 +942,21 @@ export function db_exporter () {
         try { p.a = p.a.replace( / +/g, " " ).trim() } catch {}
     }
 
-    storage.db_save( db_v1, "base", "الکافی" );
+    storage.db_save( db_v1, "ready", "الکافی" );
 
+}
+
+// .. ======================================================================
+
+function resource_update () {
+    try { fs.mkdirSync( tmpFolder ) } catch {}
+    try { db_v1  = JSON.parse( fs.readFileSync( db_v1_Path, 'utf8' ) ) } catch {}
+    try { R      = JSON.parse( fs.readFileSync( R_Path,     'utf8' ) ) } catch {}
+    try { single = JSON.parse( fs.readFileSync( single_Path,'utf8' ) ) } catch {}
+    try { double = JSON.parse( fs.readFileSync( double_Path,'utf8' ) ) } catch {}
+    try { multi  = JSON.parse( fs.readFileSync( multi_Path, 'utf8' ) ) } catch {}
+    try { other  = JSON.parse( fs.readFileSync( other_Path, 'utf8' ) ) } catch {}
+    try { R__ = tools.R_optimizer ( R, 67 ) } catch {}
 }
 
 // .. ======================================================================
@@ -958,21 +968,6 @@ export function janitor () {
     fs.rmSync( tmpFolder + "other.json", { force: true } );
     fs.rmSync( tmpFolder + "m_1.json", { force: true } );
     fs.rmSync( tmpFolder + "m_2.json", { force: true } );
-}
-
-// .. ======================================================================
-
-export async function ignite ( mode: "Scratch"|"Cached" ) {
-    // .. init server
-    await init( mode );
-    // .. search for optimizing
-    db_investigator();
-    // .. check optimized info
-    resultValidator();
-    // .. create and save DBs
-    db_exporter();
-    // .. clean the tmpFolder
-    janitor();
 }
 
 // .. ======================================================================

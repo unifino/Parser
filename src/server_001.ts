@@ -38,7 +38,7 @@ function resource_update () {
 
 // .. ======================================================================
 
-export async function init () {
+export async function init ( mode: "Scratch"|"Cached" ) {
 
     tools.notify( "     الکافی   " );
 
@@ -46,7 +46,7 @@ export async function init () {
     saveDB( db );
 
     // .. get v0 [ Scratch | Cached ]
-    db = load_db_v0( "Cached" );
+    db = load_db_v0( mode );
     // .. main dividers
     db = a_0_9( db );
 
@@ -140,6 +140,7 @@ function some_edits ( str: string ) {
         str = str.replace( regx, e );
     }
 
+    str = str.replace( / ‌/g, " " );
     str = str.replace( /ـ/g , "" );
     str = str.replace( / +/g, " " );
     str = str.replace( /\.\.\.\.\.+/g, "....." );
@@ -211,6 +212,7 @@ function some_edits ( str: string ) {
     // str = str.replace( /\. ،/g, " ، " ).replace( /  +/g, " " );
     // str = str.replace( /\. :/g, " . " ).replace( /  +/g, " " );
     // str = str.replace( /\. \./g, " . " ).replace( /  +/g, " " );
+    str = str.replace( / +/g, " " );
     str = str.trim();
 
     return str;
@@ -480,6 +482,10 @@ function set_trimmer ( str: string ) {
 
     str = str.replace( /(<([^>]+)>)/ig, '' );
 
+    str = str.replace( / ‌/g, " " );
+    str = str.replace( / +/g, " " );
+    str = str.trim();
+
     let a = ( str.match( /\[/g ) || [] ).length;
     let b = ( str.match( /\]/g ) || [] ).length;
     // .. report errors
@@ -535,7 +541,7 @@ function a_0_9 ( db: TS.db ) {
 
     for( let p of db ) {
 
-        lines = p.a.split("^").filter( x => x !== " " );
+        lines = p.a.split("^").filter( x => x && x !== " " );
         firstLineIndex = lines.findIndex( x => x.includes( ":" ) );
 
         // .. Skip Mode!
@@ -569,7 +575,8 @@ function a_0_9 ( db: TS.db ) {
             if ( !~a_ID && ~z_ID )
                 if ( z_ID > p.a.length - 4 )
                     p = append_9( p, z_ID );
-            p.a = p.a.trim();
+
+            p.a = p.a.replace( / ‌/g, " " ).replace( / +/g, " " ).trim();
 
         }
 
@@ -900,6 +907,7 @@ function RR () {
 // .. ======================================================================
 
 export function db_investigator () {
+    resource_update ();
     // .. [R2Bound]
     let tmpB = tools.R2Bound( R__, db_v1.length );
     // .. [boundBoxDivider_SD]
@@ -925,8 +933,23 @@ export function resultValidator () {
 // .. ======================================================================
 
 export function db_exporter () {
-    let db = tools.dbBuilder( single, double, multi, other, db_v1 );
-    storage.db_save( db, "base", "الکافی" );
+
+    let db_info;
+
+    db_info = tools.db_info_Generator( single, double, multi, other, db_v1 );
+    // ! need this line ! BAD Practice
+    delete db_info[0];
+    storage.info_save( db_info, "base", "الکافی_info", true );
+
+    // .. last trims
+    for ( let p of db_v1 ) {
+        try { p[0] = p[0].replace( / +/g, " " ).trim() } catch {}
+        try { p[9] = p[9].replace( / +/g, " " ).trim() } catch {}
+        try { p.a = p.a.replace( / +/g, " " ).trim() } catch {}
+    }
+
+    storage.db_save( db_v1, "base", "الکافی" );
+
 }
 
 // .. ======================================================================
@@ -942,9 +965,9 @@ export function janitor () {
 
 // .. ======================================================================
 
-export async function ignite () {
+export async function ignite ( mode: "Scratch"|"Cached" ) {
     // .. init server
-    await init();
+    await init( mode );
     // .. search for optimizing
     db_investigator();
     // .. check optimized info
@@ -953,5 +976,4 @@ export async function ignite () {
     db_exporter();
     // .. clean the tmpFolder
     janitor();
-    // .. done! :)
 }

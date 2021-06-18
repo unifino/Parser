@@ -511,49 +511,42 @@ export function head_cluster ( row: TS.ClusterInfo ) {
 
 // .. ======================================================================
 
-export function dbBuilder
+export function db_info_Generator
 (
     single: TS.s,
     double: TS.d,
     multi: TS.m,
     other: TS.m,
-    db_v1: TS.db 
+    db_v1: TS.db
 )
 {
 
     let mix = [ ...double, ...multi ],
         rich_mix = cluster_info( mix, db_v1 ),
-        mox: TS.db = [],
+        map: TS.db_map_info = {} as any,
         head: number,
-        child: number,
-        children: number[],
-        cell: TS.db_item;
+        children: number[];
+
+    for ( let p of db_v1 ) map[ p.d ] = null;
+
+    for ( let p of single ) map[ p ] = [];
 
     for ( let p of rich_mix ) {
         head = head_cluster(p);
-        children = p.filter( x => x.index !== head ).map( x => x.index );
-        cell = db_v1[ head ];
-        cell.cDB = [];
-        for ( child of children ) cell.cDB.push( db_v1[ child ] );
-        mox.push( cell );
+        children = p.filter( x => x.index !== head ).map( x => db_v1[x.index].d as number );
+        map[ db_v1[head].d ] = children;
     }
 
-    for ( let x of single ) mox.push( db_v1[x] );
-
-    // .. control by Hand
-    // ! remove it [re-active it]
-    // rich_mix = clusterRichMaker( other, db_v1 );
-    // head = clusterHeadPicker( rich_mix[0] );
+    // // ! .. control by Hand
+    // rich_mix = cluster_info( other, db_v1 );
+    // head = head_cluster( rich_mix[0] );
     // children = rich_mix[0].filter( x => x.index !== head ).map( x => x.index );
     // cell = db_v1[ head ];
     // cell.cDB = [];
     // for ( child of children ) cell.cDB.push( db_v1[ child ] );
     // mox.push( cell );
 
-    // .. sort
-    mox = mox.sort( (a,b) => a.j > b.j ? 1 : -1 );
-
-    return mox;
+    return map;
 
 }
 
@@ -739,7 +732,6 @@ export function finalEditor ( db: TS.db ) {
     return db;
 
 }
-
 
 // .. ======================================================================
 

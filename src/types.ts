@@ -19,6 +19,9 @@ export type db_item = {
 };
 export type db = db_item[];
 
+type db_map_info_item = number[];
+export type db_map_info = db_map_info_item[];
+
 // .. ======================================================================
 
 export type child_item = {

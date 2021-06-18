@@ -18,7 +18,7 @@ async function ignite () {
 
     // .. actual steps goes here:
 
-        await server001.ignite();
+        await server001.ignite( "Cached" );
 
     // .. end of the application
     tools.notify( null, true );

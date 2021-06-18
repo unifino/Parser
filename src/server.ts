@@ -1,3 +1,4 @@
+import * as SCT                         from "./server_common_tools";
 import * as server001                   from "./server_001";
 import * as server002                   from "./server_002";
 import * as storage                     from "./storage";
@@ -16,8 +17,9 @@ async function ignite () {
 
     // .. actual steps goes here:
 
-        await server001.ignite( "Cached" );
-        await server002.ignite( "Cached" );
+        // await server001.ignite( "Cached" );
+        // await server002.ignite( "Cached" );
+        SCT.R_R( server001.db_v1, server002.db_v1 );
 
     // .. end of the application
     tools.notify( null, true );
@@ -25,34 +27,5 @@ async function ignite () {
 }
 
 ignite();
-
-// .. ======================================================================
-
-function R_R () {
-
-    // .. load db
-    let db_001_Path = "src/db/tmp/الكافي/01.json";
-    let db_002_Path = "src/db/tmp/وسائل‌الشيعة/01.json";
-    let db_001: TS.db = JSON.parse( fs.readFileSync( db_001_Path, 'utf8' ) );
-    let db_002: TS.db = JSON.parse( fs.readFileSync( db_002_Path, 'utf8' ) );
-
-    let R: TS.R[] = [];
-
-    // .. [addTmpProps]
-    tools.addTmpProps( db_001 );
-    tools.addTmpProps( db_002 );
-    for ( let cell of db_001 ) { 
-        cell.j = cell.d as number; 
-        cell.n = cell.d as number; 
-    }
-    for ( let cell of db_002 ) { 
-        cell.j = cell.d as number; 
-        cell.n = cell.d as number; 
-    }
-
-    R = tools.R_old( db_002, db_001, false );
-    fs.writeFileSync( "src/db/tmp/R12.json", JSON.stringify(R) );
-
-}
 
 // .. ======================================================================

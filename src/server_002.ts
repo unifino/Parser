@@ -7,7 +7,7 @@ import * as fs                          from "fs";
 
 // .. ======================================================================
 
-let tmpFolder = "src/db/tmp/وسائل‌الشيعة/";
+export let tmpFolder = "src/db/tmp/وسائل‌الشيعة/";
 let sourceFolder = "src/db/source/وسائل‌الشيعة/";
 let db_v1_Path  = tmpFolder + "01.json";
 let single_Path = tmpFolder + "single.json";
@@ -15,7 +15,7 @@ let double_Path = tmpFolder + "double.json";
 let multi_Path  = tmpFolder + "multi.json";
 let other_Path  = tmpFolder + "other.json";
 let R_Path      = tmpFolder + "RR.json";
-let db_v1  : TS.db;
+export let db_v1  : TS.db;
 let single : TS.s;
 let double : TS.d;
 let multi  : TS.m;

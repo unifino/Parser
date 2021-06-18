@@ -117,3 +117,26 @@ export function RR ( db: TS.db, tmpFolder: string ) {
 }
 
 // .. ======================================================================
+
+export function R_R ( db_01: TS.db, db_02: TS.db ) {
+
+    let R: TS.R[] = [];
+
+    // .. [addTmpProps]
+    tools.addTmpProps( db_01 );
+    tools.addTmpProps( db_02 );
+    for ( let cell of db_01 ) { 
+        cell.j = cell.d as number; 
+        cell.n = cell.d as number; 
+    }
+    for ( let cell of db_02 ) { 
+        cell.j = cell.d as number; 
+        cell.n = cell.d as number; 
+    }
+
+    R = tools.R_old( db_02, db_01, false );
+    fs.writeFileSync( "src/db/tmp/R_1x2.json", JSON.stringify(R) );
+
+}
+
+// .. ======================================================================

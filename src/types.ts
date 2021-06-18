@@ -44,12 +44,11 @@ export type boundBox = number[][];
 export type Cluster = number[];
 
 export type ClusterBox = Cluster[];
-export type RichCluster = {
-    isKafi: boolean
+export type ClusterInfo = {
     index: number,
     length: number
 }[];
-export type RichClusterBox = RichCluster[];
+export type ClusterInfoBox = ClusterInfo[];
 
 // .. ======================================================================
 

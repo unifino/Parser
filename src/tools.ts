@@ -37,7 +37,7 @@ export function R ( item: TS.db_item, reference: TS.db ) {
 
     let R: TS.R[] = [];
     for ( let x of reference ) R.push( R_Calc( item, x ) );
-    return R;
+    return R.filter( x => x[2] > 30 );
 
 }
 
@@ -444,77 +444,66 @@ export function checkPresents ( src: TS.db, s: TS.s, d: TS.d, m: TS.m ) {
 
 // .. ======================================================================
 
-export function resultValidator () {
-    let s = storage.single.length;
+export function resultValidator
+(
+    single: TS.s,
+    double: TS.d,
+    multi: TS.m,
+    other: TS.m,
+    db_v1: TS.db
+)
+{
+    let s = single.length;
     console.log( "\nsingle", "\t", s );
-    let d = clusterBoxRealLengthReport( storage.double, "double" );
-    let m = clusterBoxRealLengthReport( storage.multi, "multi" );
-    let o = clusterBoxRealLengthReport( storage.other, "other" );
+    let d = clusterBoxRealLengthReport( double, "double" );
+    let m = clusterBoxRealLengthReport( multi, "multi" );
+    let o = clusterBoxRealLengthReport( other, "other" );
     let t = s + d.any + m.any + o.any;
-    let answer = storage.grand_db.length === t ;
+    let answer = db_v1.length === t ;
     console.log( "\nAnswer is: " + ( answer ? "OK!" : "BAD!!" ) );
     return answer;
 }
 
 // .. ======================================================================
 
-export function clusterRichMaker ( db: TS.ClusterBox ) {
+export function cluster_info ( clusterBox: TS.ClusterBox, ref_db: TS.db ) {
 
-    let rich: TS.RichClusterBox = db.map( cell => {
-        let newCell = [];
-        for ( let p of cell ) {
-            newCell.push( {
-                isKafi: p < storage.db_kafi.length,
-                index: p,
-                length: storage.grand_db[p].a.length
-            } )
-        }
-        return newCell;
+    let tmp: TS.ClusterInfo,
+        box: TS.ClusterInfoBox;
+
+    box = clusterBox.map( cluster => {
+        tmp = [];
+        for ( let p of cluster ) 
+            tmp.push( { 
+                index: ref_db.findIndex( x => x.d === p ),
+                length: ref_db.find( x => x.d === p ).a.length 
+            } );
+        return tmp;
     } );
 
-    return rich;
+    return box;
 
 }
 
 // .. ======================================================================
 
-export function clusterHeadPicker ( row: TS.RichCluster ) {
+export function head_cluster ( row: TS.ClusterInfo ) {
 
-    let head = row.reduce( (lastSelected,one) => {
+    let head = row.reduce( (lastSelected,nextOne) => {
 
-        // .. _S is Kafi
-        if ( lastSelected.isKafi ) {
-            // .. _1 is Kafi
-            if ( one.isKafi ) {
-                // .. _1 is longer
-                if ( one.length > lastSelected.length ) return one;
-                // .. _1 has same length
-                else if ( one.length === lastSelected.length ) {
-                    // .. _1 comes first
-                    if ( one.index <= lastSelected.index ) return one;
-                    // .. _1 come later
-                    else return lastSelected
-                }
-                // . . _1 is shorter
-                else return lastSelected;
-            }
-            // .. _1 is NOT Kafi
+        // .. _1 is longer
+        if ( nextOne.length > lastSelected.length ) return nextOne;
+        // .. _1 has same length
+        else if ( nextOne.length === lastSelected.length ) {
+            // .. _1 comes first
+            if ( nextOne.index <= lastSelected.index ) return nextOne;
+            // .. _1 come later
             else return lastSelected
         }
-        // .. _S is NOT Kafi
-        else {
-            // .. _1 is Kafi
-            if ( one.isKafi ) return one;
-            // .. _1 is NOT Kafi
-            else {
-                // .. _1 is longer or has same length
-                if ( one.length >= lastSelected.length ) return one;
-                // .. _1 is shorter
-                else return lastSelected;
-            }
-        }
+        // .. _1 is shorter
+        else return lastSelected;
 
-    }, { isKafi: false, index: -1, length: -1 } );
+    }, { index: -1, length: -1 } );
 
     return head.index;
 
@@ -522,10 +511,18 @@ export function clusterHeadPicker ( row: TS.RichCluster ) {
 
 // .. ======================================================================
 
-export function dbBuilder () {
+export function dbBuilder
+(
+    single: TS.s,
+    double: TS.d,
+    multi: TS.m,
+    other: TS.m,
+    db_v1: TS.db 
+)
+{
 
-    let mix = [ ...storage.double, ...storage.multi ],
-        rich_mix = clusterRichMaker( mix ),
+    let mix = [ ...double, ...multi ],
+        rich_mix = cluster_info( mix, db_v1 ),
         mox: TS.db = [],
         head: number,
         child: number,
@@ -533,24 +530,25 @@ export function dbBuilder () {
         cell: TS.db_item;
 
     for ( let p of rich_mix ) {
-        head = clusterHeadPicker( p );
+        head = head_cluster(p);
         children = p.filter( x => x.index !== head ).map( x => x.index );
-        cell = storage.grand_db[ head ];
+        cell = db_v1[ head ];
         cell.cDB = [];
-        for ( child of children ) cell.cDB.push( storage.grand_db[ child ] );
+        for ( child of children ) cell.cDB.push( db_v1[ child ] );
         mox.push( cell );
     }
 
-    for ( let x of storage.single ) mox.push( storage.grand_db[x] );
+    for ( let x of single ) mox.push( db_v1[x] );
 
     // .. control by Hand
-    rich_mix = clusterRichMaker( storage.other );
-    head = clusterHeadPicker( rich_mix[0] );
-    children = rich_mix[0].filter( x => x.index !== head ).map( x => x.index );
-    cell = storage.grand_db[ head ];
-    cell.cDB = [];
-    for ( child of children ) cell.cDB.push( storage.grand_db[ child ] );
-    mox.push( cell );
+    // ! remove it [re-active it]
+    // rich_mix = clusterRichMaker( other, db_v1 );
+    // head = clusterHeadPicker( rich_mix[0] );
+    // children = rich_mix[0].filter( x => x.index !== head ).map( x => x.index );
+    // cell = db_v1[ head ];
+    // cell.cDB = [];
+    // for ( child of children ) cell.cDB.push( db_v1[ child ] );
+    // mox.push( cell );
 
     // .. sort
     mox = mox.sort( (a,b) => a.j > b.j ? 1 : -1 );
@@ -722,91 +720,26 @@ export function notify ( title = " Server Script", end?: boolean ) {
 // .. ======================================================================
 
 export function finalEditor ( db: TS.db ) {
+
     for ( let p of db ) {
 
-        p.a = _h_00( p.a );
-        p.a = _h_01( p.a );
-        p.a = _h_02( p.a );
-        p.a = basic_tools.arabicDigits( p.a );
+        if ( p.a ) {
+            p.a = basic_tools.arabicDigits( p.a );
 
-        if ( p.b ) {
-            p.b = _h_01( p.b );
-            p.b = basic_tools.arabicDigits( p.b );
-        }
-        if ( typeof p.d === "string" ) {
-            p.d = _h_01( p.d );
-            p.d = basic_tools.arabicDigits( p.d );
+            if ( p.b ) {
+                p.b = basic_tools.arabicDigits( p.b );
+            }
+            if ( typeof p.d === "string" ) {
+                p.d = basic_tools.arabicDigits( p.d );
+            }
         }
 
     }
+
     return db;
-}
-
-// .. ======================================================================
-
-export function _h_00 ( str: string ) {
-    str = str.replace( /ـ/g , "" );
-    str = str.replace( /«/g, "<Q> )" );
-    str = str.replace( /»/g, "( </Q>" );
-    if ( str.startsWith( ":" ) ) str = str.slice(1);
-    return str;
-}
-
-// .. ======================================================================
-
-export function _h_01 ( str: string ) {
-
-    str = str.replace( /عَزَّ وَ جَلَّ/g, " عزوجل " );
-    str = str.replace( /عَزَّوَجلَّ \.\.\./g, " عزوجل " );
-    str = str.replace( /عَزَّوجلَّ/g, " عزوجل " );
-    str = str.replace( /عزّوجلّ/g, " عزوجل " );
-    str = str.replace( /عز و جل/g, " عزوجل " );
-    str = str.replace( /\( عليه‌السلام \)/g, " عليه‌السلام " );
-    str = str.replace( /- علیها السلام -/g, " عليها‌السلام " );
-    str = str.replace( /علیها السلام/g, " عليها‌السلام " );
-    str = str.replace( /عليهم السلام/g, " عليهم‌السلام " );
-    str = str.replace( /- عليهما السلام -/g, " عليهما‌السلام " );
-    str = str.replace( /\(علیهما السلام\)/g, " عليهما‌السلام " );
-    str = str.replace( /علیهما السلام/g, " عليهما‌السلام " );
-    str = str.replace( /علیهم السلام/g, " عليهم‌السلام " );
-    str = str.replace( /علیه‏ السلام/g, " عليه‌السلام " );
-    str = str.replace( /\(علیه السلام\)/g, " عليه‌السلام " );
-    str = str.replace( /علیه السلام/g, " عليه‌السلام " );
-    str = str.replace( /- صلى‌الله‌عليه‌وآله‌وسلم -/g, " صلى‌الله‌عليه‌وآله‌وسلم " );
-    str = str.replace( /- صلّي الله عليه و آله -/g, " صلى‌الله‌عليه‌وآله‌وسلم " );
-    str = str.replace( /علیهماالسلام/g, " عليهما‌السلام " );
-    str = str.replace( /علیه السّلام/g, " عليه‌السلام " );
-    str = str.replace( /(صلی الله علیه و آله و سلم)/g, " صلى‌الله‌عليه‌وآله‌وسلم " );
-    str = str.replace( /صلی الله علیه و آله و سلم/g, " صلى‌الله‌عليه‌وآله‌وسلم " );
-    str = str.replace( /صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ/g, " صلى‌الله‌عليه‌وآله‌وسلم " );
-    str = str.replace( /صلی الله علیه و آله/g, " صلى‌الله‌عليه‌وآله‌وسلم " );
-    str = str.replace( /- رَحِمَهُ اللهُ -/g, " رحمه‌الله " );
-    str = str.replace( /رَحِمَهُ اللهُ/g, " رحمه‌الله " );
-
-    str = str.replace( /قَالَ : ثُمَّ قَالَ :/g, " قَالَ : " );
-
-    str = str.replace( /\. \. \./g, " ... " ).replace( /  +/g, " " );
-    str = str.replace( /\.\. \./g, " ... " ).replace( /  +/g, " " );
-    str = str.replace( /\. ،/g, " ، " ).replace( /  +/g, " " );
-    str = str.replace( /\. :/g, " . " ).replace( /  +/g, " " );
-    str = str.replace( /\. \./g, " . " ).replace( /  +/g, " " );
-
-    str = str.trim();
-
-    return str;
 
 }
 
-// .. ======================================================================
-
-function _h_02 ( str: string ) {
-
-    for ( let e of basic_tools.erabs ) {
-        let regx = new RegExp( " " +e, "g" );
-        str = str.replace( regx, e );
-    }
-    return str;
-}
 
 // .. ======================================================================
 

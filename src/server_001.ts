@@ -6,8 +6,35 @@ import * as fs                          from "fs";
 
 // .. ======================================================================
 
-let tmpFolder = "src/db/tmp/الكافي/";
-try { fs.mkdirSync( tmpFolder ) } catch {}
+let tmpFolder   = "src/db/tmp/الكافي/";
+let db_v1_Path  = tmpFolder + "01.json";
+let single_Path = tmpFolder + "single.json";
+let double_Path = tmpFolder + "double.json";
+let multi_Path  = tmpFolder + "multi.json";
+let other_Path  = tmpFolder + "other.json";
+let R_Path      = tmpFolder + "RR.json";
+let db_v1  : TS.db;
+let single : TS.s;
+let double : TS.d;
+let multi  : TS.m;
+let other  : TS.m;
+let R      : TS.R[];
+
+resource_update ();
+
+export let R__: TS.R[] = tools.R_optimizer ( R, 67 );
+
+// .. ======================================================================
+
+function resource_update () {
+    try { fs.mkdirSync( tmpFolder ) } catch {}
+    try { db_v1  = JSON.parse( fs.readFileSync( db_v1_Path, 'utf8' ) ) } catch {}
+    try { R      = JSON.parse( fs.readFileSync( R_Path,     'utf8' ) ) } catch {}
+    try { single = JSON.parse( fs.readFileSync( single_Path,'utf8' ) ) } catch {}
+    try { double = JSON.parse( fs.readFileSync( double_Path,'utf8' ) ) } catch {}
+    try { multi  = JSON.parse( fs.readFileSync( multi_Path, 'utf8' ) ) } catch {}
+    try { other  = JSON.parse( fs.readFileSync( other_Path, 'utf8' ) ) } catch {}
+}
 
 // .. ======================================================================
 
@@ -22,14 +49,7 @@ export async function init () {
     db = load_db_v0( "Cached" );
     // .. main dividers
     db = a_0_9( db );
-    // ! remove it
-    let cdnBOX = [
-        121,350,492,649,652,653,777,859,907,999,1307,1316,1367,1876,2314,
-        2867,2965,4749,5258,6729,8154,11802,11836,13481,14620,14927,15195,
-    ];
-    db = db.filter( x => !x.c && !cdnBOX.includes(x.d as any) );
-    console.log(db.length);
-    
+
     // .. write-down DB
     saveDB( db, true );
 
@@ -113,47 +133,87 @@ function readSrcBook ( num: number ): string {
 
 // .. ======================================================================
 
-function some_edits ( text: string ) {
+function some_edits ( str: string ) {
 
-    text = text.replace( / +/g, " " );
-    text = text.replace( /\.\.\.\.\.+/g, "....." );
-    text = text.replace( /\.\.\.\.\./g, " " );
-    text = text.replace( /\[\.\.\.\]/g, " " );
-    text = text.replace( / +/g, " " );
-    text = text.trim();
+    for ( let e of basic_tools.erabs ) {
+        let regx = new RegExp( " " +e, "g" );
+        str = str.replace( regx, e );
+    }
 
-    text = text.replace( /عَزَّوَجَلَّ/g, " عزوجل " );
-    text = text.replace( /- جَلَّ وعَزَّ -/g, " عزوجل " );
-    text = text.replace( /- عَزَّ وجَلَّ -/g, " عزوجل " );
-    text = text.replace( /- عز وجل -/g, " عزوجل " );
-    text = text.replace( /عَزَّ وجَلَّ/g, " عزوجل " );
-    text = text.replace( /جَلَّ وعَزَّ/g, " عزوجل " );
-    text = text.replace( /عز وجل/g, " عزوجل " );
-    text = text.replace( /- عَزَّ وَجَلَّ -/g, " عزوجل " );
-    text = text.replace( /عَزَّ وَجَلَّ/g, " عزوجل " );
-    text = text.replace( /- عَزَّ وَجَلَ -/g, " عزوجل " );
-    text = text.replace( /عَزَّ وَجَلَ/g, " عزوجل " );
-    text = text.replace( /- عَزّ وَجَلَّ -/g, " عزوجل " );
-    text = text.replace( /عَزّ وَجَلَّ/g, " عزوجل " );
-    text = text.replace( /- عَزَّ وجلَّ -/g, " عزوجل " );
-    text = text.replace( /عَزَّ وجلَّ/g, " عزوجل " );
-    text = text.replace( /- عَزَّ وَ جَلَّ -/g, " عزوجل " );
-    text = text.replace( /عَزَّ وَ جَلَّ/g, " عزوجل " );
-    text = text.replace( /- عزَّ وَ جَلَّ -/g, " عزوجل " );
-    text = text.replace( /- عزَّ وَ جَلَّ -/g, " عزوجل " );
-    text = text.replace( /عزَّ وَ جَلَّ/g, " عزوجل " );
-    text = text.replace( /- عَزَّوَ جَلَّ -/g, " عزوجل " );
-    text = text.replace( /تَبَارَكَ اسْمُهُ/g, " عزوجل " );
-    text = text.replace( /- تَبَارَكَ وَتَعَالى -/g, " عزوجل " );
-    text = text.replace( /تَبَارَكَ وَتَعَالى/g, " عزوجل " );
+    str = str.replace( /ـ/g , "" );
+    str = str.replace( / +/g, " " );
+    str = str.replace( /\.\.\.\.\.+/g, "....." );
+    str = str.replace( /\.\.\.\.\./g, " " );
+    str = str.replace( /\[\.\.\.\]/g, " " );
+    str = str.replace( /\. \. \./g, " ... " );
+    str = str.replace( / +/g, " " );
+    str = str.replace( /\.\. \./g, " ... " );
+    str = str.replace( / +/g, " " );
+    str = str.replace( /، +/g, "،" );
+    str = str.replace( / +،/g, "،" );
+    str = str.replace( / ، /g, "،" );
+    str = str.replace( /،/g, " ، " );
+    str = str.replace( /،  ،/g, " ، " );
+    str = str.replace( /، +/g, "،" );
+    str = str.trim();
 
-    text = text.replace( /، +/g, "،" );
-    text = text.replace( / +،/g, "،" );
-    text = text.replace( / ، /g, "،" );
-    text = text.replace( /،/g, " ، " );
-    text = text.replace( /،  ،/g, " ، " );
+    str = str.replace( /عَزَّوَجَلَّ/g, " عزوجل " );
+    str = str.replace( /- جَلَّ وعَزَّ -/g, " عزوجل " );
+    str = str.replace( /- عَزَّ وجَلَّ -/g, " عزوجل " );
+    str = str.replace( /- عز وجل -/g, " عزوجل " );
+    str = str.replace( /عَزَّ وجَلَّ/g, " عزوجل " );
+    str = str.replace( /جَلَّ وعَزَّ/g, " عزوجل " );
+    str = str.replace( /عز وجل/g, " عزوجل " );
+    str = str.replace( /- عَزَّ وَجَلَّ -/g, " عزوجل " );
+    str = str.replace( /عَزَّ وَجَلَّ/g, " عزوجل " );
+    str = str.replace( /- عَزَّ وَجَلَ -/g, " عزوجل " );
+    str = str.replace( /عَزَّ وَجَلَ/g, " عزوجل " );
+    str = str.replace( /- عَزّ وَجَلَّ -/g, " عزوجل " );
+    str = str.replace( /عَزّ وَجَلَّ/g, " عزوجل " );
+    str = str.replace( /- عَزَّ وجلَّ -/g, " عزوجل " );
+    str = str.replace( /عَزَّ وجلَّ/g, " عزوجل " );
+    str = str.replace( /- عَزَّ وَ جَلَّ -/g, " عزوجل " );
+    str = str.replace( /عَزَّ وَ جَلَّ/g, " عزوجل " );
+    str = str.replace( /- عزَّ وَ جَلَّ -/g, " عزوجل " );
+    str = str.replace( /- عزَّ وَ جَلَّ -/g, " عزوجل " );
+    str = str.replace( /عز و جل/g, " عزوجل " );
+    str = str.replace( /عزَّ وَ جَلَّ/g, " عزوجل " );
+    str = str.replace( /عزّوجلّ/g, " عزوجل " );
+    str = str.replace( /عَزَّوجلَّ/g, " عزوجل " );
+    str = str.replace( /عَزَّوَجلَّ \.\.\./g, " عزوجل " );
+    str = str.replace( /- عَزَّوَ جَلَّ -/g, " عزوجل " );
+    str = str.replace( /تَبَارَكَ اسْمُهُ/g, " عزوجل " );
+    str = str.replace( /- تَبَارَكَ وَتَعَالى -/g, " عزوجل " );
+    str = str.replace( /تَبَارَكَ وَتَعَالى/g, " عزوجل " );
 
-    return text;
+    str = str.replace( /\( عليه‌السلام \)/g, " عليه‌السلام " );
+    str = str.replace( /- علیها السلام -/g, " عليها‌السلام " );
+    str = str.replace( /علیها السلام/g, " عليها‌السلام " );
+    str = str.replace( /عليهم السلام/g, " عليهم‌السلام " );
+    str = str.replace( /- عليهما السلام -/g, " عليهما‌السلام " );
+    str = str.replace( /\(علیهما السلام\)/g, " عليهما‌السلام " );
+    str = str.replace( /علیهما السلام/g, " عليهما‌السلام " );
+    str = str.replace( /علیهم السلام/g, " عليهم‌السلام " );
+    str = str.replace( /علیه‏ السلام/g, " عليه‌السلام " );
+    str = str.replace( /\(علیه السلام\)/g, " عليه‌السلام " );
+    str = str.replace( /علیه السلام/g, " عليه‌السلام " );
+    str = str.replace( /- صلى‌الله‌عليه‌وآله‌وسلم -/g, " صلى‌الله‌عليه‌وآله‌وسلم " );
+    str = str.replace( /- صلّي الله عليه و آله -/g, " صلى‌الله‌عليه‌وآله‌وسلم " );
+    str = str.replace( /علیهماالسلام/g, " عليهما‌السلام " );
+    str = str.replace( /علیه السّلام/g, " عليه‌السلام " );
+    str = str.replace( /(صلی الله علیه و آله و سلم)/g, " صلى‌الله‌عليه‌وآله‌وسلم " );
+    str = str.replace( /صلی الله علیه و آله و سلم/g, " صلى‌الله‌عليه‌وآله‌وسلم " );
+    str = str.replace( /صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ/g, " صلى‌الله‌عليه‌وآله‌وسلم " );
+    str = str.replace( /صلی الله علیه و آله/g, " صلى‌الله‌عليه‌وآله‌وسلم " );
+    str = str.replace( /- رَحِمَهُ اللهُ -/g, " رحمه‌الله " );
+    str = str.replace( /رَحِمَهُ اللهُ/g, " رحمه‌الله " );
+
+    // str = str.replace( /\. ،/g, " ، " ).replace( /  +/g, " " );
+    // str = str.replace( /\. :/g, " . " ).replace( /  +/g, " " );
+    // str = str.replace( /\. \./g, " . " ).replace( /  +/g, " " );
+    str = str.trim();
+
+    return str;
 
 }
 
@@ -606,7 +666,7 @@ function a_0 ( item: TS.db_item ) {
         { text: "", c:null, excludesText: false },
 
         // ! important
-        { text: "قَالَ :", c:-11, excludesText: false },
+        { text: "قَالَ :", c:null, excludesText: false },
 
         // .. excludesText
         { text: "", c:null, excludesText: true },
@@ -810,3 +870,88 @@ function saveDB ( db: TS.db, realSave?: boolean ) {
 }
 
 // .. ======================================================================
+
+function RR () {
+
+    let R: TS.R[] = [],
+        start_time = new Date().getTime(),
+        title = " R Calculation";
+
+    // .. load db
+    let k_db_Path = tmpFolder + "01.json";
+    let k_db: TS.db = JSON.parse( fs.readFileSync( k_db_Path, 'utf8' ) );
+
+    // .. [addTmpProps]
+    tools.addTmpProps( k_db );
+    for ( let cell of k_db ) { 
+        cell.j = cell.d as number; 
+        cell.n = cell.d as number; 
+    }
+
+    for ( let i in k_db ) {
+        tools.timer( k_db.length, Number(i), start_time, title );
+        R = [ ...R, ...tools.R( k_db[i], k_db.slice( Number(i) +1 ) ) ];
+    }
+
+    fs.writeFileSync( k_db_Path + "RR.json", JSON.stringify(R) );
+
+}
+
+// .. ======================================================================
+
+export function db_investigator () {
+    // .. [R2Bound]
+    let tmpB = tools.R2Bound( R__, db_v1.length );
+    // .. [boundBoxDivider_SD]
+    let tmpE = tools.boundBoxDivider( tmpB );
+    storage.tmp_save( tmpE.single, tmpFolder, "single", true );
+    storage.tmp_save( tmpE.double, tmpFolder, "double", true );
+    storage.tmp_save( tmpE.m_1, tmpFolder, "m_1", true );
+    // .. re-do the process for remaining "m_1" ==> "m_2"
+    let m_2 = tools.aggressiveClusterPeptics( tmpE.m_1, R__ );
+    storage.tmp_save( m_2, tmpFolder, "m_2", true );
+    let tmpE2 = tools.multiScatter( m_2 );
+    storage.tmp_save( tmpE2.multi, tmpFolder, "multi", true );
+    storage.tmp_save( tmpE2.other, tmpFolder, "other", true );
+}
+
+// .. ======================================================================
+
+export function resultValidator () {
+    resource_update ();
+    return tools.resultValidator( single, double, multi, other, db_v1 );
+}
+
+// .. ======================================================================
+
+export function db_exporter () {
+    let db = tools.dbBuilder( single, double, multi, other, db_v1 );
+    storage.db_save( db, "base", "الکافی" );
+}
+
+// .. ======================================================================
+
+export function janitor () {
+    fs.rmSync( tmpFolder + "single.json", { force: true } );
+    fs.rmSync( tmpFolder + "double.json", { force: true } );
+    fs.rmSync( tmpFolder + "multi.json", { force: true } );
+    fs.rmSync( tmpFolder + "other.json", { force: true } );
+    fs.rmSync( tmpFolder + "m_1.json", { force: true } );
+    fs.rmSync( tmpFolder + "m_2.json", { force: true } );
+}
+
+// .. ======================================================================
+
+export async function ignite () {
+    // .. init server
+    await init();
+    // .. search for optimizing
+    db_investigator();
+    // .. check optimized info
+    resultValidator();
+    // .. create and save DBs
+    db_exporter();
+    // .. clean the tmpFolder
+    janitor();
+    // .. done! :)
+}

@@ -20,9 +20,9 @@ let multi  : TS.m;
 let other  : TS.m;
 let R      : TS.R[];
 
-resource_update ();
+export let R__: TS.R[];
 
-export let R__: TS.R[] = tools.R_optimizer ( R, 67 );
+resource_update ();
 
 // .. ======================================================================
 
@@ -34,6 +34,7 @@ function resource_update () {
     try { double = JSON.parse( fs.readFileSync( double_Path,'utf8' ) ) } catch {}
     try { multi  = JSON.parse( fs.readFileSync( multi_Path, 'utf8' ) ) } catch {}
     try { other  = JSON.parse( fs.readFileSync( other_Path, 'utf8' ) ) } catch {}
+    try { R__ = tools.R_optimizer ( R, 67 ) } catch {}
 }
 
 // .. ======================================================================
@@ -878,29 +879,25 @@ function saveDB ( db: TS.db, realSave?: boolean ) {
 
 // .. ======================================================================
 
-function RR () {
+export function RR () {
 
     let R: TS.R[] = [],
         start_time = new Date().getTime(),
         title = " R Calculation";
 
-    // .. load db
-    let k_db_Path = tmpFolder + "01.json";
-    let k_db: TS.db = JSON.parse( fs.readFileSync( k_db_Path, 'utf8' ) );
-
     // .. [addTmpProps]
-    tools.addTmpProps( k_db );
-    for ( let cell of k_db ) { 
+    tools.addTmpProps( db_v1 );
+    for ( let cell of db_v1 ) { 
         cell.j = cell.d as number; 
         cell.n = cell.d as number; 
     }
 
-    for ( let i in k_db ) {
-        tools.timer( k_db.length, Number(i), start_time, title );
-        R = [ ...R, ...tools.R( k_db[i], k_db.slice( Number(i) +1 ) ) ];
+    for ( let i in db_v1 ) {
+        tools.timer( db_v1.length, Number(i), start_time, title );
+        R = [ ...R, ...tools.R( db_v1[i], db_v1.slice( Number(i) +1 ) ) ];
     }
 
-    fs.writeFileSync( k_db_Path + "RR.json", JSON.stringify(R) );
+    fs.writeFileSync( tmpFolder + "RR.json", JSON.stringify(R) );
 
 }
 
@@ -977,3 +974,5 @@ export async function ignite ( mode: "Scratch"|"Cached" ) {
     // .. clean the tmpFolder
     janitor();
 }
+
+// .. ======================================================================

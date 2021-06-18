@@ -180,8 +180,9 @@ export function R2Bound ( R: TS.R[], length: number ) {
 }
 
 // .. ======================================================================
-
+let test = []
 export function boundBoxDivider( boundBox: TS.boundBox ) {
+    storage.tmp_save( boundBox, "src/db/tmp/وسائل‌الشيعة/", "boundBox", true );
 
     let single: TS.s = [],
         double: TS.d = [],
@@ -201,7 +202,8 @@ export function boundBoxDivider( boundBox: TS.boundBox ) {
         if ( boundBox[i] ) {
             if ( boundBox[i].length === 1 ) {
                 child = boundBox[i][0];
-                if ( boundBox[ child ].length === 1 ) {
+                if ( !boundBox[child]  ) test.push(child);
+                if ( boundBox[ child ] && boundBox[ child ].length === 1 ) {
                     if ( boundBox[ child ][0] === Number(i) ) {
                         double.push( [ Number(i), child ] );
                         delete boundBox[i];
@@ -211,6 +213,7 @@ export function boundBoxDivider( boundBox: TS.boundBox ) {
             }
         }
     }
+    storage.tmp_save( test, "src/db/tmp/وسائل‌الشيعة/", "aaa", true );
 
     for ( let i in boundBox ) 
         if ( boundBox[i] )
@@ -460,7 +463,8 @@ export function resultValidator
     let o = clusterBoxRealLengthReport( other, "other" );
     let t = s + d.any + m.any + o.any;
     let answer = db_v1.length === t ;
-    console.log( "\nAnswer is: " + ( answer ? "OK!" : "BAD!!" ) );
+    let msg = answer ? "OK!" : "BAD!! diff is: " + (db_v1.length - t);
+    console.log( "\nAnswer is: " + msg );
     return answer;
 }
 
@@ -677,7 +681,7 @@ export function dbExporter ( db: TS.db ) {
         "كنز‌العمّال",
         "تحف‌العقول",
         "بحار‌الأنوار",
-        "وسائل‌الشيعه",
+        "وسائل‌الشيعة",
         "متفرقه"
     ];
 

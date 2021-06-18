@@ -7,11 +7,39 @@ import * as fs                          from "fs";
 // .. ======================================================================
 
 let tmpFolder = "src/db/tmp/وسائل‌الشيعة/";
-try { fs.mkdirSync( tmpFolder ) } catch {}
+let db_v1_Path  = tmpFolder + "01.json";
+let single_Path = tmpFolder + "single.json";
+let double_Path = tmpFolder + "double.json";
+let multi_Path  = tmpFolder + "multi.json";
+let other_Path  = tmpFolder + "other.json";
+let R_Path      = tmpFolder + "RR.json";
+let db_v1  : TS.db;
+let single : TS.s;
+let double : TS.d;
+let multi  : TS.m;
+let other  : TS.m;
+let R      : TS.R[];
+
+export let R__: TS.R[];
+
+resource_update ();
 
 // .. ======================================================================
 
-export async function init () {
+function resource_update () {
+    try { fs.mkdirSync( tmpFolder ) } catch {}
+    try { db_v1  = JSON.parse( fs.readFileSync( db_v1_Path, 'utf8' ) ) } catch {}
+    try { R      = JSON.parse( fs.readFileSync( R_Path,     'utf8' ) ) } catch {}
+    try { single = JSON.parse( fs.readFileSync( single_Path,'utf8' ) ) } catch {}
+    try { double = JSON.parse( fs.readFileSync( double_Path,'utf8' ) ) } catch {}
+    try { multi  = JSON.parse( fs.readFileSync( multi_Path, 'utf8' ) ) } catch {}
+    try { other  = JSON.parse( fs.readFileSync( other_Path, 'utf8' ) ) } catch {}
+    try { R__ = tools.R_optimizer ( R, 67 ) } catch {}
+}
+
+// .. ======================================================================
+
+export async function init ( mode: "Scratch"|"Cached" ) {
 
     tools.notify( "  وسائل‌الشيعه " );
 
@@ -19,7 +47,7 @@ export async function init () {
     saveDB( db );
 
     // .. get v0 [ Scratch | Cached ]
-    db = load_db_v0( "Scratch" );
+    db = load_db_v0( mode );
     // .. some preparation A=>Z
     db = rename ( db, false );
     // .. main dividers
@@ -32,9 +60,9 @@ export async function init () {
     db = rename ( db, true );
     // .. final step
     db = db_finalizer( db );
+    // .. heal lost items
+    db = heal( db, 35868 );
 
-    // .. lost chcek
-    lost_chcek( db );
     // .. get HTML copy
     html_exporter( db );
 
@@ -1087,12 +1115,24 @@ function html_exporter ( db: TS.db ) {
 
 // .. ======================================================================
 
-function lost_chcek ( db: TS.db ) {
-    let cc = [];
-    for( let i in db ) 
-        if ( Number(i) +1 +cc.length !== db[i].d )
-            cc.push( Number(i) +1 +cc.length );
-    console.log(cc);
+function heal ( db: TS.db, size: number ) {
+
+    let emptyItem = { a:null, b:null, c:null, d:null } as TS.db_item;
+    let tmpDB: TS.db = [];
+
+    tmpDB.length = size;
+
+    for( let p of db ) tmpDB[ p.d ] = p;
+
+    for( let i=0; i<tmpDB.length; i++ ) {
+        if ( !tmpDB[i] ) {
+            tmpDB[i] = JSON.parse( JSON.stringify( emptyItem ) );
+            tmpDB[i].d = i;
+        }
+    }
+
+    return tmpDB;
+
 }
 
 // .. ======================================================================
@@ -1101,6 +1141,104 @@ function saveDB ( db: TS.db, realSave?: boolean ) {
     let _01_path = tmpFolder + "01.json";
     if ( !realSave ) fs.rmSync( _01_path, { force: true } );
     else fs.writeFileSync( _01_path, JSON.stringify(db,null,"\t") );
+}
+
+// .. ======================================================================
+
+export function RR () {
+
+    let R: TS.R[] = [],
+        start_time = new Date().getTime(),
+        title = " R Calculation";
+
+    // .. [addTmpProps]
+    tools.addTmpProps( db_v1 );
+    for ( let cell of db_v1 ) { 
+        cell.j = cell.d as number; 
+        cell.n = cell.d as number; 
+    }
+
+    for ( let i in db_v1 ) {
+        tools.timer( db_v1.length, Number(i), start_time, title );
+        R = [ ...R, ...tools.R( db_v1[i], db_v1.slice( Number(i) +1 ) ) ];
+    }
+
+    fs.writeFileSync( tmpFolder + "RR.json", JSON.stringify(R) );
+
+}
+
+// .. ======================================================================
+
+export function db_investigator () {
+    resource_update ();
+    // .. [R2Bound]
+    let tmpB = tools.R2Bound( R__, db_v1.length );
+    // .. [boundBoxDivider_SD]
+    let tmpE = tools.boundBoxDivider( tmpB );
+    storage.tmp_save( tmpE.single, tmpFolder, "single", true );
+    storage.tmp_save( tmpE.double, tmpFolder, "double", true );
+    storage.tmp_save( tmpE.m_1, tmpFolder, "m_1", true );
+    // .. re-do the process for remaining "m_1" ==> "m_2"
+    let m_2 = tools.aggressiveClusterPeptics( tmpE.m_1, R__ );
+    storage.tmp_save( m_2, tmpFolder, "m_2", true );
+    let tmpE2 = tools.multiScatter( m_2 );
+    storage.tmp_save( tmpE2.multi, tmpFolder, "multi", true );
+    storage.tmp_save( tmpE2.other, tmpFolder, "other", true );
+}
+
+// .. ======================================================================
+
+export function resultValidator () {
+    resource_update ();
+    return tools.resultValidator( single, double, multi, other, db_v1 );
+}
+
+// .. ======================================================================
+
+export function db_exporter () {
+
+    let db_info;
+
+    db_info = tools.db_info_Generator( single, double, multi, other, db_v1 );
+    // ! need this line ! BAD Practice
+    delete db_info[0];
+    storage.info_save( db_info, "base", "وسائل‌الشيعة_info", true );
+
+    // .. last trims
+    for ( let p of db_v1 ) {
+        try { p[0] = p[0].replace( / +/g, " " ).trim() } catch {}
+        try { p[9] = p[9].replace( / +/g, " " ).trim() } catch {}
+        try { p.a = p.a.replace( / +/g, " " ).trim() } catch {}
+    }
+
+    storage.db_save( db_v1, "base", "وسائل‌الشيعة" );
+
+}
+
+// .. ======================================================================
+
+export function janitor () {
+    fs.rmSync( tmpFolder + "single.json", { force: true } );
+    fs.rmSync( tmpFolder + "double.json", { force: true } );
+    fs.rmSync( tmpFolder + "multi.json", { force: true } );
+    fs.rmSync( tmpFolder + "other.json", { force: true } );
+    fs.rmSync( tmpFolder + "m_1.json", { force: true } );
+    fs.rmSync( tmpFolder + "m_2.json", { force: true } );
+}
+
+// .. ======================================================================
+
+export async function ignite ( mode: "Scratch"|"Cached" ) {
+    // .. init server
+    await init( mode );
+    // .. search for optimizing
+    db_investigator();
+    // .. check optimized info
+    resultValidator();
+    // .. create and save DBs
+    db_exporter();
+    // .. clean the tmpFolder
+    janitor();
 }
 
 // .. ======================================================================

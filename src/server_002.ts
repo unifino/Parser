@@ -1,4 +1,5 @@
 import * as tools                       from "./tools";
+import * as SCT                         from "./server_common_tools";
 import * as TS                          from "./types";
 import * as storage                     from "./storage";
 import * as basic_tools                 from "./basic_tools";
@@ -7,6 +8,7 @@ import * as fs                          from "fs";
 // .. ======================================================================
 
 let tmpFolder = "src/db/tmp/وسائل‌الشيعة/";
+let sourceFolder = "src/db/source/وسائل‌الشيعة/";
 let db_v1_Path  = tmpFolder + "01.json";
 let single_Path = tmpFolder + "single.json";
 let double_Path = tmpFolder + "double.json";
@@ -26,15 +28,17 @@ resource_update ();
 
 // .. ======================================================================
 
-function resource_update () {
-    try { fs.mkdirSync( tmpFolder ) } catch {}
-    try { db_v1  = JSON.parse( fs.readFileSync( db_v1_Path, 'utf8' ) ) } catch {}
-    try { R      = JSON.parse( fs.readFileSync( R_Path,     'utf8' ) ) } catch {}
-    try { single = JSON.parse( fs.readFileSync( single_Path,'utf8' ) ) } catch {}
-    try { double = JSON.parse( fs.readFileSync( double_Path,'utf8' ) ) } catch {}
-    try { multi  = JSON.parse( fs.readFileSync( multi_Path, 'utf8' ) ) } catch {}
-    try { other  = JSON.parse( fs.readFileSync( other_Path, 'utf8' ) ) } catch {}
-    try { R__ = tools.R_optimizer ( R, 67 ) } catch {}
+export async function ignite ( mode: "Scratch"|"Cached" ) {
+    // .. init server
+    await init( mode );
+    // .. search for optimizing
+    db_investigator();
+    // .. check optimized info
+    resultValidator();
+    // .. create and save DBs
+    db_exporter();
+    // .. clean the tmpFolder
+    janitor();
 }
 
 // .. ======================================================================
@@ -44,7 +48,7 @@ export async function init ( mode: "Scratch"|"Cached" ) {
     tools.notify( "  وسائل‌الشيعه " );
 
     let db = [];
-    saveDB( db );
+    SCT.saveDB( db, tmpFolder );
 
     // .. get v0 [ Scratch | Cached ]
     db = load_db_v0( mode );
@@ -67,7 +71,7 @@ export async function init ( mode: "Scratch"|"Cached" ) {
     // html_exporter( db );
 
     // .. write-down DB
-    saveDB( db, true );
+    SCT.saveDB( db, tmpFolder, true );
 
 }
 
@@ -103,7 +107,7 @@ function load_db_v0 ( mode: "Scratch"|"Cached" ) {
         // .. convert set v1 to v2 [ string[][]=>string[] ]
         for ( let i in set_v1 ) set_v2 = [ ...set_v2, ...set_v1[i] ];
         // .. get hadith prepared for extraction id from sourceText
-        for ( let i in set_v2 ) set_v2[i] = set_trimmer ( set_v2[i] );
+        for ( let i in set_v2 ) set_v2[i] = SCT.set_trimmer ( set_v2[i] );
         // .. trim set v2
         set_v2 = set_v2.filter( x => x );
         // .. get hadith from sourceText and [ assign d & j ]
@@ -250,7 +254,7 @@ function getBook_v1 ( book: string[][] ) {
         let hr: RegExpMatchArray;
         let HR = "<p class=libLine>";
 
-        [ hr, page ] = hrCtr( page, HR );
+        [ hr, page ] = SCT.hrCtr( page, HR );
 
         // .. page has multiple divide lines!
         if ( hr.length > 1 ) console.log( "Unexpected Page: ", page );
@@ -322,26 +326,6 @@ function removeAlaemTags ( page: string[] ) {
 
 // .. ======================================================================
 
-function hrCtr ( page: string[], HR: string ) {
-
-    let hr: RegExpMatchArray;
-
-    for ( let i in page ) {
-        page[i] = page[i].replace( /libNormal0/g, 'libNormal' );
-        page[i] = page[i].replace( /libFootnote0/g, 'libFootnote' );
-        page[i] = page[i].replace( /<p class=libFootnote>______+/g, HR );
-        page[i] = page[i].replace( /<p class=libNormal>______+/g, HR );
-        page[i] = page[i].replace( /<p>______+/g, HR );
-    }
-
-    hr = page.join("").match( /<p class=libLine>/ ) || [];
-
-    return [ hr, page ];
-
-}
-
-// .. ======================================================================
-
 function removeUnimportantLines ( page: string[] ) {
     page = page.filter( x => { 
         if ( x.replace( /(<([^>]+)>)/ig, '' ).trim().length < 2 ) return false;
@@ -355,32 +339,6 @@ function removeUnimportantLines ( page: string[] ) {
         return true;
     } );
     return page;
-}
-
-// .. ======================================================================
-
-function set_trimmer ( str: string ) {
-
-    str = str.replace( /<span class=libFootnote>/g, "" );
-    str = str.replace( "<p class=libFootnote>", "" );
-    str = str.replace( "<p class=libNormal>", "" );
-    str = str.replace( "<span class=libNormal>", "" );
-    str = str.replace( "<span class=libNum>", "" );
-    str = str.replace( "<p class=libPoem>", "" );
-    str = str.replace( "<p class=libPoemCenter>", "" );
-    str = str.replace( /<\/span>/g, "" );
-    str = str.replace( /<p>/g, "" );
-    str = str.replace( /<\/p>/g, "" );
-
-    str = str.replace( /(<([^>]+)>)/ig, '' );
-
-    let a = ( str.match( /\[/g ) || [] ).length;
-    let b = ( str.match( /\]/g ) || [] ).length;
-    // .. report errors
-    if ( a !== b ) console.log( "Unexpected ID Format: ", a, b, str );
-
-    return str;
-
 }
 
 // .. ======================================================================
@@ -467,7 +425,7 @@ function a_9 ( item: TS.db_item ) {
     for ( let p of cdnBOX ) {
         // ! IMPORTANT : indexOf OR lastIndexOf ?!
         cut_ID = item.a.indexOf( p );
-        if ( ~cut_ID ) item = append_9( item, cut_ID );
+        if ( ~cut_ID ) item = SCT.append_9( item, cut_ID );
     }
 
     return item;
@@ -612,7 +570,7 @@ function a_0 ( item: TS.db_item ) {
         cut_ID = item.a.indexOf( p.text );
         if ( ~cut_ID ) {
             if ( p.excludesText ) cut_ID += p.text.length;
-            item = append_0 ( item, cut_ID );
+            item = SCT.append_0 ( item, cut_ID );
             item.c = p.c;
             break;
         }
@@ -627,7 +585,7 @@ function a_0 ( item: TS.db_item ) {
 function lastTrim ( db: TS.db ) {
 
     for ( let p of db ) {
-        if ( p.a.endsWith( "،" ) ) p = append_9( p, p.a.length -1 );
+        if ( p.a.endsWith( "،" ) ) p = SCT.append_9( p, p.a.length -1 );
         if ( p.a.endsWith( " ." ) ) p.a = p.a.slice( 0, p.a.length -2 ) + ".";
         p.a = p.a.trim();
     }
@@ -807,7 +765,7 @@ function i_rss_cuter_patch_1 ( item: TS.db_item ) {
     for ( let p of cdnBox ) {
         idx = item.a.indexOf( p[1] );
         if ( ~idx && idx<2 ) {
-            item = append_0 ( item, idx +p[1].length );
+            item = SCT.append_0 ( item, idx +p[1].length );
             item.c = p[0];
             break;
         }
@@ -886,39 +844,39 @@ function i_rss_cuter_patch_2 ( item: TS.db_item ) {
     cdn = /\^محمد بن(.+?):/;
     match = item.a.match( cdn ) || [];
     if ( ~match.index ) {
-        if ( match.index === 0 ) item = append_0( item, match[0].length );
-        if ( match.index > 0 ) item = append_9( item, match.index );
+        if ( match.index === 0 ) item = SCT.append_0( item, match[0].length );
+        if ( match.index > 0 ) item = SCT.append_9( item, match.index );
     }
 
     cdn = /\^محمد بن/;
     match = item.a.match( cdn ) || [];
     if ( ~match.index )
         if ( match.index > 0 ) 
-            item = append_9( item, match.index );
+            item = SCT.append_9( item, match.index );
 
     cdn = /عن أحمد بن محمد(.+?):/;
     match = item.a.match( cdn ) || [];
     if ( ~match.index )
         if ( match.index < 20 )
-            item = append_0( item, match.index + match[0].length );
+            item = SCT.append_0( item, match.index + match[0].length );
 
     cdn = /\^وعن علي بن إبراهيم ،/;
     match = item.a.match( cdn ) || [];
     if ( ~match.index )
         if ( match.index > 10 )
-            item = append_9( item, match.index );
+            item = SCT.append_9( item, match.index );
 
     cdn = /وعن علي بن إبراهيم(.+?):/;
     match = item.a.match( cdn ) || [];
     if ( ~match.index )
         if ( match.index < 10 )
-            item = append_0( item, match.index + match[0].length );
+            item = SCT.append_0( item, match.index + match[0].length );
 
     cdn = /\^وبإسناده عن/;
     match = item.a.match( cdn ) || [];
     if ( ~match.index )
         if ( match.index > 10 )
-            item = append_9( item, match.index );
+            item = SCT.append_9( item, match.index );
 
     cdnBOX = [
         "وبإسناده عن محمد بن حمران وجميل بن دراج أنهما سألا أبا عبد الله ^ عليه‌السلام عن إمام قوم أصابته جنابة في السفر وليس معه من الماء ما يكفيه للغسل ، أيتوضأبعضهم ويصلي بهم ؟ فقال :",
@@ -948,7 +906,7 @@ function i_rss_cuter_patch_2 ( item: TS.db_item ) {
     match = item.a.match( cdn ) || [];
     if ( ~match.index )
         if ( match.index < 10 )
-            item = append_0( item, match.index + match[0].length );
+            item = SCT.append_0( item, match.index + match[0].length );
 
     return item;
 
@@ -962,28 +920,28 @@ function i_rss_cuter_patch_3 ( item: TS.db_item ) {
         idx: number;
 
     cdn = ":"; idx = item.a.indexOf( cdn );
-    if ( ~idx ) if ( idx < 3 ) item = append_0( item, idx + cdn.length );
+    if ( ~idx ) if ( idx < 3 ) item = SCT.append_0( item, idx + cdn.length );
 
     cdn = "مثله ، إلا أنه قال"; idx = item.a.lastIndexOf( cdn );
-    if ( ~idx ) item = append_9( item, idx );
+    if ( ~idx ) item = SCT.append_9( item, idx );
 
     cdn = "- في حديث - قال :"; idx = item.a.indexOf( cdn );
-    if ( ~idx ) item = append_0( item, idx + cdn.length );
+    if ( ~idx ) item = SCT.append_0( item, idx + cdn.length );
 
     cdn = "عن سماعة قال :";idx = item.a.indexOf( cdn );
-    if ( ~idx ) if ( idx < 10 ) item = append_0( item, idx + cdn.length );
+    if ( ~idx ) if ( idx < 10 ) item = SCT.append_0( item, idx + cdn.length );
 
     cdn = "^قال : وقال عليه‌السلام :"; idx = item.a.indexOf( cdn );
-    if ( ~idx ) if ( idx < 10 ) item = append_0( item, idx + cdn.length );
+    if ( ~idx ) if ( idx < 10 ) item = SCT.append_0( item, idx + cdn.length );
 
     cdn = "عليه‌السلام أنّه قال :"; idx = item.a.indexOf( cdn );
-    if ( ~idx ) if ( idx < 30 ) item = append_0( item, idx + cdn.length );
+    if ( ~idx ) if ( idx < 30 ) item = SCT.append_0( item, idx + cdn.length );
 
     cdn = ": وفي رواية اُخرى :"; idx = item.a.indexOf( cdn );
-    if ( ~idx ) if ( idx < 30 ) item = append_0( item, idx + cdn.length );
+    if ( ~idx ) if ( idx < 30 ) item = SCT.append_0( item, idx + cdn.length );
 
     cdn = "عن حمران بن أعين قال :"; idx = item.a.indexOf( cdn );
-    if ( ~idx ) if ( idx < 10 ) item = append_0( item, idx + cdn.length );
+    if ( ~idx ) if ( idx < 10 ) item = SCT.append_0( item, idx + cdn.length );
 
     return item;
 
@@ -1010,7 +968,7 @@ function i_rss_cuter_patch_4 ( item: TS.db_item ) {
         cut_ID = item.a.indexOf( p );
         if ( ~cut_ID ) 
             if ( cut_ID > 20 )
-                item = append_9( item, cut_ID );
+                item = SCT.append_9( item, cut_ID );
     }
 
     cdnBOX = [
@@ -1021,38 +979,8 @@ function i_rss_cuter_patch_4 ( item: TS.db_item ) {
     for ( let p of cdnBOX ) {
         cut_ID = item.a.indexOf( p );
         if ( ~cut_ID ) 
-            item = append_9( item, cut_ID );
+            item = SCT.append_9( item, cut_ID );
     }
-
-    return item;
-
-}
-
-// .. ======================================================================
-
-function append_0 ( item: TS.db_item, idx: number ) {
-
-    // .. skip
-    if ( !~idx ) return item;
-
-    item[0] = item[0] ? item[0] +" " : "";
-    item[0] = item[0] + item.a.slice( 0, idx );
-    item.a = item.a.slice( idx );
-
-    return item;
-
-}
-
-// .. ======================================================================
-
-function append_9 ( item: TS.db_item, idx: number ) {
-
-    // .. skip
-    if ( !~idx ) return item;
-
-    item[9] = item[9] ? " " +item[9] : "";
-    item[9] = item.a.slice( idx ) + item[9];
-    item.a = item.a.slice( 0, idx );
 
     return item;
 
@@ -1073,7 +1001,7 @@ function db_finalizer ( db: TS.db ) {
         if ( p[9] ) p[9] = p[9].replace( / +/g, " " ).trim();
 
         // .. no need this item [ truncate it ]
-        if ( p.a.length < 10 ) p = append_0( p, p.a.length );
+        if ( p.a.length < 10 ) p = SCT.append_0( p, p.a.length );
         if ( !p.a ) p.a = null;
 
     }
@@ -1137,38 +1065,6 @@ function heal ( db: TS.db, size: number ) {
 
 // .. ======================================================================
 
-function saveDB ( db: TS.db, realSave?: boolean ) {
-    let _01_path = tmpFolder + "01.json";
-    if ( !realSave ) fs.rmSync( _01_path, { force: true } );
-    else fs.writeFileSync( _01_path, JSON.stringify(db,null,"\t") );
-}
-
-// .. ======================================================================
-
-export function RR () {
-
-    let R: TS.R[] = [],
-        start_time = new Date().getTime(),
-        title = " R Calculation";
-
-    // .. [addTmpProps]
-    tools.addTmpProps( db_v1 );
-    for ( let cell of db_v1 ) { 
-        cell.j = cell.d as number; 
-        cell.n = cell.d as number; 
-    }
-
-    for ( let i in db_v1 ) {
-        tools.timer( db_v1.length, Number(i), start_time, title );
-        R = [ ...R, ...tools.R( db_v1[i], db_v1.slice( Number(i) +1 ) ) ];
-    }
-
-    fs.writeFileSync( tmpFolder + "RR.json", JSON.stringify(R) );
-
-}
-
-// .. ======================================================================
-
 export function db_investigator () {
     resource_update ();
     // .. [R2Bound]
@@ -1223,17 +1119,15 @@ export function janitor () {
 
 // .. ======================================================================
 
-export async function ignite ( mode: "Scratch"|"Cached" ) {
-    // .. init server
-    await init( mode );
-    // .. search for optimizing
-    db_investigator();
-    // .. check optimized info
-    resultValidator();
-    // .. create and save DBs
-    db_exporter();
-    // .. clean the tmpFolder
-    janitor();
+function resource_update () {
+    try { fs.mkdirSync( tmpFolder ) } catch {}
+    try { db_v1  = JSON.parse( fs.readFileSync( db_v1_Path, 'utf8' ) ) } catch {}
+    try { R      = JSON.parse( fs.readFileSync( R_Path,     'utf8' ) ) } catch {}
+    try { single = JSON.parse( fs.readFileSync( single_Path,'utf8' ) ) } catch {}
+    try { double = JSON.parse( fs.readFileSync( double_Path,'utf8' ) ) } catch {}
+    try { multi  = JSON.parse( fs.readFileSync( multi_Path, 'utf8' ) ) } catch {}
+    try { other  = JSON.parse( fs.readFileSync( other_Path, 'utf8' ) ) } catch {}
+    try { R__ = tools.R_optimizer ( R, 67 ) } catch {}
 }
 
 // .. ======================================================================

@@ -1,4 +1,5 @@
 import * as tools                       from "./tools";
+import * as SCT                         from "./server_common_tools";
 import * as TS                          from "./types";
 import * as storage                     from "./storage";
 import * as basic_tools                 from "./basic_tools";
@@ -7,6 +8,7 @@ import * as fs                          from "fs";
 // .. ======================================================================
 
 let tmpFolder   = "src/db/tmp/الكافي/";
+let sourceFolder = "src/db/source/الكافي/";
 let db_v1_Path  = tmpFolder + "01.json";
 let single_Path = tmpFolder + "single.json";
 let double_Path = tmpFolder + "double.json";
@@ -46,7 +48,7 @@ export async function init ( mode: "Scratch"|"Cached" ) {
     tools.notify( "     الکافی   " );
 
     let db: TS.db = [];
-    saveDB( db );
+    SCT.saveDB( db, tmpFolder );
 
     // .. get v0 [ Scratch | Cached ]
     db = load_db_v0( mode );
@@ -54,7 +56,7 @@ export async function init ( mode: "Scratch"|"Cached" ) {
     db = a_0_9( db );
 
     // .. write-down DB
-    saveDB( db, true );
+    SCT.saveDB( db, tmpFolder, true );
 
 }
 
@@ -94,7 +96,7 @@ function load_db_v0 ( mode: "Scratch"|"Cached" ) {
         // .. convert set v1 to v2 [ string[][]=>string[] ]
         for ( let i in set_v1 ) set_v2 = [ ...set_v2, ...set_v1[i] ];
         // .. get hadith prepared for extraction id from sourceText
-        for ( let i in set_v2 ) set_v2[i] = set_trimmer ( set_v2[i] );
+        for ( let i in set_v2 ) set_v2[i] = SCT.set_trimmer ( set_v2[i] );
         // .. trim set v2
         set_v2 = set_v2.filter( x => x );
         // .. get hadith from sourceText and [ assign d & j ]
@@ -307,7 +309,7 @@ function getBook_v1 ( book: string[][] ) {
         let hr: RegExpMatchArray;
         let HR = "<p class=libLine>";
 
-        [ hr, page ] = hrCtr( page, HR );
+        [ hr, page ] = SCT.hrCtr( page, HR );
 
         // .. page has multiple divide lines!
         if ( hr.length > 1 ) console.log( "Unexpected Page: ", page );
@@ -433,26 +435,6 @@ function removeAlaemTags_Assistant ( text: string ) {
 
 // .. ======================================================================
 
-function hrCtr ( page: string[], HR: string ) {
-
-    let hr: RegExpMatchArray;
-
-    for ( let i in page ) {
-        page[i] = page[i].replace( /libNormal0/g, 'libNormal' );
-        page[i] = page[i].replace( /libFootnote0/g, 'libFootnote' );
-        page[i] = page[i].replace( /<p class=libFootnote>______+/g, HR );
-        page[i] = page[i].replace( /<p class=libNormal>______+/g, HR );
-        page[i] = page[i].replace( /<p>______+/g, HR );
-    }
-
-    hr = page.join("").match( /<p class=libLine>/ ) || [];
-
-    return [ hr, page ];
-
-}
-
-// .. ======================================================================
-
 function removeUnimportantLines ( page: string[] ) {
     page = page.filter( x => { 
         if ( x.replace( /(<([^>]+)>)/ig, '' ).trim().length < 2 ) return false;
@@ -466,36 +448,6 @@ function removeUnimportantLines ( page: string[] ) {
         return true;
     } );
     return page;
-}
-
-// .. ======================================================================
-
-function set_trimmer ( str: string ) {
-
-    str = str.replace( /<span class=libFootnote>/g, "" );
-    str = str.replace( "<p class=libFootnote>", "" );
-    str = str.replace( "<p class=libNormal>", "" );
-    str = str.replace( "<span class=libNormal>", "" );
-    str = str.replace( "<span class=libNum>", "" );
-    str = str.replace( "<p class=libPoem>", "" );
-    str = str.replace( "<p class=libPoemCenter>", "" );
-    str = str.replace( /<\/span>/g, "" );
-    str = str.replace( /<p>/g, "" );
-    str = str.replace( /<\/p>/g, "" );
-
-    str = str.replace( /(<([^>]+)>)/ig, '' );
-
-    str = str.replace( / ‌/g, " " );
-    str = str.replace( / +/g, " " );
-    str = str.trim();
-
-    let a = ( str.match( /\[/g ) || [] ).length;
-    let b = ( str.match( /\]/g ) || [] ).length;
-    // .. report errors
-    if ( a !== b ) console.log( "Unexpected ID Format: ", a, b, str );
-
-    return str;
-
 }
 
 // .. ======================================================================
@@ -571,13 +523,13 @@ function a_0_9 ( db: TS.db ) {
             p = a_0(p);
             // .. trim
             a_ID = p.a.indexOf( "«" );
-            if ( ~a_ID && a_ID < 2 ) p = append_0( p, a_ID +1 );
+            if ( ~a_ID && a_ID < 2 ) p = SCT.append_0( p, a_ID +1 );
             a_ID = p.a.indexOf( "«" );
             z_ID = p.a.indexOf( "»" );
             // .. in case of : «---»
             if ( !~a_ID && ~z_ID )
                 if ( z_ID > p.a.length - 4 )
-                    p = append_9( p, z_ID );
+                    p = SCT.append_9( p, z_ID );
 
             p.a = p.a.replace( / ‌/g, " " ).replace( / +/g, " " ).trim();
 
@@ -829,7 +781,7 @@ function a_0 ( item: TS.db_item ) {
             if ( ~cut_ID ) {
                 if ( cut_ID < 3 ) {
                     if ( p.excludesText ) cut_ID += p.text.length;
-                    item = append_0 ( item, cut_ID );
+                    item = SCT.append_0 ( item, cut_ID );
                     item.c = p.c;
                     break;
                 }
@@ -838,68 +790,6 @@ function a_0 ( item: TS.db_item ) {
     }
 
     return item;
-
-}
-
-// .. ======================================================================
-
-function append_0 ( item: TS.db_item, idx: number ) {
-
-    // .. skip
-    if ( !~idx ) return item;
-
-    item[0] = item[0] ? item[0] +" " : "";
-    item[0] = item[0] + item.a.slice( 0, idx );
-    item.a = item.a.slice( idx );
-
-    return item;
-
-}
-
-// .. ======================================================================
-
-function append_9 ( item: TS.db_item, idx: number ) {
-
-    // .. skip
-    if ( !~idx ) return item;
-
-    item[9] = item[9] ? " " +item[9] : "";
-    item[9] = item.a.slice( idx ) + item[9];
-    item.a = item.a.slice( 0, idx );
-
-    return item;
-
-}
-
-// .. ======================================================================
-
-function saveDB ( db: TS.db, realSave?: boolean ) {
-    let _01_path = tmpFolder + "01.json";
-    if ( !realSave ) fs.rmSync( _01_path, { force: true } );
-    else fs.writeFileSync( _01_path, JSON.stringify(db,null,"\t") );
-}
-
-// .. ======================================================================
-
-export function RR () {
-
-    let R: TS.R[] = [],
-        start_time = new Date().getTime(),
-        title = " R Calculation";
-
-    // .. [addTmpProps]
-    tools.addTmpProps( db_v1 );
-    for ( let cell of db_v1 ) { 
-        cell.j = cell.d as number; 
-        cell.n = cell.d as number; 
-    }
-
-    for ( let i in db_v1 ) {
-        tools.timer( db_v1.length, Number(i), start_time, title );
-        R = [ ...R, ...tools.R( db_v1[i], db_v1.slice( Number(i) +1 ) ) ];
-    }
-
-    fs.writeFileSync( tmpFolder + "RR.json", JSON.stringify(R) );
 
 }
 

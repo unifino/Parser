@@ -8,6 +8,10 @@ import * as TS                          from "./types";
 
 // .. ======================================================================
 
+console.clear();
+
+// .. ======================================================================
+
 // .. major init function
 async function ignite () {
     // .. create title
@@ -17,9 +21,10 @@ async function ignite () {
 
     // .. actual steps goes here:
 
-        // await server001.ignite( "Cached" );
-        // await server002.ignite( "Cached" );
-        SCT.R_R( server001.db_v1, server002.db_v1 );
+        let n_pad = await server001.ignite( "Cached", 0 );
+        // n_pad = 15413
+        await server002.ignite( "Cached", n_pad );
+        // SCT.R_R( server001.db_v1, server002.db_v1 );
 
     // .. end of the application
     tools.notify( null, true );
@@ -27,5 +32,15 @@ async function ignite () {
 }
 
 ignite();
+
+// .. ======================================================================
+
+function  R_updater() {
+    for ( let p of server002.R ) {
+        p[0] += 15413;
+        p[1] += 15413;
+    }
+    storage.tmp_save( server002.R, server002.tmpFolder, "RR", true )
+}
 
 // .. ======================================================================

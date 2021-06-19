@@ -459,10 +459,7 @@ export function resultValidator
     let m = clusterBoxRealLengthReport( multi, "multi" );
     let o = clusterBoxRealLengthReport( other, "other" );
     let t = s + d.any + m.any + o.any;
-    let answer = db_v1.length === t ;
-    let msg = answer ? "OK!" : "BAD!! diff is: " + (db_v1.length - t);
-    console.log( "\nAnswer is: " + msg );
-    return answer;
+    return db_v1.length === t;
 }
 
 // .. ======================================================================
@@ -475,7 +472,7 @@ export function cluster_info ( clusterBox: TS.ClusterBox, ref_db: TS.db ) {
     box = clusterBox.map( cluster => {
         tmp = [];
         for ( let p of cluster ) 
-            tmp.push( { 
+            tmp.push( {
                 id_in_book: p,
                 index_in_db: ref_db.findIndex( x => x.d === p ),
                 length: ref_db.find( x => x.d === p ).a.length 
@@ -585,12 +582,12 @@ function bookSaver ( books: TS.bookKeys, order: TS.source[], db: TS.db ) {
         c = 0;
 
     for ( let p of order ) {
-        if ( p === "الکافی" ) {
+        if ( p === "الكافي" ) {
             newBook = db.filter( (x,i) => i<14647 );
             // .. assign source of Kafi
             for ( let p of newBook ) 
                 if ( typeof p.d === "number" )
-                    p.d = basic_tools.arabicDigits( "الکافی، الحدیث: " +p.d );
+                    p.d = basic_tools.arabicDigits( "الكافي، الحديث: " +p.d );
             miscDB = db.filter( (x,i) => i>=14647 );
         }
         else if ( p !== "متفرقه" ) {
@@ -659,7 +656,7 @@ export function dbExporter ( db: TS.db ) {
     keysBox[ "وسائل‌الشيعه" ] = keys;
 
     order = [
-        "الکافی",
+        "الكافي",
         "نهج‌الفصاحة",
         "نهج‌البلاغة",
         "غررالحکم",
@@ -678,7 +675,6 @@ export function dbExporter ( db: TS.db ) {
 
 export function notify ( title = " Server Script", end?: boolean ) {
 
-    const version = "2.1.0";
     let pad = "        ",
         msg = "";
 
@@ -686,13 +682,12 @@ export function notify ( title = " Server Script", end?: boolean ) {
     if ( end ) {
         console.log( "" );
         console.timeEnd( "App Clock" );
-        msg = "##### " + pad + "   Done :)    " + pad + " #####\n";
+        msg = "\n##########################################\n";
     }
-    else {
+    else { 
         console.clear();
         msg += "##### " + pad + title + pad + " #####";
         msg += '\n';
-        msg += "###--     " + pad + "v." + version + pad + "    --###\n";
     }
 
     console.log(msg);

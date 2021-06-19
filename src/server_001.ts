@@ -7,38 +7,43 @@ import * as fs                          from "fs";
 
 // .. ======================================================================
 
-export let tmpFolder   = "src/db/tmp/الكافي/";
-let sourceFolder = "src/db/source/الكافي/";
-let db_v1_Path  = tmpFolder + "01.json";
-let single_Path = tmpFolder + "single.json";
-let double_Path = tmpFolder + "double.json";
-let multi_Path  = tmpFolder + "multi.json";
-let other_Path  = tmpFolder + "other.json";
-let R_Path      = tmpFolder + "RR.json";
-export let db_v1  : TS.db;
-let single : TS.s;
-let double : TS.d;
-let multi  : TS.m;
-let other  : TS.m;
-let R      : TS.R[];
-
-export let R__: TS.R[];
+export let tmpFolder = "src/db/tmp/الكافي/";
+let sourceFolder     = "src/db/source/الكافي/";
+let db_v1_Path       = tmpFolder + "01.json";
+let single_Path      = tmpFolder + "single.json";
+let double_Path      = tmpFolder + "double.json";
+let multi_Path       = tmpFolder + "multi.json";
+let other_Path       = tmpFolder + "other.json";
+let R_Path           = tmpFolder + "RR.json";
+export let db_v1     : TS.db;
+let single           : TS.s;
+let double           : TS.d;
+let multi            : TS.m;
+let other            : TS.m;
+let R                : TS.R[];
+let R__              : TS.R[];
 
 resource_update ();
 
 // .. ======================================================================
 
-export async function ignite ( mode: "Scratch"|"Cached" ) {
+export async function ignite ( mode: "Scratch"|"Cached", n_pad: number ) {
     // .. init server
     await init( mode );
     // .. search for optimizing
     db_investigator();
     // .. check optimized info
-    resultValidator();
+    if ( !resultValidator() ) {
+        tools.notify( "ERROR! : CS1RV" );
+        tools.notify( null, true );
+        await new Promise( () => {} );
+    }
     // .. create and save DBs
-    db_exporter();
+    db_exporter( n_pad );
     // .. clean the tmpFolder
     janitor();
+    // .. N-PAD report
+    return db_v1.length + n_pad
 }
 
 // .. ======================================================================
@@ -821,7 +826,10 @@ export function resultValidator () {
 
 // .. ======================================================================
 
-export function db_exporter () {
+export function db_exporter ( n_pad: number ) {
+
+    // .. N allocation
+    for ( let p of db_v1 ) p.n = 1+ n_pad++;
 
     db_v1 = tools.relation_definer( double, multi, other, db_v1 );
 
@@ -832,7 +840,11 @@ export function db_exporter () {
         try { p.a = p.a.replace( / +/g, " " ).trim() } catch {}
     }
 
-    storage.db_save( db_v1, "ready", "الکافی" );
+    // .. D Publisher
+    for ( let p of db_v1 ) 
+        p.d = basic_tools.arabicDigits( "الكافي، الحديث: " + p.d );
+
+    storage.db_save( db_v1, "ready", "الكافي" );
 
 }
 

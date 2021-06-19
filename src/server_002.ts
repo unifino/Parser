@@ -8,37 +8,41 @@ import * as fs                          from "fs";
 // .. ======================================================================
 
 export let tmpFolder = "src/db/tmp/وسائل‌الشيعة/";
-let sourceFolder = "src/db/source/وسائل‌الشيعة/";
-let db_v1_Path  = tmpFolder + "01.json";
-let single_Path = tmpFolder + "single.json";
-let double_Path = tmpFolder + "double.json";
-let multi_Path  = tmpFolder + "multi.json";
-let other_Path  = tmpFolder + "other.json";
-let R_Path      = tmpFolder + "RR.json";
-export let db_v1  : TS.db;
-let single : TS.s;
-let double : TS.d;
-let multi  : TS.m;
-let other  : TS.m;
-let R      : TS.R[];
-
-export let R__: TS.R[];
+let sourceFolder     = "src/db/source/وسائل‌الشيعة/";
+let db_v1_Path       = tmpFolder + "01.json";
+let single_Path      = tmpFolder + "single.json";
+let double_Path      = tmpFolder + "double.json";
+let multi_Path       = tmpFolder + "multi.json";
+let other_Path       = tmpFolder + "other.json";
+export let R_Path    = tmpFolder + "RR.json";
+export let db_v1     : TS.db;
+let single           : TS.s;
+let double           : TS.d;
+let multi            : TS.m;
+let other            : TS.m;
+export let R         : TS.R[];
+let R__              : TS.R[];
 
 resource_update ();
 
 // .. ======================================================================
 
-export async function ignite ( mode: "Scratch"|"Cached" ) {
+export async function ignite ( mode: "Scratch"|"Cached", n_pad: number ) {
     // .. init server
     await init( mode );
     // .. search for optimizing
     db_investigator();
     // .. check optimized info
-    resultValidator();
-    // .. create and save DBs
-    db_exporter();
+    if ( !resultValidator() ) {
+        tools.notify( "ERROR! : CS2RV" );
+        tools.notify( null, true );
+        await new Promise( () => {} );
+    }    // .. create and save DBs
+    db_exporter( n_pad );
     // .. clean the tmpFolder
     janitor();
+    // .. N-PAD report
+    return db_v1.length + n_pad
 }
 
 // .. ======================================================================
@@ -1091,9 +1095,18 @@ export function resultValidator () {
 
 // .. ======================================================================
 
-export function db_exporter () {
+export function db_exporter ( n_pad: number ) {
+
+    // .. N allocation
+    for ( let p of db_v1 ) p.n = n_pad++;
 
     db_v1 = tools.relation_definer( double, multi, other, db_v1 );
+
+    // .. N allocation [ CDB ]
+    for ( let p of db_v1 )
+        if ( p.cDB )
+            for ( let j in p.cDB )
+                p.cDB[j] += n_pad - db_v1.length;
 
     // .. last trims
     for ( let p of db_v1 ) {
@@ -1101,6 +1114,10 @@ export function db_exporter () {
         try { p[9] = p[9].replace( / +/g, " " ).trim() } catch {}
         try { p.a = p.a.replace( / +/g, " " ).trim() } catch {}
     }
+
+    // .. D Publisher
+    for ( let p of db_v1 ) 
+        p.d = basic_tools.arabicDigits( "وسائل‌الشيعة، الحديث: " + p.d );
 
     storage.db_save( db_v1, "ready", "وسائل‌الشيعة" );
 

@@ -28,17 +28,21 @@ async function ignite () {
 
     // .. actual steps goes here:
 
-        // R_R_investigator();
-        // let n_pad: number;
-        // n_pad = await server001.ignite( "Scratch", 0 );
-        // // n_pad = 15413
-        // n_pad = await server002.ignite( "Scratch", n_pad );
-        // n_pad = 51282 = 15413 + 35869
-
-        // .. Self-R
-        SCT._R_( server002.db_v1, server002.tmpFolder );
-        // .. Mutual-R
-        // SCT.R_R( server001.db_v1, server002.db_v1 );
+        let n_pad: number;
+        // .. ignite server 001 | n_pad: 1 => 15413
+        await server001.ignite( "Cached", 1 ).then( n => n_pad = n );
+        // .. ignite server 002 | n_pad: 15414 => 51281 ( 15413 + 35868 )
+        await server002.ignite( "Cached", n_pad ).then( n => n_pad = n );
+        // // .. Self-R
+        // SCT._R_( server001.db_v1, server001.tmpFolder );
+        // SCT._R_( server002.db_v1, server002.tmpFolder );
+        // .. update files
+        server001.resource_update();
+        server002.resource_update();
+        // // .. Mutual-R
+        // SCT.R_R( server001.db, server002.db );
+        // .. optimizing: search & check & save
+        _dbdb_();
 
     // .. end of the application
     tools.notify( null, true );
@@ -49,39 +53,26 @@ ignite();
 
 // .. ======================================================================
 
-function R_updater() {
-
-    let filePath = "src/db/tmp/R_1x2.json";
-    // .. check
-    fs.accessSync( filePath, fs.constants.R_OK );
-    // .. get source
-    let src = fs.readFileSync( filePath, 'utf8' );
-    let R: TS.R = JSON.parse( src );
-    for ( let p of R ) p[0] += server001.db_v1.length;
-    // .. save it
-    storage.saveData( R, "src/db/tmp/", "R_1x2_u", true );
-
-}
-
-// .. ======================================================================
-
-async function R_R_investigator () {
+async function _dbdb_ () {
     // .. define path
-    R_Path = tmpFolder + "R_1x2_u.json";
+    R_Path = tmpFolder + "R_1x2.json";
     // .. get R_R
     R_R = JSON.parse( fs.readFileSync( R_Path, 'utf8' ) );
     // .. optimize R_R
     R_R__ = tools.R_optimizer ( R_R, 67 );
     // .. merge db_s
-    let d_db = [ ...server001.db_final, ...server002.db_final ];
+    let d_db = [ ...server001.db, ...server002.db ];
     // .. get preparations
     SCT._db_( R_R__, d_db, tmpFolder );
     // .. check result
     await tools._db_chcek_( tmpFolder, d_db );
-    // .. get relations
+    // .. get relations in one BIG DB
     let db_u = tools.relation_definer( tmpFolder, d_db );
-    // .. save DB
-    storage.saveData( db_u, "src/db/tmp/", "mmm" );
+    // .. save DBs | divide them
+    let n1 = server001.db.length;
+    let n2 = server002.db.length;
+    storage.saveData( db_u.slice( 0, n1 ), "src/db/ready", server001.name  );
+    storage.saveData( db_u.slice( n1, n1+n2 ), "src/db/ready", server002.name );
     // .. clean the tmpFolder
     SCT.janitor( tmpFolder );
 }

@@ -99,10 +99,16 @@ export function addTmpProps ( db: TS.db ) {
 
 // .. ======================================================================
 
-export function R ( item: TS.db_item, reference: TS.db ) {
+export async function R ( item: TS.db_item, reference: TS.db ) {
 
-    let R: TS.R[] = [];
-    for ( let x of reference ) R.push( R_Calc( item, x ) );
+    let R: TS.R[] = [],
+        r: TS.R;
+
+    for ( let x of reference ) {
+        r = R_Calc( item, x );
+        r ? R.push( r ) : await trap( "ERR!:  R Calc." );
+    }
+
     return R.filter( x => x[2] > 44 );
 
 }
@@ -139,6 +145,9 @@ export function R_old ( newDB: TS.db, reference: TS.db, detour: boolean ) {
 // .. ======================================================================
 
 export function R_Calc ( A: TS.db_item, X: TS.db_item ): TS.R {
+
+    // .. critical error
+    if ( typeof A.n !== "number" || typeof X.n !== "number" ) return;
 
     let partsA = A.tmp_kalamat.slice(0);
     let partsX = X.tmp_kalamat.slice(0);
@@ -468,11 +477,7 @@ export async function _db_chcek_ ( tmpFolder: string, db: TS.db ) {
     let t = s + d.any + m.any + o.any;
 
     // .. trap the script
-    if ( !db.length === t ) {
-        notify( "ERROR! : CSxRV : " + db.length );
-        notify( null, true );
-        await new Promise( () => {} );
-    }
+    if ( !db.length === t ) trap( "ERROR! : CSxRV : " + db.length );
 
 }
 
@@ -484,13 +489,10 @@ export function cluster_info ( clusterBox: TS.ClusterBox, ref_db: TS.db ) {
         box: TS.ClusterInfoBox;
 
     box = clusterBox.map( cluster => {
+
         tmp = [];
 
         for ( let p of cluster ) {
-            if ( !ref_db.find( x => x.n === p ) ) {
-                storage.saveData( ref_db, "src/db/tmp", "oooo")
-                console.log(p);
-            }
             tmp.push( {
                 id_in_book: p,
                 index_in_db: ref_db.findIndex( x => x.n === p ),
@@ -498,6 +500,7 @@ export function cluster_info ( clusterBox: TS.ClusterBox, ref_db: TS.db ) {
             } );
         }
         return tmp;
+
     } );
 
     return box;
@@ -530,25 +533,25 @@ export function head_cluster ( row: TS.ClusterInfo ) {
 
 // .. ======================================================================
 
-export function relation_definer ( tmpFolder: string, db_v1: TS.db ) {
+export function relation_definer ( tmpFolder: string, db: TS.db ) {
 
     let files = storage.getParts( tmpFolder );
 
     let mix = [ ...files.double, ...files.multi ],
-        rich_mix = cluster_info( mix, db_v1 ),
+        rich_mix = cluster_info( mix, db ),
         idx_head: number,
         i_children: TS.ClusterInfo;
 
     // .. set cDB Slot
-    for ( let p of db_v1 ) p.cDB = [];
+    for ( let p of db ) p.cDB = [];
 
     for ( let p of rich_mix ) {
         idx_head = head_cluster(p);
         i_children = p.filter( x => x.index_in_db !== idx_head );
         // .. set cDB data to Head
-        db_v1[ idx_head ].cDB = i_children.map( x => x.id_in_book );
+        db[ idx_head ].cDB = i_children.map( x => x.id_in_book );
         // .. set null in cDB data fot Children
-        for ( let q of i_children.map( x => x.index_in_db ) ) db_v1[ q ].cDB = null;
+        for ( let q of i_children.map( x => x.index_in_db ) ) db[ q ].cDB = null;
     }
 
     // ! .. control by Hand
@@ -564,7 +567,7 @@ export function relation_definer ( tmpFolder: string, db_v1: TS.db ) {
     // db_v1[ head ].cDB = children.map( x => db_v1[x].d as number );
     // for ( let q of children ) db_v1.find( x => x.d === q ).cDB = null;
 
-    return db_v1;
+    return db;
 
 }
 
@@ -742,6 +745,21 @@ export function dbCleaner ( db: TS.db ) {
         delete p.tmp_inFarsiLetter;
         delete p.tmp_kalamat;
     }
+}
+
+// .. ======================================================================
+
+export async function trap ( msg: string ) {
+    notify( msg );
+    notify( null, true );
+    await new Promise( () => {} );
+}
+
+// .. ======================================================================
+
+export function n_allocation ( db: TS.db, n_pad: number ) {
+    for ( let p of db ) p.n = n_pad++;
+    return n_pad;
 }
 
 // .. ======================================================================

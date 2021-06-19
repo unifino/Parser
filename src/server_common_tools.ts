@@ -174,20 +174,20 @@ export function set_trimmer ( str: string ) {
 
 // .. ======================================================================
 
-export function _R_ ( db: TS.db, tmpFolder: string ) {
+export async function _R_ ( db: TS.db, tmpFolder: string ) {
 
     let R: TS.R[] = [],
+        r: TS.R[],
         start_time = new Date().getTime(),
-        title = " R Calculation";
+        title = " R Calc " + db.length;
 
     // .. [addTmpProps]
     tools.addTmpProps( db );
-    // ! check it
-    for ( let cell of db ) cell.n = cell.d as number; 
 
     for ( let i in db ) {
         tools.timer( db.length, Number(i), start_time, title );
-        R = [ ...R, ...tools.R( db[i], db.slice( Number(i) +1 ) ) ];
+        await tools.R( db[i], db.slice( Number(i) +1 ) ).then( x => r = x );
+        R = [ ...R, ...r ];
     }
 
     storage.saveData( R, tmpFolder, "RR", true );
@@ -203,9 +203,6 @@ export function R_R ( db_01: TS.db, db_02: TS.db ) {
     // .. [addTmpProps]
     tools.addTmpProps( db_01 );
     tools.addTmpProps( db_02 );
-    // ! check it
-    for ( let cell of db_01 ) cell.n = cell.d as number; 
-    for ( let cell of db_02 ) cell.n = cell.d as number;
 
     R = tools.R_old( db_02, db_01, false );
     storage.saveData( R, "src/db/tmp/", "R_1x2" );

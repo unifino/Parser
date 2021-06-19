@@ -7,12 +7,13 @@ import * as fs                          from "fs";
 
 // .. ======================================================================
 
-export let tmpFolder = "src/db/tmp/الكافي/";
+export let name      = "الكافي";
+export let tmpFolder = "src/db/tmp/" + name + "/";
 let db_v1_Path       = tmpFolder + "01.json";
-let db_final_Path    = "src/db/ready/" + "الكافي.json";
+export let db_Path   = "src/db/ready/" + name + ".json";
 let R_Path           = tmpFolder + "RR.json";
 export let db_v1     : TS.db;
-export let db_final  : TS.db;
+export let db        : TS.db;
 let R                : TS.R[];
 let R__              : TS.R[];
 
@@ -25,23 +26,25 @@ export async function ignite ( mode: "Scratch"|"Cached", n_pad: number ) {
     await init( mode );
     // .. update resources
     resource_update ();
+    // .. N allocation
+    n_pad = tools.n_allocation( db_v1, n_pad );
     // .. search for optimizing
     SCT._db_( R__, db_v1, tmpFolder );
     // .. check optimized info
     await tools._db_chcek_( tmpFolder, db_v1 );
     // .. create and save DBs
-    db_exporter( n_pad );
+    db_exporter();
     // .. clean the tmpFolder
     SCT.janitor( tmpFolder );
     // .. N-PAD report
-    return db_v1.length + n_pad
+    return n_pad -1;
 }
 
 // .. ======================================================================
 
 export async function init ( mode: "Scratch"|"Cached" ) {
 
-    tools.notify( "     الکافی   " );
+    tools.notify( "     " + name + "   " );
 
     let db: TS.db = [];
 
@@ -112,7 +115,7 @@ function readSrcBook ( num: number ): string {
 
     tools.notify( "  book num: " + num + ( num > 9 ? "" : " ") );
 
-    let filePath = "src/db/source/الكافي/" + num + ".htm";
+    let filePath = "src/db/source/" + name + "/" + num + ".htm";
     // .. check
     fs.accessSync( filePath, fs.constants.R_OK );
     // .. get source
@@ -408,7 +411,7 @@ function a_0_9 ( db: TS.db ) {
 
         // .. Skip Mode!
         if ( cdnBOX.includes( p.d as number ) ) {
-            let patchFilePath = "src/db/source/الكافي/patches.json";
+            let patchFilePath = "src/db/source/" + name + "/patches.json";
             let patches = JSON.parse( fs.readFileSync( patchFilePath, 'utf8' ) );
             p = patches.find( x => x.d === p.d );
             if ( !p ) console.log( "Unexpected ID from Patches: ", p.d );
@@ -702,10 +705,7 @@ function a_0 ( item: TS.db_item ) {
 
 // .. ======================================================================
 
-export function db_exporter ( n_pad: number ) {
-
-    // .. N allocation
-    for ( let p of db_v1 ) p.n = 1+ n_pad++;
+export function db_exporter () {
 
     db_v1 = tools.relation_definer( tmpFolder, db_v1 );
 
@@ -718,20 +718,20 @@ export function db_exporter ( n_pad: number ) {
 
     // .. D Publisher
     for ( let p of db_v1 ) 
-        p.d = basic_tools.arabicDigits( "الكافي، الحديث: " + p.d );
+        p.d = basic_tools.arabicDigits( name + "، الحديث: " + p.d );
 
-    storage.saveData( db_v1, "src/db/ready", "الكافي" );
+    storage.saveData( db_v1, "src/db/ready", name );
 
 }
 
 // .. ======================================================================
 
-function resource_update () {
+export function resource_update () {
     try { fs.mkdirSync( tmpFolder ) } catch {}
-    try { db_v1    = JSON.parse( fs.readFileSync( db_v1_Path,    'utf8' ) ) } catch {}
-    try { db_final = JSON.parse( fs.readFileSync( db_final_Path, 'utf8' ) ) } catch {}
-    try { R        = JSON.parse( fs.readFileSync( R_Path,        'utf8' ) ) } catch {}
-    try { R__ = tools.R_optimizer ( R, 67 ) } catch {}
+    try { db_v1 = JSON.parse( fs.readFileSync( db_v1_Path, 'utf8' ) ) } catch {}
+    try { db    = JSON.parse( fs.readFileSync( db_Path   , 'utf8' ) ) } catch {}
+    try { R     = JSON.parse( fs.readFileSync( R_Path    , 'utf8' ) ) } catch {}
+    try { R__   = tools.R_optimizer ( R, 67 )                         } catch {}
 }
 
 // .. ======================================================================

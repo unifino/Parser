@@ -23,3 +23,26 @@ export function saveData (
 }
 
 // .. ======================================================================
+
+export function getParts ( tmpFolder: string ) {
+
+    let single_Path = tmpFolder + "single.json";
+    let double_Path = tmpFolder + "double.json";
+    let multi_Path = tmpFolder + "multi.json";
+    let other_Path = tmpFolder + "other.json";
+
+    let single = JSON.parse( fs.readFileSync( single_Path, 'utf8' ) );
+    let double = JSON.parse( fs.readFileSync( double_Path, 'utf8' ) );
+    let multi = JSON.parse( fs.readFileSync( multi_Path, 'utf8' ) );
+    let other = JSON.parse( fs.readFileSync( other_Path, 'utf8' ) );
+
+    return {
+        single: single,
+        double: double,
+        multi: multi,
+        other: other,
+    }
+
+}
+
+// .. ======================================================================

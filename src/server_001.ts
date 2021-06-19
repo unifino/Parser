@@ -8,18 +8,11 @@ import * as fs                          from "fs";
 // .. ======================================================================
 
 export let tmpFolder = "src/db/tmp/الكافي/";
-let sourceFolder     = "src/db/source/الكافي/";
 let db_v1_Path       = tmpFolder + "01.json";
-let single_Path      = tmpFolder + "single.json";
-let double_Path      = tmpFolder + "double.json";
-let multi_Path       = tmpFolder + "multi.json";
-let other_Path       = tmpFolder + "other.json";
+let db_final_Path    = "src/db/ready/" + "الكافي.json";
 let R_Path           = tmpFolder + "RR.json";
 export let db_v1     : TS.db;
-let single           : TS.s;
-let double           : TS.d;
-let multi            : TS.m;
-let other            : TS.m;
+export let db_final  : TS.db;
 let R                : TS.R[];
 let R__              : TS.R[];
 
@@ -30,14 +23,12 @@ resource_update ();
 export async function ignite ( mode: "Scratch"|"Cached", n_pad: number ) {
     // .. init server
     await init( mode );
+    // .. update resources
+    resource_update ();
     // .. search for optimizing
-    db_investigator();
+    SCT._db_( R__, db_v1, tmpFolder );
     // .. check optimized info
-    if ( !resultValidator() ) {
-        tools.notify( "ERROR! : CS1RV" );
-        tools.notify( null, true );
-        await new Promise( () => {} );
-    }
+    await tools._db_chcek_( tmpFolder, db_v1 );
     // .. create and save DBs
     db_exporter( n_pad );
     // .. clean the tmpFolder
@@ -711,38 +702,12 @@ function a_0 ( item: TS.db_item ) {
 
 // .. ======================================================================
 
-export function db_investigator () {
-    resource_update ();
-    // .. [R2Bound]
-    let tmpB = tools.R2Bound( R__, db_v1.length );
-    // .. [boundBoxDivider_SD]
-    let tmpE = tools.boundBoxDivider( tmpB );
-    storage.saveData( tmpE.single, tmpFolder, "single", true );
-    storage.saveData( tmpE.double, tmpFolder, "double", true );
-    storage.saveData( tmpE.m_1, tmpFolder, "m_1", true );
-    // .. re-do the process for remaining "m_1" ==> "m_2"
-    let m_2 = tools.aggressiveClusterPeptics( tmpE.m_1, R__ );
-    storage.saveData( m_2, tmpFolder, "m_2", true );
-    let tmpE2 = tools.multiScatter( m_2 );
-    storage.saveData( tmpE2.multi, tmpFolder, "multi", true );
-    storage.saveData( tmpE2.other, tmpFolder, "other", true );
-}
-
-// .. ======================================================================
-
-export function resultValidator () {
-    resource_update ();
-    return tools.resultValidator( single, double, multi, other, db_v1 );
-}
-
-// .. ======================================================================
-
 export function db_exporter ( n_pad: number ) {
 
     // .. N allocation
     for ( let p of db_v1 ) p.n = 1+ n_pad++;
 
-    db_v1 = tools.relation_definer( double, multi, other, db_v1 );
+    db_v1 = tools.relation_definer( tmpFolder, db_v1 );
 
     // .. last trims
     for ( let p of db_v1 ) {
@@ -763,12 +728,9 @@ export function db_exporter ( n_pad: number ) {
 
 function resource_update () {
     try { fs.mkdirSync( tmpFolder ) } catch {}
-    try { db_v1  = JSON.parse( fs.readFileSync( db_v1_Path, 'utf8' ) ) } catch {}
-    try { R      = JSON.parse( fs.readFileSync( R_Path,     'utf8' ) ) } catch {}
-    try { single = JSON.parse( fs.readFileSync( single_Path,'utf8' ) ) } catch {}
-    try { double = JSON.parse( fs.readFileSync( double_Path,'utf8' ) ) } catch {}
-    try { multi  = JSON.parse( fs.readFileSync( multi_Path, 'utf8' ) ) } catch {}
-    try { other  = JSON.parse( fs.readFileSync( other_Path, 'utf8' ) ) } catch {}
+    try { db_v1    = JSON.parse( fs.readFileSync( db_v1_Path,    'utf8' ) ) } catch {}
+    try { db_final = JSON.parse( fs.readFileSync( db_final_Path, 'utf8' ) ) } catch {}
+    try { R        = JSON.parse( fs.readFileSync( R_Path,        'utf8' ) ) } catch {}
     try { R__ = tools.R_optimizer ( R, 67 ) } catch {}
 }
 

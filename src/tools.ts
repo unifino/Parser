@@ -2,6 +2,72 @@ import * as TS                          from "./types";
 import * as basic_tools                 from "./basic_tools";
 import * as storage                     from "./storage";
 
+
+// .. ======================================================================
+
+export function timer (
+    length: number,
+    i: number,
+    startTime: number,
+    title: string = "     Timer    ",
+    version: string = "1.0.4",
+    quality: number = null,
+    dupC: number = null
+) {
+
+    let passedTime, ets,
+        p_H, p_M, p_S, p_M_r, p_S_r,
+        ets_H, ets_M, ets_S, ets_M_r, ets_S_r,
+        dialog: string = "";
+
+    notify( title );
+
+    passedTime = ( new Date().getTime() - startTime ) / 1000;
+
+    p_H = ( passedTime/3600 )|0;
+    p_M = ( passedTime/60 )|0;
+    p_S = ( passedTime )|0;
+    p_M_r = ( ( passedTime - p_H*3600 ) /60 ) |0;
+    p_S_r = ( ( passedTime - ( (p_H*3600) + (p_M_r*60) ) ) ) | 0;
+
+    ets = ( length * passedTime / i ) - passedTime;
+    ets_H = ( ets/3600 )|0;
+    ets_M = ( ets/60 )|0;
+    ets_S = ( ets )|0;
+    ets_M_r = ( ( ets - ets_H*3600 ) /60 ) |0;
+    ets_S_r = ( ( ets - ( (ets_H*3600) + (ets_M_r*60) ) ) ) | 0;
+    dialog = ( (i/length ) *100 ).toFixed(2) + "%";
+    if ( quality !== null ) dialog += " | QC: " + quality;
+    if ( dupC !== null ) dialog += " | F: " + dupC;
+    dialog += " | T: " + p_H + "°: " + p_M_r + "': " + p_S_r;
+    dialog += " | ETS: " + ets_H + "°: " + ets_M_r + "': " + ets_S_r + "\"";
+    console.log( dialog );
+
+}
+
+// .. ======================================================================
+
+export function notify ( title = " Server Script", end?: boolean ) {
+
+    let pad = "        ",
+        msg = "";
+
+
+    if ( end ) {
+        console.log( "" );
+        console.timeEnd( "App Clock" );
+        msg = "\n##########################################\n";
+    }
+    else { 
+        console.clear();
+        msg += "##### " + pad + title + pad + " #####";
+        msg += '\n';
+    }
+
+    console.log(msg);
+
+}
+
 // .. ======================================================================
 
 export function do_charSpacer ( db: TS.db ): void  {
@@ -85,7 +151,7 @@ export function R_Calc ( A: TS.db_item, X: TS.db_item ): TS.R {
     let totalRemains = partsA.length + partsX.length;
     let correlationRate = ( (totalParts - totalRemains) / totalParts )*100;
 
-    let r: TS.R = [ A.j, X.n, (correlationRate*100|0)/100 ];
+    let r: TS.R = [ A.n, X.n, (correlationRate*100|0)/100 ];
 
     return r;
 
@@ -341,65 +407,11 @@ export function cluster ( start: number, r: TS.R[] ) {
 
 // .. ======================================================================
 
-export function jAllocator ( kafi: TS.db, misc: TS.db ) {
-    // .. allocate fromSourceID: j
-    for ( let i in kafi ) {
-        kafi[i].j = Number(i) +1;
-    }
-    for ( let i in misc ) {
-        misc[i].j = Number(i) +kafi.length +1;
-    }
-}
-
-// .. ======================================================================
-
 export function getPepticR ( peptic: TS.ClusterBox, R: TS.R[] ) {
     let patients = [];
     for ( let r of peptic ) patients = [ ...patients, ...r  ];
     let pR = R.filter( x => patients.includes(x[0]) && patients.includes(x[1]) );
     return pR;
-}
-
-// .. ======================================================================
-
-export function timer (
-    length: number,
-    i: number,
-    startTime: number,
-    title: string = "     Timer    ",
-    version: string = "1.0.4",
-    quality: number = null,
-    dupC: number = null
-) {
-
-    let passedTime, ets,
-        p_H, p_M, p_S, p_M_r, p_S_r,
-        ets_H, ets_M, ets_S, ets_M_r, ets_S_r,
-        dialog: string = "";
-
-    notify( title );
-
-    passedTime = ( new Date().getTime() - startTime ) / 1000;
-
-    p_H = ( passedTime/3600 )|0;
-    p_M = ( passedTime/60 )|0;
-    p_S = ( passedTime )|0;
-    p_M_r = ( ( passedTime - p_H*3600 ) /60 ) |0;
-    p_S_r = ( ( passedTime - ( (p_H*3600) + (p_M_r*60) ) ) ) | 0;
-
-    ets = ( length * passedTime / i ) - passedTime;
-    ets_H = ( ets/3600 )|0;
-    ets_M = ( ets/60 )|0;
-    ets_S = ( ets )|0;
-    ets_M_r = ( ( ets - ets_H*3600 ) /60 ) |0;
-    ets_S_r = ( ( ets - ( (ets_H*3600) + (ets_M_r*60) ) ) ) | 0;
-    dialog = ( (i/length ) *100 ).toFixed(2) + "%";
-    if ( quality !== null ) dialog += " | QC: " + quality;
-    if ( dupC !== null ) dialog += " | F: " + dupC;
-    dialog += " | T: " + p_H + "°: " + p_M_r + "': " + p_S_r;
-    dialog += " | ETS: " + ets_H + "°: " + ets_M_r + "': " + ets_S_r + "\"";
-    console.log( dialog );
-
 }
 
 // .. ======================================================================
@@ -444,22 +456,24 @@ export function checkPresents ( src: TS.db, s: TS.s, d: TS.d, m: TS.m ) {
 
 // .. ======================================================================
 
-export function resultValidator
-(
-    single: TS.s,
-    double: TS.d,
-    multi: TS.m,
-    other: TS.m,
-    db_v1: TS.db
-)
-{
-    let s = single.length;
+export async function _db_chcek_ ( tmpFolder: string, db: TS.db ) {
+
+    let files = storage.getParts( tmpFolder );
+
+    let s = files.single.length;
     console.log( "\nsingle", "\t", s );
-    let d = clusterBoxRealLengthReport( double, "double" );
-    let m = clusterBoxRealLengthReport( multi, "multi" );
-    let o = clusterBoxRealLengthReport( other, "other" );
+    let d = clusterBoxRealLengthReport( files.double, "double" );
+    let m = clusterBoxRealLengthReport( files.multi, "multi" );
+    let o = clusterBoxRealLengthReport( files.other, "other" );
     let t = s + d.any + m.any + o.any;
-    return db_v1.length === t;
+
+    // .. trap the script
+    if ( !db.length === t ) {
+        notify( "ERROR! : CSxRV : " + db.length );
+        notify( null, true );
+        await new Promise( () => {} );
+    }
+
 }
 
 // .. ======================================================================
@@ -471,12 +485,18 @@ export function cluster_info ( clusterBox: TS.ClusterBox, ref_db: TS.db ) {
 
     box = clusterBox.map( cluster => {
         tmp = [];
-        for ( let p of cluster ) 
+
+        for ( let p of cluster ) {
+            if ( !ref_db.find( x => x.n === p ) ) {
+                storage.saveData( ref_db, "src/db/tmp", "oooo")
+                console.log(p);
+            }
             tmp.push( {
                 id_in_book: p,
-                index_in_db: ref_db.findIndex( x => x.d === p ),
-                length: ref_db.find( x => x.d === p ).a.length 
+                index_in_db: ref_db.findIndex( x => x.n === p ),
+                length: ref_db.find( x => x.n === p ).a.length
             } );
+        }
         return tmp;
     } );
 
@@ -510,10 +530,11 @@ export function head_cluster ( row: TS.ClusterInfo ) {
 
 // .. ======================================================================
 
-export function 
-relation_definer ( double: TS.d, multi: TS.m, other: TS.m, db_v1: TS.db ) {
+export function relation_definer ( tmpFolder: string, db_v1: TS.db ) {
 
-    let mix = [ ...double, ...multi ],
+    let files = storage.getParts( tmpFolder );
+
+    let mix = [ ...files.double, ...files.multi ],
         rich_mix = cluster_info( mix, db_v1 ),
         idx_head: number,
         i_children: TS.ClusterInfo;
@@ -668,29 +689,6 @@ export function dbExporter ( db: TS.db ) {
     ];
 
     bookSaver ( keysBox, order, db );
-
-}
-
-// .. ======================================================================
-
-export function notify ( title = " Server Script", end?: boolean ) {
-
-    let pad = "        ",
-        msg = "";
-
-
-    if ( end ) {
-        console.log( "" );
-        console.timeEnd( "App Clock" );
-        msg = "\n##########################################\n";
-    }
-    else { 
-        console.clear();
-        msg += "##### " + pad + title + pad + " #####";
-        msg += '\n';
-    }
-
-    console.log(msg);
 
 }
 

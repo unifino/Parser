@@ -182,10 +182,8 @@ export function _R_ ( db: TS.db, tmpFolder: string ) {
 
     // .. [addTmpProps]
     tools.addTmpProps( db );
-    for ( let cell of db ) { 
-        cell.j = cell.d as number; 
-        cell.n = cell.d as number; 
-    }
+    // ! check it
+    for ( let cell of db ) cell.n = cell.d as number; 
 
     for ( let i in db ) {
         tools.timer( db.length, Number(i), start_time, title );
@@ -205,18 +203,31 @@ export function R_R ( db_01: TS.db, db_02: TS.db ) {
     // .. [addTmpProps]
     tools.addTmpProps( db_01 );
     tools.addTmpProps( db_02 );
-    for ( let cell of db_01 ) { 
-        cell.j = cell.d as number; 
-        cell.n = cell.d as number; 
-    }
-    for ( let cell of db_02 ) { 
-        cell.j = cell.d as number; 
-        cell.n = cell.d as number; 
-    }
+    // ! check it
+    for ( let cell of db_01 ) cell.n = cell.d as number; 
+    for ( let cell of db_02 ) cell.n = cell.d as number;
 
     R = tools.R_old( db_02, db_01, false );
     storage.saveData( R, "src/db/tmp/", "R_1x2" );
 
+}
+
+// .. ======================================================================
+
+export function _db_ ( R__: TS.R[], db: TS.db, tmpFolder: string  ) {
+    // .. [R2Bound]
+    let tmpB = tools.R2Bound( R__, db.length );
+    // .. [boundBoxDivider_SD]
+    let tmpE = tools.boundBoxDivider( tmpB );
+    storage.saveData( tmpE.single, tmpFolder, "single", true );
+    storage.saveData( tmpE.double, tmpFolder, "double", true );
+    storage.saveData( tmpE.m_1, tmpFolder, "m_1", true );
+    // .. re-do the process for remaining "m_1" ==> "m_2"
+    let m_2 = tools.aggressiveClusterPeptics( tmpE.m_1, R__ );
+    storage.saveData( m_2, tmpFolder, "m_2", true );
+    let tmpE2 = tools.multiScatter( m_2 );
+    storage.saveData( tmpE2.multi, tmpFolder, "multi", true );
+    storage.saveData( tmpE2.other, tmpFolder, "other", true );
 }
 
 // .. ======================================================================

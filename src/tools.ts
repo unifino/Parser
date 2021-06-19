@@ -37,7 +37,7 @@ export function R ( item: TS.db_item, reference: TS.db ) {
 
     let R: TS.R[] = [];
     for ( let x of reference ) R.push( R_Calc( item, x ) );
-    return R.filter( x => x[2] > 30 );
+    return R.filter( x => x[2] > 44 );
 
 }
 

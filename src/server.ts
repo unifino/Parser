@@ -27,6 +27,9 @@ async function ignite () {
         // n_pad = await server002.ignite( "Scratch", n_pad );
         // // n_pad = 51282 = 15413 + 35869
 
+        // .. Self-R
+        SCT._R_( server002.db_v1, server002.tmpFolder );
+        // .. Mutual-R
         // SCT.R_R( server001.db_v1, server002.db_v1 );
 
     // .. end of the application

@@ -182,7 +182,7 @@ export function saveDB ( db: TS.db, tmpFolder: string, realSave?: boolean ) {
 
 // .. ======================================================================
 
-export function RR ( db: TS.db, tmpFolder: string ) {
+export function _R_ ( db: TS.db, tmpFolder: string ) {
 
     let R: TS.R[] = [],
         start_time = new Date().getTime(),

@@ -41,7 +41,7 @@ export async function ignite ( mode: "Scratch"|"Cached", n_pad: number ) {
     // .. create and save DBs
     db_exporter( n_pad );
     // .. clean the tmpFolder
-    janitor();
+    SCT.janitor( tmpFolder );
     // .. N-PAD report
     return db_v1.length + n_pad
 }
@@ -53,7 +53,6 @@ export async function init ( mode: "Scratch"|"Cached" ) {
     tools.notify( "     الکافی   " );
 
     let db: TS.db = [];
-    SCT.saveDB( db, tmpFolder );
 
     // .. get v0 [ Scratch | Cached ]
     db = load_db_v0( mode );
@@ -61,7 +60,7 @@ export async function init ( mode: "Scratch"|"Cached" ) {
     db = a_0_9( db );
 
     // .. write-down DB
-    SCT.saveDB( db, tmpFolder, true );
+    storage.saveData( db, tmpFolder, "01" );
 
 }
 
@@ -108,7 +107,7 @@ function load_db_v0 ( mode: "Scratch"|"Cached" ) {
         db_v0 = hadith_db_generator( set_v2 );
 
         // .. save it in storage
-        fs.writeFileSync( _00_Path, JSON.stringify( db_v0, null, "\t" ) );
+        storage.saveData( db_v0, tmpFolder, "00" );
 
     }
 
@@ -718,15 +717,15 @@ export function db_investigator () {
     let tmpB = tools.R2Bound( R__, db_v1.length );
     // .. [boundBoxDivider_SD]
     let tmpE = tools.boundBoxDivider( tmpB );
-    storage.tmp_save( tmpE.single, tmpFolder, "single", true );
-    storage.tmp_save( tmpE.double, tmpFolder, "double", true );
-    storage.tmp_save( tmpE.m_1, tmpFolder, "m_1", true );
+    storage.saveData( tmpE.single, tmpFolder, "single", true );
+    storage.saveData( tmpE.double, tmpFolder, "double", true );
+    storage.saveData( tmpE.m_1, tmpFolder, "m_1", true );
     // .. re-do the process for remaining "m_1" ==> "m_2"
     let m_2 = tools.aggressiveClusterPeptics( tmpE.m_1, R__ );
-    storage.tmp_save( m_2, tmpFolder, "m_2", true );
+    storage.saveData( m_2, tmpFolder, "m_2", true );
     let tmpE2 = tools.multiScatter( m_2 );
-    storage.tmp_save( tmpE2.multi, tmpFolder, "multi", true );
-    storage.tmp_save( tmpE2.other, tmpFolder, "other", true );
+    storage.saveData( tmpE2.multi, tmpFolder, "multi", true );
+    storage.saveData( tmpE2.other, tmpFolder, "other", true );
 }
 
 // .. ======================================================================
@@ -756,7 +755,7 @@ export function db_exporter ( n_pad: number ) {
     for ( let p of db_v1 ) 
         p.d = basic_tools.arabicDigits( "الكافي، الحديث: " + p.d );
 
-    storage.db_save( db_v1, "ready", "الكافي" );
+    storage.saveData( db_v1, "src/db/ready", "الكافي" );
 
 }
 
@@ -775,13 +774,3 @@ function resource_update () {
 
 // .. ======================================================================
 
-export function janitor () {
-    fs.rmSync( tmpFolder + "single.json", { force: true } );
-    fs.rmSync( tmpFolder + "double.json", { force: true } );
-    fs.rmSync( tmpFolder + "multi.json", { force: true } );
-    fs.rmSync( tmpFolder + "other.json", { force: true } );
-    fs.rmSync( tmpFolder + "m_1.json", { force: true } );
-    fs.rmSync( tmpFolder + "m_2.json", { force: true } );
-}
-
-// .. ======================================================================

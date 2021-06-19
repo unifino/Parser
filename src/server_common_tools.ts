@@ -174,14 +174,6 @@ export function set_trimmer ( str: string ) {
 
 // .. ======================================================================
 
-export function saveDB ( db: TS.db, tmpFolder: string, realSave?: boolean ) {
-    let _01_path = tmpFolder + "01.json";
-    if ( !realSave ) fs.rmSync( _01_path, { force: true } );
-    else fs.writeFileSync( _01_path, JSON.stringify(db,null,"\t") );
-}
-
-// .. ======================================================================
-
 export function _R_ ( db: TS.db, tmpFolder: string ) {
 
     let R: TS.R[] = [],
@@ -200,7 +192,7 @@ export function _R_ ( db: TS.db, tmpFolder: string ) {
         R = [ ...R, ...tools.R( db[i], db.slice( Number(i) +1 ) ) ];
     }
 
-    fs.writeFileSync( tmpFolder + "RR.json", JSON.stringify(R) );
+    storage.saveData( R, tmpFolder, "RR", true );
 
 }
 
@@ -223,8 +215,19 @@ export function R_R ( db_01: TS.db, db_02: TS.db ) {
     }
 
     R = tools.R_old( db_02, db_01, false );
-    fs.writeFileSync( "src/db/tmp/R_1x2.json", JSON.stringify(R) );
+    storage.saveData( R, "src/db/tmp/", "R_1x2" );
 
+}
+
+// .. ======================================================================
+
+export function janitor ( tmpFolder: string ) {
+    storage.saveData( null, tmpFolder, "single" );
+    storage.saveData( null, tmpFolder, "double" );
+    storage.saveData( null, tmpFolder, "multi" );
+    storage.saveData( null, tmpFolder, "other" );
+    storage.saveData( null, tmpFolder, "m_1" );
+    storage.saveData( null, tmpFolder, "m_2" );
 }
 
 // .. ======================================================================

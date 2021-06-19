@@ -537,7 +537,7 @@ relation_definer ( double: TS.d, multi: TS.m, other: TS.m, db_v1: TS.db ) {
     //     for ( let p of x ) qqq.push( db_v1[p.index_in_db].a );
     //     return qqq
     // } )
-    // storage.info_save( ttt,"/tmp/","test",true);
+    // storage.saveData( ttt, "/tmp/", "test", true);
     // head = head_cluster( rich_mix[0] );
     // children = rich_mix[0].filter( x => x.index !== head ).map( x => x.index );
     // db_v1[ head ].cDB = children.map( x => db_v1[x].d as number );
@@ -606,7 +606,7 @@ function bookSaver ( books: TS.bookKeys, order: TS.source[], db: TS.db ) {
     let n = mox.reduce( (n,x) => { if( x.n && x.n > n ) n = x.n; return n }, 0 );
     // .. allocate new N index
     for ( let i=0; i<mox.length; i++ ) if ( !~mox[i].n ) mox[i].n = n++ +1;
-    storage.db_save( mox, "base", "mox" );
+    storage.saveData( mox, "src/db/base", "mox" );
     // ! IMPORTANT .. SAVE MOX REFERENCE FILE
 
     // .. summery
@@ -620,8 +620,8 @@ function bookSaver ( books: TS.bookKeys, order: TS.source[], db: TS.db ) {
 
     // .. save books
     for ( let p of order ) {
-        storage.db_save( library[p], "ready", p );
-        storage.db_replace( library[p], p );
+        storage.saveData( library[p], "src/db/ready", p );
+        storage.saveData( library[p], "../Moshaf/src/db/H/", p );
     }
 
 }

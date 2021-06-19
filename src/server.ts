@@ -21,14 +21,14 @@ async function ignite () {
 
     // .. actual steps goes here:
 
-        // let n_pad: number;
-        // n_pad = await server001.ignite( "Scratch", 0 );
-        // // n_pad = 15413
-        // n_pad = await server002.ignite( "Scratch", n_pad );
-        // // n_pad = 51282 = 15413 + 35869
+        let n_pad: number;
+        n_pad = await server001.ignite( "Scratch", 0 );
+        // n_pad = 15413
+        n_pad = await server002.ignite( "Scratch", n_pad );
+        // n_pad = 51282 = 15413 + 35869
 
         // .. Self-R
-        SCT._R_( server002.db_v1, server002.tmpFolder );
+        // SCT._R_( server002.db_v1, server002.tmpFolder );
         // .. Mutual-R
         // SCT.R_R( server001.db_v1, server002.db_v1 );
 
@@ -54,7 +54,7 @@ function R_updater() {
     //     p[0] += 15413;
     //     p[1] += 15413;
     // }
-    storage.tmp_save( R, "src/db/tmp/", "R_1x2_u", true );
+    storage.saveData( R, "src/db/tmp/", "R_1x2_u", true );
 
 }
 

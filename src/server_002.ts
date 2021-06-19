@@ -103,6 +103,7 @@ function load_db_v0 ( mode: "Scratch"|"Cached" ) {
         // .. convert all sourceText => set v1
         for ( let i=1; i<=29; i ++ ) {
             textBook = readSrcBook(i);
+            textBook = SCT.some_edits( textBook );
             book_v0 = getBook_v0( textBook );
             book_v1 = getBook_v1( book_v0 );
             set_v1 = [ ...set_v1, ...book_v1 ];

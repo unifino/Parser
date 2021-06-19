@@ -21,9 +21,12 @@ async function ignite () {
 
     // .. actual steps goes here:
 
-        let n_pad = await server001.ignite( "Cached", 0 );
-        // n_pad = 15413
-        await server002.ignite( "Cached", n_pad );
+        // let n_pad: number;
+        // n_pad = await server001.ignite( "Scratch", 0 );
+        // // n_pad = 15413
+        // n_pad = await server002.ignite( "Scratch", n_pad );
+        // // n_pad = 51282 = 15413 + 35869
+
         // SCT.R_R( server001.db_v1, server002.db_v1 );
 
     // .. end of the application
@@ -35,12 +38,21 @@ ignite();
 
 // .. ======================================================================
 
-function  R_updater() {
-    for ( let p of server002.R ) {
-        p[0] += 15413;
-        p[1] += 15413;
-    }
-    storage.tmp_save( server002.R, server002.tmpFolder, "RR", true )
+function R_updater() {
+
+    let filePath = "src/db/tmp/R_1x2.json";
+    // .. check
+    fs.accessSync( filePath, fs.constants.R_OK );
+    // .. get source
+    let src = fs.readFileSync( filePath, 'utf8' );
+    let R: TS.R = JSON.parse( src );
+    for ( let p of R ) p[0] += server001.db_v1.length;
+    // for ( let p of server002.R ) {
+    //     p[0] += 15413;
+    //     p[1] += 15413;
+    // }
+    storage.tmp_save( R, "src/db/tmp/", "R_1x2_u", true );
+
 }
 
 // .. ======================================================================

@@ -89,7 +89,7 @@ function load_db_v0 ( mode: "Scratch"|"Cached" ) {
         // .. convert all sourceText => set v1
         for ( let i=1; i<=15; i ++ ) {
             textBook = readSrcBook(i);
-            textBook = some_edits( textBook );
+            textBook = SCT.some_edits( textBook );
             book_v0 = getBook_v0( textBook );
             book_v1 = getBook_v1( book_v0 );
             set_v1 = [ ...set_v1, ...book_v1 ];
@@ -138,94 +138,6 @@ function readSrcBook ( num: number ): string {
         return txt;
     }
     else console.log( "err-01",a , b )
-
-}
-
-// .. ======================================================================
-
-function some_edits ( str: string ) {
-
-    for ( let e of basic_tools.erabs ) {
-        let regx = new RegExp( " " +e, "g" );
-        str = str.replace( regx, e );
-    }
-
-    str = str.replace( / ‌/g, " " );
-    str = str.replace( /ـ/g , "" );
-    str = str.replace( / +/g, " " );
-    str = str.replace( /\.\.\.\.\.+/g, "....." );
-    str = str.replace( /\.\.\.\.\./g, " " );
-    str = str.replace( /\[\.\.\.\]/g, " " );
-    str = str.replace( /\. \. \./g, " ... " );
-    str = str.replace( / +/g, " " );
-    str = str.replace( /\.\. \./g, " ... " );
-    str = str.replace( / +/g, " " );
-    str = str.replace( /، +/g, "،" );
-    str = str.replace( / +،/g, "،" );
-    str = str.replace( / ، /g, "،" );
-    str = str.replace( /،/g, " ، " );
-    str = str.replace( /،  ،/g, " ، " );
-    str = str.replace( /، +/g, "،" );
-    str = str.trim();
-
-    str = str.replace( /عَزَّوَجَلَّ/g, " عزوجل " );
-    str = str.replace( /- جَلَّ وعَزَّ -/g, " عزوجل " );
-    str = str.replace( /- عَزَّ وجَلَّ -/g, " عزوجل " );
-    str = str.replace( /- عز وجل -/g, " عزوجل " );
-    str = str.replace( /عَزَّ وجَلَّ/g, " عزوجل " );
-    str = str.replace( /جَلَّ وعَزَّ/g, " عزوجل " );
-    str = str.replace( /عز وجل/g, " عزوجل " );
-    str = str.replace( /- عَزَّ وَجَلَّ -/g, " عزوجل " );
-    str = str.replace( /عَزَّ وَجَلَّ/g, " عزوجل " );
-    str = str.replace( /- عَزَّ وَجَلَ -/g, " عزوجل " );
-    str = str.replace( /عَزَّ وَجَلَ/g, " عزوجل " );
-    str = str.replace( /- عَزّ وَجَلَّ -/g, " عزوجل " );
-    str = str.replace( /عَزّ وَجَلَّ/g, " عزوجل " );
-    str = str.replace( /- عَزَّ وجلَّ -/g, " عزوجل " );
-    str = str.replace( /عَزَّ وجلَّ/g, " عزوجل " );
-    str = str.replace( /- عَزَّ وَ جَلَّ -/g, " عزوجل " );
-    str = str.replace( /عَزَّ وَ جَلَّ/g, " عزوجل " );
-    str = str.replace( /- عزَّ وَ جَلَّ -/g, " عزوجل " );
-    str = str.replace( /- عزَّ وَ جَلَّ -/g, " عزوجل " );
-    str = str.replace( /عز و جل/g, " عزوجل " );
-    str = str.replace( /عزَّ وَ جَلَّ/g, " عزوجل " );
-    str = str.replace( /عزّوجلّ/g, " عزوجل " );
-    str = str.replace( /عَزَّوجلَّ/g, " عزوجل " );
-    str = str.replace( /عَزَّوَجلَّ \.\.\./g, " عزوجل " );
-    str = str.replace( /- عَزَّوَ جَلَّ -/g, " عزوجل " );
-    str = str.replace( /تَبَارَكَ اسْمُهُ/g, " عزوجل " );
-    str = str.replace( /- تَبَارَكَ وَتَعَالى -/g, " عزوجل " );
-    str = str.replace( /تَبَارَكَ وَتَعَالى/g, " عزوجل " );
-
-    str = str.replace( /\( عليه‌السلام \)/g, " عليه‌السلام " );
-    str = str.replace( /- علیها السلام -/g, " عليها‌السلام " );
-    str = str.replace( /علیها السلام/g, " عليها‌السلام " );
-    str = str.replace( /عليهم السلام/g, " عليهم‌السلام " );
-    str = str.replace( /- عليهما السلام -/g, " عليهما‌السلام " );
-    str = str.replace( /\(علیهما السلام\)/g, " عليهما‌السلام " );
-    str = str.replace( /علیهما السلام/g, " عليهما‌السلام " );
-    str = str.replace( /علیهم السلام/g, " عليهم‌السلام " );
-    str = str.replace( /علیه‏ السلام/g, " عليه‌السلام " );
-    str = str.replace( /\(علیه السلام\)/g, " عليه‌السلام " );
-    str = str.replace( /علیه السلام/g, " عليه‌السلام " );
-    str = str.replace( /- صلى‌الله‌عليه‌وآله‌وسلم -/g, " صلى‌الله‌عليه‌وآله‌وسلم " );
-    str = str.replace( /- صلّي الله عليه و آله -/g, " صلى‌الله‌عليه‌وآله‌وسلم " );
-    str = str.replace( /علیهماالسلام/g, " عليهما‌السلام " );
-    str = str.replace( /علیه السّلام/g, " عليه‌السلام " );
-    str = str.replace( /(صلی الله علیه و آله و سلم)/g, " صلى‌الله‌عليه‌وآله‌وسلم " );
-    str = str.replace( /صلی الله علیه و آله و سلم/g, " صلى‌الله‌عليه‌وآله‌وسلم " );
-    str = str.replace( /صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ/g, " صلى‌الله‌عليه‌وآله‌وسلم " );
-    str = str.replace( /صلی الله علیه و آله/g, " صلى‌الله‌عليه‌وآله‌وسلم " );
-    str = str.replace( /- رَحِمَهُ اللهُ -/g, " رحمه‌الله " );
-    str = str.replace( /رَحِمَهُ اللهُ/g, " رحمه‌الله " );
-
-    // str = str.replace( /\. ،/g, " ، " ).replace( /  +/g, " " );
-    // str = str.replace( /\. :/g, " . " ).replace( /  +/g, " " );
-    // str = str.replace( /\. \./g, " . " ).replace( /  +/g, " " );
-    str = str.replace( / +/g, " " );
-    str = str.trim();
-
-    return str;
 
 }
 

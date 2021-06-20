@@ -135,11 +135,15 @@ export function deleteSomeWords ( arr: string[] ) {
 
     // .. remove some first letters
     for ( let i in arr ) 
+        if ( arr[i].slice(0,1) === "و" )
+            arr[i] =  arr[i].slice(1);
+
+    for ( let i in arr ) 
         if 
         ( 
-               arr[i].slice(0,1) === "و" 
+               arr[i].slice(0,1) === "ل" 
             || arr[i].slice(0,1) === "ف" 
-            || arr[i].slice(0,1) === "ل" 
+            || arr[i].slice(0,1) === "ف" 
             || arr[i].slice(0,1) === "ال" 
         ) 
             arr[i] =  arr[i].slice(1);

@@ -42,7 +42,8 @@ async function ignite () {
         // server001.resource_update();
         // server002.resource_update();
         // // // .. Mutual-R
-        // // SCT.R_R( server001.db, server002.db );
+        // // let R = SCT.R_R( server001.db, server002.db );
+        // // storage.saveData( R, "src/db/tmp/", "R_1x2" );
         // // .. optimizing: search & check & save
         // _dbdb_();
 

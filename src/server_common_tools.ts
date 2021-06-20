@@ -29,6 +29,11 @@ export function some_edits ( str: string ) {
     str = str.replace( /،/g, " ، " );
     str = str.replace( /،  ،/g, " ، " );
     str = str.replace( /، +/g, "،" );
+
+    str = str.replace( /،/g, " ، " );
+    str = str.replace( /؛/g, " ؛ " );
+    str = str.replace( /:/g, " : " );
+    str = str.replace( /\./g, " . " );
     str = str.trim();
 
     str = str.replace( /عَزَّوَجَلَّ/g, " عزوجل " );
@@ -205,7 +210,8 @@ export function R_R ( db_01: TS.db, db_02: TS.db ) {
     tools.addTmpProps( db_02 );
 
     R = tools.R_old( db_02, db_01, false );
-    storage.saveData( R, "src/db/tmp/", "R_1x2" );
+
+    return R;
 
 }
 

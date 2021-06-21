@@ -15,6 +15,7 @@ export function some_edits ( str: string ) {
 
     str = str.replace( / ‌/g, " " );
     str = str.replace( /ـ/g , "" );
+    str = str.replace( /–/g , "-" );
     str = str.replace( / +/g, " " );
     str = str.replace( /\.\.\.\.\.+/g, "....." );
     str = str.replace( /\.\.\.\.\./g, " " );

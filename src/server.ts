@@ -29,7 +29,7 @@ async function ignite () {
 
     // .. actual steps goes here:
 
-        server003.init();
+        server003.init( "Scratch" );
 
         // let n_pad: number;
         // // .. ignite server 001 | n_pad: 1 => 15413

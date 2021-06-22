@@ -513,17 +513,45 @@ export function head_cluster ( row: TS.ClusterInfo ) {
 
     let head = row.reduce( (lastSelected,nextOne) => {
 
-        // .. _1 is longer
-        if ( nextOne.length > lastSelected.length ) return nextOne;
-        // .. _1 has same length
-        else if ( nextOne.length === lastSelected.length ) {
-            // .. _1 comes first
-            if ( nextOne.id_in_book <= lastSelected.id_in_book ) return nextOne;
-            // .. _1 come later
-            else return lastSelected
+        // .. _1 is Kafi
+        if ( ~nextOne.index_in_db && nextOne.index_in_db <= 15413 ) {
+            // .. _S is also Kafi
+            if ( ~lastSelected.index_in_db && lastSelected.index_in_db <= 15413 ) {
+                // .. _1 is longer
+                if ( nextOne.length > lastSelected.length ) return nextOne;
+                // .. _1 has same length
+                else if ( nextOne.length === lastSelected.length ) {
+                    // .. _1 comes first
+                    if ( nextOne.index_in_db <= lastSelected.index_in_db ) return nextOne;
+                    // .. _1 come later
+                    else return lastSelected
+                }
+                // .. _1 is shorter
+                else return lastSelected;
+            }
+            // .. _S is Not Kafi
+            else return nextOne;
         }
-        // .. _1 is shorter
-        else return lastSelected;
+        else {
+            // .. _S is Kafi
+            if ( ~lastSelected.index_in_db && lastSelected.index_in_db <= 15413 ) {
+                return lastSelected;
+            }
+            // .. _S is NOT also Kafi
+            else {
+                // .. _1 is longer
+                if ( nextOne.length > lastSelected.length ) return nextOne;
+                // .. _1 has same length
+                else if ( nextOne.length === lastSelected.length ) {
+                    // .. _1 comes first
+                    if ( nextOne.index_in_db <= lastSelected.index_in_db ) return nextOne;
+                    // .. _1 come later
+                    else return lastSelected
+                }
+                // .. _1 is shorter
+                else return lastSelected;
+            }
+        }
 
     }, { id_in_book: -1, index_in_db: -1, length: -1 } );
 

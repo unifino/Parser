@@ -3,7 +3,7 @@ import * as basic_tools                 from "./basic_tools";
 import * as storage                     from "./storage";
 
 
-// .. ======================================================================
+// .. ====================================================================
 
 export function timer (
     length: number,
@@ -45,7 +45,7 @@ export function timer (
 
 }
 
-// .. ======================================================================
+// .. ====================================================================
 
 export function notify ( title = " Server Script", end?: boolean ) {
 
@@ -68,7 +68,7 @@ export function notify ( title = " Server Script", end?: boolean ) {
 
 }
 
-// .. ======================================================================
+// .. ====================================================================
 
 export function do_charSpacer ( db: TS.db ): void  {
     for ( let cell of db ) {
@@ -79,7 +79,7 @@ export function do_charSpacer ( db: TS.db ): void  {
     }
 }
 
-// .. ======================================================================
+// .. ====================================================================
 
 export function addTmpProps ( db: TS.db ) {
 
@@ -97,7 +97,7 @@ export function addTmpProps ( db: TS.db ) {
 
 }
 
-// .. ======================================================================
+// .. ====================================================================
 
 export async function R ( item: TS.db_item, reference: TS.db ) {
 
@@ -113,7 +113,7 @@ export async function R ( item: TS.db_item, reference: TS.db ) {
 
 }
 
-// .. ======================================================================
+// .. ====================================================================
 
 export function R_old ( newDB: TS.db, reference: TS.db, detour: boolean ) {
 
@@ -142,7 +142,7 @@ export function R_old ( newDB: TS.db, reference: TS.db, detour: boolean ) {
 
 }
 
-// .. ======================================================================
+// .. ====================================================================
 
 export function R_Calc ( A: TS.db_item, X: TS.db_item ): TS.R {
 
@@ -165,7 +165,7 @@ export function R_Calc ( A: TS.db_item, X: TS.db_item ): TS.R {
     return r;
 
 }
-// .. ======================================================================
+// .. ====================================================================
 
 export function R_Calc__old ( i: number, j: number, db: TS.db ): TS.R {
 
@@ -186,7 +186,7 @@ export function R_Calc__old ( i: number, j: number, db: TS.db ): TS.R {
 
 }
 
-// .. ======================================================================
+// .. ====================================================================
 
 function pAOX ( A: string[], X: string[] ) {
 
@@ -202,7 +202,7 @@ function pAOX ( A: string[], X: string[] ) {
 
 }
 
-// .. ======================================================================
+// .. ====================================================================
 
 export function R_optimizer ( data: TS.R[], min: number ) {
 
@@ -227,7 +227,7 @@ export function R_optimizer ( data: TS.R[], min: number ) {
 
 }
 
-// .. ======================================================================
+// .. ====================================================================
 
 export function R2Bound ( R: TS.R[], length: number ) {
 
@@ -254,7 +254,7 @@ export function R2Bound ( R: TS.R[], length: number ) {
 
 }
 
-// .. ======================================================================
+// .. ====================================================================
 
 export function boundBoxDivider( boundBox: TS.boundBox ) {
 
@@ -303,7 +303,7 @@ export function boundBoxDivider( boundBox: TS.boundBox ) {
 
 }
 
-// .. ======================================================================
+// .. ====================================================================
 
 export function multiScatter( multiBox: TS.boundBox ) {
 
@@ -336,7 +336,7 @@ export function multiScatter( multiBox: TS.boundBox ) {
 
 }
 
-// .. ======================================================================
+// .. ====================================================================
 
 export function multiUnifier ( raw_multi:TS.ClusterBox ) {
     // .. remove duplicates
@@ -350,7 +350,7 @@ export function multiUnifier ( raw_multi:TS.ClusterBox ) {
     return multiples;
 }
 
-// .. ======================================================================
+// .. ====================================================================
 
 export function simpleClusterPeptics ( other: TS.ClusterBox ) {
 
@@ -371,7 +371,7 @@ export function simpleClusterPeptics ( other: TS.ClusterBox ) {
 
 }
 
-// .. ======================================================================
+// .. ====================================================================
 
 export function aggressiveClusterPeptics ( m_1: TS.ClusterBox, R: TS.R[] ) {
 
@@ -391,7 +391,7 @@ export function aggressiveClusterPeptics ( m_1: TS.ClusterBox, R: TS.R[] ) {
     return multiUnifier( clusterBox );
 }
 
-// .. ======================================================================
+// .. ====================================================================
 
 export function cluster ( start: number, r: TS.R[] ) {
 
@@ -414,7 +414,7 @@ export function cluster ( start: number, r: TS.R[] ) {
 
 }
 
-// .. ======================================================================
+// .. ====================================================================
 
 export function getPepticR ( peptic: TS.ClusterBox, R: TS.R[] ) {
     let patients = [];
@@ -423,7 +423,7 @@ export function getPepticR ( peptic: TS.ClusterBox, R: TS.R[] ) {
     return pR;
 }
 
-// .. ======================================================================
+// .. ====================================================================
 
 export function clusterBoxRealLengthReport ( db: TS.ClusterBox, tag?: string ) {
 
@@ -446,7 +446,7 @@ export function clusterBoxRealLengthReport ( db: TS.ClusterBox, tag?: string ) {
 
 }
 
-// .. ======================================================================
+// .. ====================================================================
 
 export function checkPresents ( src: TS.db, s: TS.s, d: TS.d, m: TS.m ) {
 
@@ -463,7 +463,7 @@ export function checkPresents ( src: TS.db, s: TS.s, d: TS.d, m: TS.m ) {
 
 }
 
-// .. ======================================================================
+// .. ====================================================================
 
 export async function _db_chcek_ ( tmpFolder: string, db: TS.db ) {
 
@@ -481,7 +481,7 @@ export async function _db_chcek_ ( tmpFolder: string, db: TS.db ) {
 
 }
 
-// .. ======================================================================
+// .. ====================================================================
 
 export function cluster_info ( clusterBox: TS.ClusterBox, ref_db: TS.db ) {
 
@@ -507,7 +507,7 @@ export function cluster_info ( clusterBox: TS.ClusterBox, ref_db: TS.db ) {
 
 }
 
-// .. ======================================================================
+// .. ====================================================================
 
 export function head_cluster ( row: TS.ClusterInfo ) {
 
@@ -531,7 +531,7 @@ export function head_cluster ( row: TS.ClusterInfo ) {
 
 }
 
-// .. ======================================================================
+// .. ====================================================================
 
 export function relation_definer ( tmpFolder: string, db: TS.db ) {
 
@@ -571,7 +571,7 @@ export function relation_definer ( tmpFolder: string, db: TS.db ) {
 
 }
 
-// .. ======================================================================
+// .. ====================================================================
 
 function cndMotor ( keys: string[], miscDB: TS.db ) {
 
@@ -593,7 +593,7 @@ function cndMotor ( keys: string[], miscDB: TS.db ) {
 
 }
 
-// .. ======================================================================
+// .. ====================================================================
 
 function bookSaver ( books: TS.bookKeys, order: TS.source[], db: TS.db ) {
 
@@ -650,7 +650,7 @@ function bookSaver ( books: TS.bookKeys, order: TS.source[], db: TS.db ) {
 
 }
 
-// .. ======================================================================
+// .. ====================================================================
 
 export function dbExporter ( db: TS.db ) {
 
@@ -695,7 +695,7 @@ export function dbExporter ( db: TS.db ) {
 
 }
 
-// .. ======================================================================
+// .. ====================================================================
 
 export function finalEditor ( db: TS.db ) {
 
@@ -718,7 +718,7 @@ export function finalEditor ( db: TS.db ) {
 
 }
 
-// .. ======================================================================
+// .. ====================================================================
 
 export function newDBConverter ( newDB: TS.newDB ) {
     let db: TS.db = [];
@@ -738,7 +738,7 @@ export function newDBConverter ( newDB: TS.newDB ) {
     return db;
 }
 
-// .. ======================================================================
+// .. ====================================================================
 
 export function dbCleaner ( db: TS.db ) {
     for ( let p of db ) {
@@ -747,7 +747,7 @@ export function dbCleaner ( db: TS.db ) {
     }
 }
 
-// .. ======================================================================
+// .. ====================================================================
 
 export async function trap ( msg: string ) {
     notify( msg );
@@ -755,11 +755,11 @@ export async function trap ( msg: string ) {
     await new Promise( () => {} );
 }
 
-// .. ======================================================================
+// .. ====================================================================
 
 export function n_allocation ( db: TS.db, n_pad: number ) {
     for ( let p of db ) p.n = n_pad++;
     return n_pad;
 }
 
-// .. ======================================================================
+// .. ====================================================================

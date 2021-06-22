@@ -1,11 +1,11 @@
 import * as tools                       from "./tools";
-import * as SCT                         from "./server_common_tools";
+import * as __                         from "./server_common_tools";
 import * as TS                          from "./types";
 import * as storage                     from "./storage";
 import * as basic_tools                 from "./basic_tools";
 import * as fs                          from "fs";
 
-// .. ======================================================================
+// .. ====================================================================
 
 export let name      = "الكافي";
 export let tmpFolder = "src/db/tmp/" + name + "/";
@@ -19,7 +19,7 @@ let R__              : TS.R[];
 
 resource_update ();
 
-// .. ======================================================================
+// .. ====================================================================
 
 export async function ignite ( mode: "Scratch"|"Cached", n_pad: number ) {
     // .. init server
@@ -29,18 +29,18 @@ export async function ignite ( mode: "Scratch"|"Cached", n_pad: number ) {
     // .. N allocation
     n_pad = tools.n_allocation( db_v1, n_pad );
     // .. search for optimizing
-    SCT._db_( R__, db_v1, tmpFolder );
+    __._db_( R__, db_v1, tmpFolder );
     // .. check optimized info
     await tools._db_chcek_( tmpFolder, db_v1 );
     // .. create and save DBs
     db_exporter();
     // .. clean the tmpFolder
-    SCT.janitor( tmpFolder );
+    __.janitor( tmpFolder );
     // .. N-PAD report
     return n_pad -1;
 }
 
-// .. ======================================================================
+// .. ====================================================================
 
 export async function init ( mode: "Scratch"|"Cached" ) {
 
@@ -58,7 +58,7 @@ export async function init ( mode: "Scratch"|"Cached" ) {
 
 }
 
-// .. ======================================================================
+// .. ====================================================================
 
 function load_db_v0 ( mode: "Scratch"|"Cached" ) {
 
@@ -82,7 +82,7 @@ function load_db_v0 ( mode: "Scratch"|"Cached" ) {
         // .. convert all sourceText => set v1
         for ( let i=1; i<=15; i ++ ) {
             textBook = readSrcBook(i);
-            textBook = SCT.some_edits( textBook );
+            textBook = __.some_edits( textBook );
             book_v0 = getBook_v0( textBook );
             book_v1 = getBook_v1( book_v0 );
             set_v1 = [ ...set_v1, ...book_v1 ];
@@ -94,7 +94,7 @@ function load_db_v0 ( mode: "Scratch"|"Cached" ) {
         // .. convert set v1 to v2 [ string[][]=>string[] ]
         for ( let i in set_v1 ) set_v2 = [ ...set_v2, ...set_v1[i] ];
         // .. get hadith prepared for extraction id from sourceText
-        for ( let i in set_v2 ) set_v2[i] = SCT.set_trimmer ( set_v2[i] );
+        for ( let i in set_v2 ) set_v2[i] = __.set_trimmer ( set_v2[i] );
         // .. trim set v2
         set_v2 = set_v2.filter( x => x );
         // .. get hadith from sourceText and [ assign d & j ]
@@ -109,7 +109,7 @@ function load_db_v0 ( mode: "Scratch"|"Cached" ) {
 
 }
 
-// .. ======================================================================
+// .. ====================================================================
 
 function readSrcBook ( num: number ): string {
 
@@ -134,7 +134,7 @@ function readSrcBook ( num: number ): string {
 
 }
 
-// .. purify ===============================================================
+// .. purify =============================================================
 
 function lines_PureText ( txt: string ) {
 
@@ -172,7 +172,7 @@ function lines_PureText ( txt: string ) {
 
 }
 
-// .. ======================================================================
+// .. ====================================================================
 
 function getBook_v0 ( source: string ): string[][] {
 
@@ -207,7 +207,7 @@ function getBook_v0 ( source: string ): string[][] {
 
 }
 
-// .. ======================================================================
+// .. ====================================================================
 
 function getBook_v1 ( book: string[][] ) {
 
@@ -219,7 +219,7 @@ function getBook_v1 ( book: string[][] ) {
         let hr: RegExpMatchArray;
         let HR = "<p class=libLine>";
 
-        [ hr, page ] = SCT.hrCtr( page, HR );
+        [ hr, page ] = __.hrCtr( page, HR );
 
         // .. page has multiple divide lines!
         if ( hr.length > 1 ) console.log( "Unexpected Page: ", page );
@@ -244,7 +244,7 @@ function getBook_v1 ( book: string[][] ) {
 
 }
 
-// .. ======================================================================
+// .. ====================================================================
 
 function removeAlaemTags ( page: string[] ) {
 
@@ -256,7 +256,7 @@ function removeAlaemTags ( page: string[] ) {
 
 }
 
-// .. ======================================================================
+// .. ====================================================================
 
 function removeAlaemTags_Assistant ( text: string ) {
 
@@ -343,7 +343,7 @@ function removeAlaemTags_Assistant ( text: string ) {
 
 }
 
-// .. ======================================================================
+// .. ====================================================================
 
 function removeUnimportantLines ( page: string[] ) {
     page = page.filter( x => { 
@@ -360,7 +360,7 @@ function removeUnimportantLines ( page: string[] ) {
     return page;
 }
 
-// .. ======================================================================
+// .. ====================================================================
 
 function hadith_db_generator ( book: string[] ) {
 
@@ -391,7 +391,7 @@ function hadith_db_generator ( book: string[] ) {
 
 }
 
-// .. ======================================================================
+// .. ====================================================================
 
 function a_0_9 ( db: TS.db ) {
 
@@ -433,13 +433,13 @@ function a_0_9 ( db: TS.db ) {
             p = a_0(p);
             // .. trim
             a_ID = p.a.indexOf( "«" );
-            if ( ~a_ID && a_ID < 2 ) p = SCT.append_0( p, a_ID +1 );
+            if ( ~a_ID && a_ID < 2 ) p = __.append_0( p, a_ID +1 );
             a_ID = p.a.indexOf( "«" );
             z_ID = p.a.indexOf( "»" );
             // .. in case of : «---»
             if ( !~a_ID && ~z_ID )
                 if ( z_ID > p.a.length - 4 )
-                    p = SCT.append_9( p, z_ID );
+                    p = __.append_9( p, z_ID );
 
             p.a = p.a.replace( / ‌/g, " " ).replace( / +/g, " " ).trim();
 
@@ -452,7 +452,7 @@ function a_0_9 ( db: TS.db ) {
 
 }
 
-// .. ======================================================================
+// .. ====================================================================
 
 function a_0 ( item: TS.db_item ) {
 
@@ -691,7 +691,7 @@ function a_0 ( item: TS.db_item ) {
             if ( ~cut_ID ) {
                 if ( cut_ID < 3 ) {
                     if ( p.excludesText ) cut_ID += p.text.length;
-                    item = SCT.append_0 ( item, cut_ID );
+                    item = __.append_0 ( item, cut_ID );
                     item.c = p.c;
                     break;
                 }
@@ -703,7 +703,7 @@ function a_0 ( item: TS.db_item ) {
 
 }
 
-// .. ======================================================================
+// .. ====================================================================
 
 export function db_exporter () {
 
@@ -724,7 +724,7 @@ export function db_exporter () {
 
 }
 
-// .. ======================================================================
+// .. ====================================================================
 
 export function resource_update () {
     try { fs.mkdirSync( tmpFolder ) } catch {}
@@ -734,5 +734,5 @@ export function resource_update () {
     try { R__   = tools.R_optimizer ( R, 67 )                         } catch {}
 }
 
-// .. ======================================================================
+// .. ====================================================================
 

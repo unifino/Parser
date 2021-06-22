@@ -4,7 +4,7 @@ import * as storage                     from "./storage";
 import * as basic_tools                 from "./basic_tools";
 import * as fs                          from "fs";
 
-// .. ======================================================================
+// .. ====================================================================
 
 export function some_edits ( str: string ) {
 
@@ -117,7 +117,7 @@ export function some_edits ( str: string ) {
 
 }
 
-// .. ======================================================================
+// .. ====================================================================
 
 export function append_0 ( item: TS.db_item, idx: number ) {
 
@@ -132,7 +132,7 @@ export function append_0 ( item: TS.db_item, idx: number ) {
 
 }
 
-// .. ======================================================================
+// .. ====================================================================
 
 export function append_9 ( item: TS.db_item, idx: number ) {
 
@@ -147,7 +147,7 @@ export function append_9 ( item: TS.db_item, idx: number ) {
 
 }
 
-// .. ======================================================================
+// .. ====================================================================
 
 export function hrCtr ( page: string[], HR: string ) {
 
@@ -167,7 +167,7 @@ export function hrCtr ( page: string[], HR: string ) {
 
 }
 
-// .. ======================================================================
+// .. ====================================================================
 
 export function set_trimmer ( str: string ) {
 
@@ -197,7 +197,7 @@ export function set_trimmer ( str: string ) {
 
 }
 
-// .. ======================================================================
+// .. ====================================================================
 
 export async function _R_ ( db: TS.db, tmpFolder: string ) {
 
@@ -219,7 +219,7 @@ export async function _R_ ( db: TS.db, tmpFolder: string ) {
 
 }
 
-// .. ======================================================================
+// .. ====================================================================
 
 export function R_R ( db_01: TS.db, db_02: TS.db ) {
 
@@ -235,7 +235,7 @@ export function R_R ( db_01: TS.db, db_02: TS.db ) {
 
 }
 
-// .. ======================================================================
+// .. ====================================================================
 
 export function _db_ ( R__: TS.R[], db: TS.db, tmpFolder: string  ) {
     // .. [R2Bound]
@@ -253,7 +253,7 @@ export function _db_ ( R__: TS.R[], db: TS.db, tmpFolder: string  ) {
     storage.saveData( tmpE2.other, tmpFolder, "other", true );
 }
 
-// .. ======================================================================
+// .. ====================================================================
 
 export function janitor ( tmpFolder: string ) {
     storage.saveData( null, tmpFolder, "single" );
@@ -264,4 +264,4 @@ export function janitor ( tmpFolder: string ) {
     storage.saveData( null, tmpFolder, "m_2" );
 }
 
-// .. ======================================================================
+// .. ====================================================================

@@ -30,5 +30,8 @@
         ],
         "exec": "npm start",
         "ext": "ts,htm"
+    },
+    "dependencies": {
+        "cheerio": "*"
     }
 }

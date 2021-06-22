@@ -29,6 +29,8 @@ async function ignite () {
 
     // .. actual steps goes here:
 
+        server003.init( "Scratch" );
+
         // let n_pad: number;
         // // .. ignite server 001 | n_pad: 1 => 15413
         // await server001.ignite( "Cached", 1 ).then( n => n_pad = n );

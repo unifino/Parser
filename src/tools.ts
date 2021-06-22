@@ -118,7 +118,7 @@ export async function R ( item: TS.db_item, reference: TS.db ) {
 export function R_old ( newDB: TS.db, reference: TS.db, detour: boolean ) {
 
     let R: TS.R[] = [],
-        title = " R Calculation",
+        title = " Mutual R Calc.",
         start_time = new Date().getTime();
 
     for ( let i=0; i<newDB.length; i++ ) {
@@ -550,6 +550,7 @@ export function relation_definer ( tmpFolder: string, db: TS.db ) {
         i_children = p.filter( x => x.index_in_db !== idx_head );
         // .. set cDB data to Head
         db[ idx_head ].cDB = i_children.map( x => x.id_in_book );
+        db[ idx_head ].cDB = [ ...new Set( db[ idx_head ].cDB ) ];
         // .. set null in cDB data fot Children
         for ( let q of i_children.map( x => x.index_in_db ) ) db[ q ].cDB = null;
     }
@@ -567,7 +568,7 @@ export function relation_definer ( tmpFolder: string, db: TS.db ) {
     // db_v1[ head ].cDB = children.map( x => db_v1[x].d as number );
     // for ( let q of children ) db_v1.find( x => x.d === q ).cDB = null;
 
-    return db;
+    return dbCleaner( db );
 
 }
 
@@ -741,10 +742,14 @@ export function newDBConverter ( newDB: TS.newDB ) {
 // .. ====================================================================
 
 export function dbCleaner ( db: TS.db ) {
+
     for ( let p of db ) {
         delete p.tmp_inFarsiLetter;
         delete p.tmp_kalamat;
     }
+
+    return db;
+
 }
 
 // .. ====================================================================

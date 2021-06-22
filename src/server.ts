@@ -10,9 +10,6 @@ import * as TS                          from "./types";
 // .. ====================================================================
 
 let tmpFolder = "src/db/tmp/";
-let R_Path: string;
-let R_R: TS.R[];
-let R_R__: TS.R[];
 
 // .. ====================================================================
 
@@ -29,24 +26,32 @@ async function ignite () {
 
     // .. actual steps goes here:
 
-        server003.init( "Scratch" );
 
         // let n_pad: number;
         // // .. ignite server 001 | n_pad: 1 => 15413
         // await server001.ignite( "Cached", 1 ).then( n => n_pad = n );
         // // .. ignite server 002 | n_pad: 15414 => 51281 ( 15413 + 35868 )
         // await server002.ignite( "Cached", n_pad ).then( n => n_pad = n );
-        // // // .. Self-R
-        // // __._R_( server001.db_v1, server001.tmpFolder );
-        // // __._R_( server002.db_v1, server002.tmpFolder );
+        // // .. ignite server 003 | n:pad: 51281 => 52564 ( 51281 + 1 + 1283 )
+        // await server003.ignite( "Cached", n_pad ).then( n => n_pad = n );
+        // // .. Self-R
+        // __._R_( server001.db_v1, server001.tmpFolder );
+        // __._R_( server002.db_v1, server002.tmpFolder );
+        // __._R_( server003.db_v1, server003.tmpFolder );
         // // .. update files
         // server001.resource_update();
         // server002.resource_update();
-        // // // .. Mutual-R
-        // // let R = __.R_R( server001.db, server002.db );
-        // // storage.saveData( R, "src/db/tmp/", "R_1x2" );
-        // // .. optimizing: search & check & save
-        // _dbdb_();
+        // server003.resource_update();
+
+
+        // // .. Mutual-R
+        // let R = __.R_R( server003.db, [ ...server001.db, ...server002.db ] );
+        // storage.saveData( R, "src/db/tmp/", "R_1x3" );
+
+
+        // .. optimizing: search & check & save
+        _dbdb_();
+
 
     // .. end of the application
     tools.notify( null, true );
@@ -58,25 +63,32 @@ ignite();
 // .. ====================================================================
 
 async function _dbdb_ () {
-    // .. define path
-    R_Path = tmpFolder + "R_1x2.json";
+    // .. define path *
+    let R_Path_2 = tmpFolder + "R_1x2.json";
+    let R_Path_3 = tmpFolder + "R_1x3.json";
     // .. get R_R
-    R_R = JSON.parse( fs.readFileSync( R_Path, 'utf8' ) );
+    let R_R_2 = JSON.parse( fs.readFileSync( R_Path_2, 'utf8' ) );
+    let R_R_3 = JSON.parse( fs.readFileSync( R_Path_3, 'utf8' ) );
     // .. optimize R_R
-    R_R__ = tools.R_optimizer ( R_R, 67 );
-    // .. merge db_s
-    let d_db = [ ...server001.db, ...server002.db ];
+    let R_R__ = tools.R_optimizer ( [ ...R_R_2, ...R_R_3 ], 67 );
+    // .. merge db_s **
+    server001.resource_update();
+    server002.resource_update();
+    server003.resource_update();
+    let d_db = [ ...server001.db, ...server002.db, ...server003.db ];
     // .. get preparations
     __._db_( R_R__, d_db, tmpFolder );
     // .. check result
     await tools._db_chcek_( tmpFolder, d_db );
     // .. get relations in one BIG DB
     let db_u = tools.relation_definer( tmpFolder, d_db );
-    // .. save DBs | divide them
+    // .. save DBs | divide them ***
     let n1 = server001.db.length;
     let n2 = server002.db.length;
+    let n3 = server003.db.length;
     storage.saveData( db_u.slice( 0, n1 ), "src/db/ready", server001.name  );
     storage.saveData( db_u.slice( n1, n1+n2 ), "src/db/ready", server002.name );
+    storage.saveData( db_u.slice( n1+n2, n1+n2+n3 ), "src/db/ready", server003.name );
     // .. clean the tmpFolder
     __.janitor( tmpFolder );
 }

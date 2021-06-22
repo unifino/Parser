@@ -5,7 +5,6 @@ import * as storage                     from "./storage";
 import * as basic_tools                 from "./basic_tools";
 import * as fs                          from "fs";
 import * as cheerio                     from 'cheerio';
-import { db } from "./server_001";
 
 // .. ====================================================================
 
@@ -14,7 +13,38 @@ export let tmpFolder = "src/db/tmp/" + name + "/";
 export let tmpDB_Path = tmpFolder + name + ".json";
 export let tmpDB;
 try { tmpDB = JSON.parse( fs.readFileSync( tmpDB_Path, 'utf8' ) ) } catch {}
+let db_v1_Path       = tmpFolder + "01.json";
+export let db_Path   = "src/db/ready/" + name + ".json";
+let R_Path           = tmpFolder + "RR.json";
+export let db_v1     : TS.db;
+export let db        : TS.db;
+let R                : TS.R[];
+let R__              : TS.R[];
 
+resource_update ();
+
+// .. ====================================================================
+
+export async function ignite ( mode: "Scratch"|"Cached", n_pad: number ) {
+    // .. tiny edit
+    n_pad = n_pad +1;
+    // .. init server
+    await init( mode );
+    // .. update resources
+    resource_update ();
+    // .. N allocation
+    n_pad = tools.n_allocation( db_v1, n_pad );
+    // .. search for optimizing
+    __._db_( R__, db_v1, tmpFolder );
+    // .. check optimized info
+    await tools._db_chcek_( tmpFolder, db_v1 );
+    // .. create and save DBs
+    db_exporter();
+    // .. clean the tmpFolder
+    __.janitor( tmpFolder );
+    // .. N-PAD report
+    return n_pad -1;
+}
 
 // .. ====================================================================
 
@@ -30,7 +60,7 @@ export function init ( mode: "Scratch"|"Cached" ) {
     db = setTitle( db );
 
     // .. write-down DB
-    // storage.saveData( db, tmpFolder, "01" );
+    storage.saveData( db, tmpFolder, "01" );
     storage.saveData( db, "src/db/ready", name );
 
 }
@@ -43,10 +73,8 @@ function load_db_v0 ( mode: "Scratch"|"Cached" ) {
     let db_v0: TS.db = [];
 
     if ( mode === "Cached" ) {
-        let path = tmpFolder + "00-";
-        let K = JSON.parse( fs.readFileSync( path + "K.json", 'utf8' ) );
-        let L = JSON.parse( fs.readFileSync( path + "L.json", 'utf8' ) );
-        let H = JSON.parse( fs.readFileSync( path + "H.json", 'utf8' ) );
+        let path = tmpFolder + "00.json";
+        db_v0 = JSON.parse( fs.readFileSync( path, 'utf8' ) );
     }
 
     if ( mode === "Scratch" ) {
@@ -288,6 +316,33 @@ function setTitle ( db: TS.db ) {
 
     return db;
 
+}
+
+// .. ====================================================================
+
+export function db_exporter () {
+
+    db_v1 = tools.relation_definer( tmpFolder, db_v1 );
+
+    // .. last trims
+    for ( let p of db_v1 ) {
+        try { p[0] = p[0].replace( / +/g, " " ).trim() } catch {}
+        try { p[9] = p[9].replace( / +/g, " " ).trim() } catch {}
+        try { p.a = p.a.replace( / +/g, " " ).trim() } catch {}
+    }
+
+    storage.saveData( db_v1, "src/db/ready", name );
+
+}
+
+// .. ====================================================================
+
+export function resource_update () {
+    try { fs.mkdirSync( tmpFolder ) } catch {}
+    try { db_v1 = JSON.parse( fs.readFileSync( db_v1_Path, 'utf8' ) ) } catch {}
+    try { db    = JSON.parse( fs.readFileSync( db_Path   , 'utf8' ) ) } catch {}
+    try { R     = JSON.parse( fs.readFileSync( R_Path    , 'utf8' ) ) } catch {}
+    try { R__   = tools.R_optimizer ( R, 67 )                         } catch {}
 }
 
 // .. ====================================================================

@@ -144,7 +144,7 @@ export function R_old ( newDB: TS.db, reference: TS.db, detour: boolean ) {
 
 // .. ====================================================================
 
-export function R_Calc ( A: TS.db_item, X: TS.db_item ): TS.R {
+function R_Calc ( A: TS.db_item, X: TS.db_item ): TS.R {
 
     // .. critical error
     if ( typeof A.n !== "number" || typeof X.n !== "number" ) return;
@@ -167,7 +167,7 @@ export function R_Calc ( A: TS.db_item, X: TS.db_item ): TS.R {
 }
 // .. ====================================================================
 
-export function R_Calc__old ( i: number, j: number, db: TS.db ): TS.R {
+function R_Calc__old ( i: number, j: number, db: TS.db ): TS.R {
 
     let partsA = db[i].tmp_kalamat.slice(0);
     let partsX = db[j].tmp_kalamat.slice(0);
@@ -229,7 +229,7 @@ export function R_optimizer ( data: TS.R[], min: number ) {
 
 // .. ====================================================================
 
-export function R2Bound ( R: TS.R[], length: number ) {
+export function R2Bound ( R: TS.R[], ref_db_length: number ) {
 
     let sTime = new Date().getTime(),
         boundBox: TS.boundBox = [],
@@ -237,8 +237,8 @@ export function R2Bound ( R: TS.R[], length: number ) {
         a: number,
         b: number;
 
-    for ( let i=0; i<length; i++ ) {
-        if ( !(i%100) ) timer( length, i, sTime, "    R2Bound   " );
+    for ( let i=0; i<ref_db_length; i++ ) {
+        if ( !(i%100) ) timer( ref_db_length, i, sTime, "    R2Bound   " );
         boundLine = [];
         for ( let j=0; j<R.length; j++ ) {
             a = R[j][0];
@@ -249,8 +249,8 @@ export function R2Bound ( R: TS.R[], length: number ) {
         boundBox.push( boundLine );
     }
 
-    if ( boundBox.length !== length ) console.log( "Critical Error!" );
-    else return boundBox;
+    if ( boundBox.length === ref_db_length ) return boundBox;
+    else console.log( "Critical Error!" );
 
 }
 
@@ -338,7 +338,7 @@ export function multiScatter( multiBox: TS.boundBox ) {
 
 // .. ====================================================================
 
-export function multiUnifier ( raw_multi:TS.ClusterBox ) {
+function multiUnifier ( raw_multi:TS.ClusterBox ) {
     // .. remove duplicates
     let tmp_01: string[] = [];
     let multiples: TS.ClusterBox = [];
@@ -352,7 +352,7 @@ export function multiUnifier ( raw_multi:TS.ClusterBox ) {
 
 // .. ====================================================================
 
-export function simpleClusterPeptics ( other: TS.ClusterBox ) {
+function simpleClusterPeptics ( other: TS.ClusterBox ) {
 
     let oneCluster: TS.Cluster = [],
         clusterBox: TS.ClusterBox = [],
@@ -416,7 +416,7 @@ export function cluster ( start: number, r: TS.R[] ) {
 
 // .. ====================================================================
 
-export function getPepticR ( peptic: TS.ClusterBox, R: TS.R[] ) {
+function getPepticR ( peptic: TS.ClusterBox, R: TS.R[] ) {
     let patients = [];
     for ( let r of peptic ) patients = [ ...patients, ...r  ];
     let pR = R.filter( x => patients.includes(x[0]) && patients.includes(x[1]) );
@@ -425,7 +425,7 @@ export function getPepticR ( peptic: TS.ClusterBox, R: TS.R[] ) {
 
 // .. ====================================================================
 
-export function clusterBoxRealLengthReport ( db: TS.ClusterBox, tag?: string ) {
+function clusterBoxRealLengthReport ( db: TS.ClusterBox, tag?: string ) {
 
     let t = [],
         report: TS.Repo = {} as any;
@@ -448,7 +448,7 @@ export function clusterBoxRealLengthReport ( db: TS.ClusterBox, tag?: string ) {
 
 // .. ====================================================================
 
-export function checkPresents ( src: TS.db, s: TS.s, d: TS.d, m: TS.m ) {
+function checkPresents ( src: TS.db, s: TS.s, d: TS.d, m: TS.m ) {
 
     let mix = [],
         tmp = [];
@@ -483,7 +483,7 @@ export async function _db_chcek_ ( tmpFolder: string, db: TS.db ) {
 
 // .. ====================================================================
 
-export function cluster_info ( clusterBox: TS.ClusterBox, ref_db: TS.db ) {
+function cluster_info ( clusterBox: TS.ClusterBox, ref_db: TS.db ) {
 
     let tmp: TS.ClusterInfo,
         box: TS.ClusterInfoBox;
@@ -509,7 +509,7 @@ export function cluster_info ( clusterBox: TS.ClusterBox, ref_db: TS.db ) {
 
 // .. ====================================================================
 
-export function head_cluster ( row: TS.ClusterInfo ) {
+function head_cluster ( row: TS.ClusterInfo ) {
 
     let head = row.reduce( (lastSelected,nextOne) => {
 
@@ -584,17 +584,19 @@ export function relation_definer ( tmpFolder: string, db: TS.db ) {
     }
 
     // ! .. control by Hand
-    // rich_mix = cluster_info( other, db_v1 );
-    // let ttt = rich_mix.map( x => {
-    //     let qqq = []
-    //     for ( let p of x ) qqq.push( db_v1[p.index_in_db].a );
-    //     return qqq
-    // } )
-    // storage.saveData( ttt, "/tmp/", "test", true);
-    // head = head_cluster( rich_mix[0] );
-    // children = rich_mix[0].filter( x => x.index !== head ).map( x => x.index );
-    // db_v1[ head ].cDB = children.map( x => db_v1[x].d as number );
-    // for ( let q of children ) db_v1.find( x => x.d === q ).cDB = null;
+    rich_mix = cluster_info( files.other, db );
+
+    // storage.saveData( rich_mix.map( x => {
+    //     let b=[];
+    //     for ( let p of x ) b.push( db[p.index_in_db].a );
+    //     return b;
+    // } ), "src/db/tmp/", "test", true );
+
+    idx_head = head_cluster( rich_mix[0] );
+    i_children = rich_mix[0].filter( x => x.index_in_db !== idx_head );
+    db[ idx_head ].cDB = i_children.map( x => x.id_in_book );
+    db[ idx_head ].cDB = [ ...new Set( db[ idx_head ].cDB ) ];
+    for ( let q of i_children.map( x => x.index_in_db ) ) db[ q ].cDB = null;
 
     return dbCleaner( db );
 
@@ -681,7 +683,7 @@ function bookSaver ( books: TS.bookKeys, order: TS.source[], db: TS.db ) {
 
 // .. ====================================================================
 
-export function dbExporter ( db: TS.db ) {
+function dbExporter ( db: TS.db ) {
 
     let order: TS.source[],
         keys: string[],
@@ -726,7 +728,7 @@ export function dbExporter ( db: TS.db ) {
 
 // .. ====================================================================
 
-export function finalEditor ( db: TS.db ) {
+function finalEditor ( db: TS.db ) {
 
     for ( let p of db ) {
 
@@ -749,7 +751,7 @@ export function finalEditor ( db: TS.db ) {
 
 // .. ====================================================================
 
-export function newDBConverter ( newDB: TS.newDB ) {
+function newDBConverter ( newDB: TS.newDB ) {
     let db: TS.db = [];
     db = newDB.map( (x,j) => {
         return { 
@@ -769,7 +771,7 @@ export function newDBConverter ( newDB: TS.newDB ) {
 
 // .. ====================================================================
 
-export function dbCleaner ( db: TS.db ) {
+function dbCleaner ( db: TS.db ) {
 
     for ( let p of db ) {
         delete p.tmp_inFarsiLetter;
@@ -782,7 +784,7 @@ export function dbCleaner ( db: TS.db ) {
 
 // .. ====================================================================
 
-export async function trap ( msg: string ) {
+async function trap ( msg: string ) {
     notify( msg );
     notify( null, true );
     await new Promise( () => {} );

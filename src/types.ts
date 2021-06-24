@@ -13,6 +13,7 @@ export type db_item = {
     c: number,
     d: string|number,
     n: number,
+    old_n?: number,
     idInSection?: number,
     tmp_inFarsiLetter: string,
     tmp_kalamat: string[],

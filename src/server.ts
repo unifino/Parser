@@ -24,17 +24,17 @@ async function ignite () {
     tools.notify();
     // .. capture time
     console.time( "App Clock" );
-
     // .. actual steps goes here:
 
-        // .. optimizing: search & check & save
-        _dbdb_();
 
-        // finder.init();
+// // .. optimizing: search & check & save
+// _dbdb_();
+finder.init();
+
 
     // .. end of the application
     tools.notify( null, true );
-
+    // .. done.
 }
 
 ignite();
@@ -44,36 +44,35 @@ ignite();
 function getFiles (): [ TS.R[], TS.db_item[] ] {
 
     // .. define path *
-    let R_Path_1 = server001.tmpFolder + "RR.json";
-    let R_Path_2 = server002.tmpFolder + "RR.json";
-    let R_Path_1x2 = tmpFolder + "R_1x2.json";
-    let R_Path_1x3 = tmpFolder + "R_1x3.json";
+    let RR_1_Path = server001.tmpFolder + "RR.json";
+    let RR_2_Path = server002.tmpFolder + "RR.json";
+    let RR_3_Path = server003.tmpFolder + "RR.json";
+    let RX_2_Path = tmpFolder + "RX_2.json";
+    let RX_3_Path = tmpFolder + "RX_3.json";
 
-    // .. get R_R
-    let R_R_1 = JSON.parse( fs.readFileSync( R_Path_1, 'utf8' ) );
-    let R_R_2 = JSON.parse( fs.readFileSync( R_Path_2, 'utf8' ) );
-    let R_R_1x2 = JSON.parse( fs.readFileSync( R_Path_1x2, 'utf8' ) );
-    let R_R_1x3 = JSON.parse( fs.readFileSync( R_Path_1x3, 'utf8' ) );
+    // .. get Rs
+    let RR_1 = JSON.parse( fs.readFileSync( RR_1_Path, 'utf8' ) );
+    let RR_2 = JSON.parse( fs.readFileSync( RR_2_Path, 'utf8' ) );
+    let RR_3 = JSON.parse( fs.readFileSync( RR_3_Path, 'utf8' ) );
+    let RX_2 = JSON.parse( fs.readFileSync( RX_2_Path, 'utf8' ) );
+    let RX_3 = JSON.parse( fs.readFileSync( RX_3_Path, 'utf8' ) );
 
-    // .. optimize R_R
-    let R_R__ = tools.R_optimizer ( [
-        ...R_R_1,
-        ...R_R_2,
-        ...R_R_1x2,
-        ...R_R_1x3,
-    ], 67 );
+    // .. optimize Rs
+    let R = [ ...RR_1, ...RR_2, ...RR_3, ...RX_2, ...RX_3 ];
+    let R_R__ = tools.R_optimizer ( R, 67 );
 
-    // .. merge db_s **
     server001.resource_update();
     server002.resource_update();
     server003.resource_update();
-    let d_db = [
+
+    // .. merge db_s **
+    let db = [
         ...server001.db,
         ...server002.db,
         ...server003.db 
     ];
 
-    return [ R_R__, d_db ];
+    return [ R_R__, db ];
 
 }
 
@@ -82,26 +81,26 @@ function getFiles (): [ TS.R[], TS.db_item[] ] {
 async function _dbdb_ () {
 
     let R_R__: TS.R[];
-    let d_db: TS.db_item[];
+    let db: TS.db_item[];
 
-    [ R_R__, d_db ] = getFiles();
+    [ R_R__, db ] = getFiles();
 
     // .. get preparations
-    __._db_( R_R__, d_db, tmpFolder );
+    __._db_( R_R__, db, tmpFolder );
 
     // .. check result
-    await tools._db_chcek_( tmpFolder, d_db );
+    await tools._db_chcek_( tmpFolder, db );
 
     // .. get relations in one BIG DB
-    let db_u = tools.relation_definer( tmpFolder, d_db );
+    db = tools.relation_definer( tmpFolder, db );
 
     // .. save DBs | divide them ***
-    let n1 = server001.db.length;
-    let n2 = server002.db.length;
-    let n3 = server003.db.length;
-    storage.saveData( db_u.slice( 0, n1 ), "src/db/ready", server001.name  );
-    storage.saveData( db_u.slice( n1, n1+n2 ), "src/db/ready", server002.name );
-    storage.saveData( db_u.slice( n1+n2, n1+n2+n3 ), "src/db/ready", server003.name );
+    let n1 = server001.db.length; let c1 = n1;
+    let n2 = server002.db.length; let c2 = n1 + n2;
+    let n3 = server003.db.length; let c3 = n1 + n2 + n3;
+    storage.saveData( db.slice( 0,  c1 ), "src/db/ready", server001.name );
+    storage.saveData( db.slice( c1, c2 ), "src/db/ready", server002.name );
+    storage.saveData( db.slice( c2, c3 ), "src/db/ready", server003.name );
 
     // .. clean the tmpFolder
     __.janitor( tmpFolder );
@@ -121,16 +120,22 @@ async function _dbdb_ () {
 // __._R_( server001.db_v1, server001.tmpFolder );
 // __._R_( server002.db_v1, server002.tmpFolder );
 // __._R_( server003.db_v1, server003.tmpFolder );
+
 // // .. update files
 // server001.resource_update();
 // server002.resource_update();
 // server003.resource_update();
 
 // // .. Mutual-R
+// let R = __.R_R( server002.db, server001.db );
+// storage.saveData( R, "src/db/tmp/", "RX_2" );
+// // .. Mutual-R
 // let R = __.R_R( server003.db, [ ...server001.db, ...server002.db ] );
-// storage.saveData( R, "src/db/tmp/", "R_1x3" );
+// storage.saveData( R, "src/db/tmp/", "RX_3" );
 
 // // .. optimizing: search & check & save
 // _dbdb_();
+
+// finder.init();
 
 // .. ====================================================================

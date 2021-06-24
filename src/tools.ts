@@ -585,18 +585,20 @@ export function relation_definer ( tmpFolder: string, db: TS.db ) {
 
     // ! .. control by Hand
     rich_mix = cluster_info( files.other, db );
+    let ctl = rich_mix.map( x => {
+        let b=[];
+        for ( let p of x ) b.push( db[p.index_in_db].a );
+        return b;
+    } )
+    if ( ctl.length ) storage.saveData( ctl, "src/db/tmp/", "control", true );
 
-    // storage.saveData( rich_mix.map( x => {
-    //     let b=[];
-    //     for ( let p of x ) b.push( db[p.index_in_db].a );
-    //     return b;
-    // } ), "src/db/tmp/", "test", true );
-
-    idx_head = head_cluster( rich_mix[0] );
-    i_children = rich_mix[0].filter( x => x.index_in_db !== idx_head );
-    db[ idx_head ].cDB = i_children.map( x => x.id_in_book );
-    db[ idx_head ].cDB = [ ...new Set( db[ idx_head ].cDB ) ];
-    for ( let q of i_children.map( x => x.index_in_db ) ) db[ q ].cDB = null;
+    // for ( let i in [0] ) {
+    //     idx_head = head_cluster( rich_mix[i] );
+    //     i_children = rich_mix[i].filter( x => x.index_in_db !== idx_head );
+    //     db[ idx_head ].cDB = i_children.map( x => x.id_in_book );
+    //     db[ idx_head ].cDB = [ ...new Set( db[ idx_head ].cDB ) ];
+    //     for ( let q of i_children.map( x => x.index_in_db ) ) db[ q ].cDB = null;
+    // }
 
     return dbCleaner( db );
 
@@ -771,7 +773,7 @@ function newDBConverter ( newDB: TS.newDB ) {
 
 // .. ====================================================================
 
-function dbCleaner ( db: TS.db ) {
+export function dbCleaner ( db: TS.db ) {
 
     for ( let p of db ) {
         delete p.tmp_inFarsiLetter;

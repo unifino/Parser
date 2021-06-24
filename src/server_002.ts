@@ -730,13 +730,16 @@ function getRSSCutPoint ( rss: TS.rss_item[] ): { 0: number, 9: number } {
 // .. ====================================================================
 
 function i_rss_cuter_patcher ( db: TS.db ) {
+
     for ( let p of db ) {
         p = i_rss_cuter_patch_1(p);
         p = i_rss_cuter_patch_2(p);
         p = i_rss_cuter_patch_3(p);
         p = i_rss_cuter_patch_4(p);
     }
+
     return db;
+
 }
 
 // .. ====================================================================
@@ -942,6 +945,9 @@ function i_rss_cuter_patch_3 ( item: TS.db_item ) {
     cdn = "عن حمران بن أعين قال :"; idx = item.a.indexOf( cdn );
     if ( ~idx ) if ( idx < 10 ) item = __.append_0( item, idx + cdn.length );
 
+    cdn = "أحمد بن أبي عبد الله"; idx = item.a.lastIndexOf( cdn );
+    if ( ~idx ) item = __.append_9( item, idx );
+
     return item;
 
 }
@@ -1005,10 +1011,10 @@ function db_finalizer ( db: TS.db ) {
 
     }
 
-
     let patchFilePath = "src/db/source/" + name + "/patches.json";
     let patches = JSON.parse( fs.readFileSync( patchFilePath, 'utf8' ) );
     let idx: number;
+
     // ! .. last Patch
     for ( let p of patches ) {
         idx = db.findIndex( x => x.d === p.d );

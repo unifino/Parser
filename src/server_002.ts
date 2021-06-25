@@ -357,7 +357,7 @@ function hadith_db_generator ( book: string[] ) {
             hadith = {} as any;
             hadith.a = " ^" + p.slice( cdn[0].length );
             let dp = cdn[0].split( "-" )[0].split( "]" );
-            hadith.d = Number( dp[0].replace( "[", "" ).replace( / /g, "" ) );
+            hadith.d = dp[0].replace( "[", "" ).replace( / /g, "" );
             hadith.idInSection = Number( dp[1].trim() ) || null;
         }
         // .. error report
@@ -1060,7 +1060,7 @@ function heal ( db: TS.db, size: number ) {
     for( let i=0; i<tmpDB.length; i++ ) {
         if ( !tmpDB[i] ) {
             tmpDB[i] = JSON.parse( JSON.stringify( emptyItem ) );
-            tmpDB[i].d = i;
+            tmpDB[i].d = i + "";
         }
     }
 

@@ -11,7 +11,7 @@ export type db_item = {
     a: string,
     b: string,
     c: number,
-    d: string|number,
+    d: string,
     n: number,
     old_n?: number,
     idInSection?: number,

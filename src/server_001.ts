@@ -378,7 +378,7 @@ function hadith_db_generator ( book: string[] ) {
             hadith = {} as any;
             hadith.a = " ^" + p.slice( cdn[0].length );
             let dp = cdn[0].split( "/" );
-            hadith.d = Number( dp[0] );
+            hadith.d = dp[0];
             hadith.idInSection = Number( dp[1] );
         }
         // .. error report
@@ -410,7 +410,7 @@ function a_0_9 ( db: TS.db ) {
         firstLineIndex = lines.findIndex( x => x.includes( ":" ) );
 
         // .. Skip Mode!
-        if ( cdnBOX.includes( p.d as number ) ) {
+        if ( cdnBOX.includes( Number( p.d ) ) ) {
             let patchFilePath = "src/db/source/" + name + "/patches.json";
             let patches = JSON.parse( fs.readFileSync( patchFilePath, 'utf8' ) );
             p = patches.find( x => x.d === p.d );

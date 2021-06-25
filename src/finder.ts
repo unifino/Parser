@@ -1335,7 +1335,7 @@ export function init () {
     let R: TS.R[];
 
     // .. update box
-    tools.n_allocation( PBox , 990001 );
+    tools.n_allocation( PBox , 90001 );
 
     R = __.R_R( PBox, mmm );
     R = tools.R_optimizer( R, 67 );

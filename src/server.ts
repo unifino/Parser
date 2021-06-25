@@ -31,8 +31,8 @@ async function ignite () {
     // // .. optimizing: search & check & save
     // _dbdb_();
 
-    // server032.init();
-    appendix.init();
+    server032.init();
+
     // .. end of the application
     tools.notify( null, true );
     // .. done.

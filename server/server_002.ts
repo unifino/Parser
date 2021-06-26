@@ -1,5 +1,5 @@
 import * as __                          from "../tools/__";
-import * as server001                   from "./server_001";
+import * as server001                   from "./الكافي";
 import * as server002                   from "../tmp/server_002-old";
 import * as server003                   from "./server_003";
 import * as storage                     from "../tools/storage";
@@ -13,7 +13,7 @@ import * as basic_tools                 from "../tools/basic_tools";
 // .. ====================================================================
 
 export let tmpFolder = "db/tmp/";
-export let name      = "الكافي";
+export let name      = "وسائل‌الشيعة";
 let list: string[] = [];
 // export let tmpFolder = "db/tmp/" + name + "/";
 export function resource_update () { console.log(".......") }

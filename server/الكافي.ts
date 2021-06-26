@@ -7,21 +7,22 @@ import * as fs                          from "fs";
 
 // .. ====================================================================
 
-export let name      = "الكافي";
-export let tmpFolder = "db/tmp/" + name + "/";
-let db_v1_Path       = tmpFolder + "01.json";
-export let db_Path   = "db/ready/" + name + ".json";
-let R_Path           = tmpFolder + "RR.json";
-export let db_v1     : TS.db;
-export let db        : TS.db;
-let R                : TS.R[];
-let R__              : TS.R[];
+export let name         = "الكافي";
+export let db           : TS.db;
+
+let tmpFolder           = "db/tmp/" + name + "/";
+let db_Path             = "db/ready/" + name + ".json";
+let db_v1_Path          = tmpFolder + "01.json";
+let db_v1               : TS.db;
+let R_Path              = tmpFolder + "RR.json";
+let R                   : TS.R[];
+let R__                 : TS.R[];
 
 resource_update ();
 
 // .. ====================================================================
 
-export async function ignite ( mode: "Scratch"|"Cached", n_pad: number ) {
+async function ignite ( mode: "Scratch"|"Cached", n_pad: number ) {
     // .. init server
     await init( mode );
     // .. update resources
@@ -42,7 +43,7 @@ export async function ignite ( mode: "Scratch"|"Cached", n_pad: number ) {
 
 // .. ====================================================================
 
-export async function init ( mode: "Scratch"|"Cached" ) {
+async function init ( mode: "Scratch"|"Cached" ) {
 
     tools.notify( "     " + name + "   " );
 
@@ -705,7 +706,7 @@ function a_0 ( item: TS.db_item ) {
 
 // .. ====================================================================
 
-export function db_exporter () {
+function db_exporter () {
 
     db_v1 = tools.relation_definer( tmpFolder, db_v1 );
 
@@ -726,7 +727,7 @@ export function db_exporter () {
 
 // .. ====================================================================
 
-export function resource_update () {
+function resource_update () {
     try { fs.mkdirSync( tmpFolder ) } catch {}
     try { db_v1 = JSON.parse( fs.readFileSync( db_v1_Path, 'utf8' ) ) } catch {}
     try { db    = JSON.parse( fs.readFileSync( db_Path   , 'utf8' ) ) } catch {}

@@ -4,7 +4,7 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "start": "node --inspect=5858 -r ts-node/register ./src/server.ts",
+        "start": "node --inspect=5858 -r ts-node/register ./app.ts",
         "start:watch": "nodemon",
         "build": "tsc"
     },
@@ -26,7 +26,7 @@
             "node_modules"
         ],
         "watch": [
-            "src"
+            "."
         ],
         "exec": "npm start",
         "ext": "ts,htm"

@@ -305,8 +305,8 @@ function removeAlaemTags_Assistant ( text: string ) {
     let q = ( text.match( /<span class=libAie>(.*?)<\/span>/g ) || [] );
     for ( let c of q ) {
         let r = c;
-        r = r.replace( "<span class=libAie>", " #Q# ) " );
-        r = r.replace( "<\/span>", " ( #/Q# " );
+        r = r.replace( "<span class=libAie>", " #Q# " );
+        r = r.replace( "<\/span>", " #/Q# " );
         text = text.replace( c, r );
     }
 

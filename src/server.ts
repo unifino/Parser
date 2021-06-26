@@ -1,8 +1,8 @@
 import * as __                          from "./server_common_tools";
 import * as server001                   from "./server_001";
-import * as server002                   from "./server_002";
+import * as server002                   from "./server_002-old";
 import * as server003                   from "./server_003";
-import * as server032                   from "./server_032";
+import * as server032                   from "./server_002";
 import * as finder                      from "./finder";
 import * as appendix                    from "./appendix";
 import * as storage                     from "./storage";

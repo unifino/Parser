@@ -1,6 +1,6 @@
 import * as __                          from "./server_common_tools";
 import * as server001                   from "./server_001";
-import * as server002                   from "./server_002";
+import * as server002                   from "./server_002-old";
 import * as server003                   from "./server_003";
 import * as storage                     from "./storage";
 import * as tools                       from "./tools";

@@ -19,7 +19,7 @@ let db = workerData;
     let B = db.length*( threadId )/tools.frag | 0;
 
     for ( let i=A; i<B; i++ ) {
-        report.timer( i, B-1, time, threadId +4 );
+        report.timer( i, B, time, threadId +4 );
         await tools.R( db[i], db.slice( i+1 ) ).then( x => r = x );
         R = [ ...R, ...r ];
     }

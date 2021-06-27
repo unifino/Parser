@@ -64,20 +64,21 @@ export function R_old ( newDB: TS.db, reference: TS.db, detour: boolean ) {
         report.notify( "Mutual R Calc." );
         for ( let i=0; i<newDB.length; i++ ) {
 
-        report.timer( i, newDB.length, time, 16 );
+            report.timer( i, newDB.length, time, 16 );
 
-        // .. detour mode just for same : db-db mode
-        if ( detour )
-            for ( let j = i+1; j < newDB.length; j++)
-                R.push( R_Calc( newDB[i], newDB[j] ) );
+            // .. detour mode just for same : db-db mode
+            if ( detour )
+                for ( let j = i+1; j < newDB.length; j++)
+                    R.push( R_Calc( newDB[i], newDB[j] ) );
 
-        // .. normal | long mode
-        else
-            for ( let x of reference ) R.push( R_Calc( newDB[i], x ) );
+            // .. normal | long mode
+            else
+                for ( let x of reference ) R.push( R_Calc( newDB[i], x ) );
 
-        // .. memory releaser
-        if ( Number(i) % 999 ) R = R.filter( x => x[2] > 30 );
-    }
+            // .. memory releaser
+            if ( Number(i) % 999 ) R = R.filter( x => x[2] > 30 );
+
+        }
 
     return R;
 

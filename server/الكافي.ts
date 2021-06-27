@@ -84,7 +84,7 @@ function load_db_v0 ( mode: "Scratch"|"Cached" ) {
             set_v2: string[] = [];
 
         // .. convert all sourceText => set v1
-        for ( let i=1; i<=5; i ++ ) {
+        for ( let i=1; i<=15; i ++ ) {
             textBook = readSrcBook(i);
             textBook = __.some_edits( textBook );
             book_v0 = getBook_v0( textBook );

@@ -62,7 +62,8 @@ export function notify ( title?: string, end?: boolean ) {
         }
     }
 
-    process.stdout.write( title + "\r" );
+    readline.clearLine( process.stdout, 0 );
+    process.stdout.write( title + "\n" );
 
 }
 

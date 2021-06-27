@@ -31,17 +31,17 @@ export async function ignite ( mode: "Scratch"|"Cached", n_pad: number ) {
     // .. N allocation
     n_pad = tools.n_allocation( v1, n_pad );
     // .. R allocation
-    await dedicated_R();
-    // // .. search for optimizing
-    // __._db_( R, v1, tmpFolder );
-    // // .. check optimized info
-    // await tools._db_chcek_( tmpFolder, v1 );
-    // // .. create and save DBs
-    // db_exporter();
-    // // .. clean the tmpFolder
-    // __.janitor( tmpFolder );
-    // // .. N-PAD report
-    // return n_pad -1;
+    R = await dedicated_R();
+    // .. search for optimizing
+    __.cook( R, v1, tmpFolder );
+    // .. check optimized info
+    await tools._db_check_( tmpFolder, v1 );
+    // .. create and save DBs
+    db_exporter();
+    // .. clean the tmpFolder
+    __.janitor( tmpFolder );
+    // .. N-PAD report
+    return n_pad -1;
 }
 
 // .. ====================================================================
@@ -444,6 +444,10 @@ function a_0_9 ( db: TS.db ) {
                 if ( z_ID > p.a.length - 4 )
                     p = __.append_9( p, z_ID );
 
+            z_ID = p.a.lastIndexOf( "» . *" );
+            // .. in case of : » . * ...
+            if ( ~z_ID ) p = __.append_9( p, z_ID );
+
             p.a = p.a.replace( / ‌/g, " " ).replace( / +/g, " " ).trim();
 
         }
@@ -709,8 +713,6 @@ function a_0 ( item: TS.db_item ) {
 // .. ====================================================================
 
 async function dedicated_R () {
-
-    let R: TS.R[] = [];
 
     // .. return cached
     if ( fs.existsSync( R_Path ) ) {

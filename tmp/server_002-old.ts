@@ -31,7 +31,7 @@ export async function ignite ( mode: "Scratch"|"Cached", n_pad: number ) {
     // .. search for optimizing
     __._db_( R__, db_v1, tmpFolder );
     // .. check optimized info
-    await tools._db_chcek_( tmpFolder, db_v1 );
+    await tools._db_check_( tmpFolder, db_v1 );
     // .. create and save DBs
     db_exporter();
     // .. clean the tmpFolder

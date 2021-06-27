@@ -180,8 +180,11 @@ export function R2Bound ( R: TS.R[], ref_db_length: number ) {
         b: number;
 
     report.notify( "R => Bound" );
+
     for ( let i=0; i<ref_db_length; i++ ) {
-        if ( !(i%100) ) report.timer( i, ref_db_length, time, 3 );
+
+        report.timer( i, ref_db_length, time );
+
         boundLine = [];
         for ( let j=0; j<R.length; j++ ) {
             a = R[j][0];
@@ -190,6 +193,7 @@ export function R2Bound ( R: TS.R[], ref_db_length: number ) {
             if ( b === i ) boundLine.push(a);
         }
         boundBox.push( boundLine );
+
     }
 
     if ( boundBox.length === ref_db_length ) return boundBox;
@@ -304,11 +308,15 @@ function simpleClusterPeptics ( other: TS.ClusterBox ) {
         total = other.length;
 
     report.notify( "Simple Cluster Peptic" );
+
     for ( oneCluster of other ) {
-        report.timer( c, total, time, 3 );
+
+        report.timer( c, total, time );
+
         oneCluster = [ ...new Set( oneCluster ) ];
         clusterBox.push( oneCluster );
         c++;
+
     }
 
     return multiUnifier( clusterBox );
@@ -326,11 +334,15 @@ export function aggressiveClusterPeptics ( m_1: TS.ClusterBox, R: TS.R[] ) {
     let uni = []
     for ( let r of m_1 ) uni = [ ...uni, ...r  ];
     uni = [ ...new Set(uni) ];
-    
-    report.notify( "Advance Cluster Peptic" );
+
+    report.notify( "Advance Cluster Peptic " );
+
     for ( let i in uni ) {
-        report.timer( Number(i), uni.length, time, 3 );
+
+        report.timer( Number(i), uni.length, time );
+
         clusterBox.push( cluster( uni[i], R ) );
+
     }
 
     return multiUnifier( clusterBox );
@@ -410,12 +422,14 @@ function checkPresents ( src: TS.db, s: TS.s, d: TS.d, m: TS.m ) {
 
 // .. ====================================================================
 
-export async function _db_chcek_ ( tmpFolder: string, db: TS.db ) {
+export async function _db_check_ ( tmpFolder: string, db: TS.db ) {
+
+    report.notify( "Cook Results" );
 
     let files = storage.getParts( tmpFolder );
 
     let s = files.single.length;
-    console.log( "\nsingle", "\t", s );
+    console.log( "\n\nsingle", "\t", s );
     let d = clusterBoxRealLengthReport( files.double, "double" );
     let m = clusterBoxRealLengthReport( files.multi, "multi" );
     let o = clusterBoxRealLengthReport( files.other, "other" );
@@ -535,7 +549,7 @@ export function relation_definer ( tmpFolder: string, db: TS.db ) {
         for ( let p of x ) b.push( db[p.index_in_db].a );
         return b;
     } )
-    if ( ctl.length ) storage.saveData( ctl, "db/tmp/", "control", true );
+    if ( ctl.length ) storage.saveData( ctl, "tmp/", "control", true );
 
     // for ( let i in [0] ) {
     //     idx_head = head_cluster( rich_mix[i] );

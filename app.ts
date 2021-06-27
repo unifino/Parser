@@ -14,7 +14,7 @@ import * as WS                          from "worker_threads";
 // .. ====================================================================
 
 async function run () {
-    await server_الكافي.ignite( "Scratch", 1 );
+    await server_الكافي.ignite( "Cached", 1 );
 
     // setInterval( () => process.stdout.write(`\rhatef: ${new Date().getTime()}\r` ), 1000)
     // setInterval( () => process.stdout.write(`clock?: ${new Date()}` ), 1000);
@@ -70,7 +70,7 @@ async function run () {
 //     __._db_( R_R__, db, tmpFolder );
 
 //     // .. check result
-//     await tools._db_chcek_( tmpFolder, db );
+//     await tools._db_check_( tmpFolder, db );
 
 //     // .. get relations in one BIG DB
 //     db = tools.relation_definer( tmpFolder, db );

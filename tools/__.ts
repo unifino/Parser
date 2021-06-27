@@ -216,10 +216,10 @@ export function R_R ( db_01: TS.db, db_02: TS.db ) {
 
 // .. ====================================================================
 
-export function _db_ ( R__: TS.R[], db: TS.db, tmpFolder: string  ) {
-    // .. [R2Bound]
+export function cook ( R__: TS.R[], db: TS.db, tmpFolder: string  ) {
+    // .. R => Bound
     let tmpB = tools.R2Bound( R__, db.length );
-    // .. [boundBoxDivider_SD]
+    // .. boundBoxDivider_SD
     let tmpE = tools.boundBoxDivider( tmpB );
     storage.saveData( tmpE.single, tmpFolder, "single", true );
     storage.saveData( tmpE.double, tmpFolder, "double", true );

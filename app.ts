@@ -14,7 +14,7 @@ import * as WS                          from "worker_threads";
 // .. ====================================================================
 
 async function run () {
-    await server_الكافي.ignite( "Cached", 1 );
+    await server_الكافي.ignite( "Scratch", 1 );
 
     // setInterval( () => process.stdout.write(`\rhatef: ${new Date().getTime()}\r` ), 1000)
     // setInterval( () => process.stdout.write(`clock?: ${new Date()}` ), 1000);

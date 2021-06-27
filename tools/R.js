@@ -8,12 +8,11 @@ let db = workerData;
 
 ( async function _R_ () {
 
-    let r,
-        time = new Date().getTime(),
-        title = " R Calc " + "part " + threadId;
+    let r;
+    let time = new Date().getTime();
 
     // .. [addTmpProps]
-    tools.addTmpProps( db );
+    db = tools.addTmpProps( db );
 
     let A = db.length*( threadId-1 )/tools.frag | 0;
     let B = db.length*( threadId )/tools.frag | 0;

@@ -18,48 +18,52 @@ let db_Path             = "db/" + name + ".json";
 let v1_Path             = tmpFolder + "/" + name + "-01.json";
 let R_Path              = tmpFolder + "/" + name + "-R.json";
 let v1                  : TS.db;
+import * as cheerio                     from 'cheerio';
 
 resource_update ();
 
 // .. ====================================================================
 
 export async function ignite ( mode: "Scratch"|"Cached", n_pad: number ) {
+
     // .. init server
-    await init( mode );
-    // .. update resources
-    resource_update ();
-    // .. N allocation
-    n_pad = tools.n_allocation( v1, n_pad );
-    // .. R allocation
-    R = await dedicated_R();
-    // .. search for optimizing
-    __.cook( R, v1, tmpFolder );
-    // .. check optimized info
-    await tools._db_check_( tmpFolder, v1 );
-    // .. create and save DBs
-    db_exporter();
-    // .. clean the tmpFolder
-    __.janitor( tmpFolder );
-    // .. N-PAD report
-    return n_pad -1;
+    report.notify( name );
+    // .. init DB
+    db = [];
+    // .. get v0 [ Scratch | Cached ]
+    db = load_db_v0( mode );
+    // .. divider
+    db = mine ( db );
+    storage.saveData( db, tmpFolder, name + "-00" );
+
+    // // .. main dividers
+    // db = a_0_9( db );
+    // // .. write-down DB
+    // storage.saveData( db, tmpFolder, name + "-01" );
+    // // .. update resources
+    // resource_update ();
+    // // .. N allocation
+    // n_pad = tools.n_allocation( v1, n_pad );
+    // // .. R allocation
+    // R = await dedicated_R();
+    // // .. search for optimizing
+    // __.cook( R, v1, tmpFolder );
+    // // .. check optimized info
+    // await tools._db_check_( tmpFolder, v1 );
+    // // .. create and save DBs
+    // db_exporter();
+    // // .. clean the tmpFolder
+    // __.janitor( tmpFolder );
+    // // .. N-PAD report
+    // return n_pad -1;
+
 }
 
 // .. ====================================================================
 
-async function init ( mode: "Scratch"|"Cached" ) {
+function mine ( db: TS.db ) {
 
-    report.notify( name );
-
-    let db: TS.db = [];
-
-    // .. get v0 [ Scratch | Cached ]
-    db = load_db_v0( mode );
-    // .. main dividers
-    db = a_0_9( db );
-
-    // .. write-down DB
-    storage.saveData( db, tmpFolder, name + "-01" );
-
+    return db;
 }
 
 // .. ====================================================================
@@ -78,34 +82,67 @@ function load_db_v0 ( mode: "Scratch"|"Cached" ) {
         fs.rmSync( _00_Path, { force: true } );
 
         let textBook: string,
-            book_v0: string[][],
-            book_v1: string[][],
-            set_v1: string[][] = [],
-            set_v2: string[] = [];
+            book: string[][],
+            BOOK: string[] = [];
+
 
         // .. convert all sourceText => set v1
-        for ( let i=1; i<=15; i ++ ) {
+        for ( let i=1; i<=1; i ++ ) {
             textBook = readSrcBook(i);
+            // textBook = pureText( textBook );
             textBook = __.some_edits( textBook );
-            book_v0 = getBook_v0( textBook );
-            book_v1 = getBook_v1( book_v0 );
-            set_v1 = [ ...set_v1, ...book_v1 ];
+            // book = getBook( textBook );
+            // book = essentialBook( book );
+            // for ( let p of book ) BOOK = [ ...BOOK, ...p ];
         }
+        let tag = "<!DOCTYPE html><html><head>"+
+        '<link rel="stylesheet" type="text/css" href="main.css" />'+
+        "</head><body>";
+        let $ = cheerio.load(textBook);
+        $( ".libFootnote0").remove();
+        $( ".libFootnotenum").remove();
+        $( ".libFootnoteAlaem").remove();
+        $( ".libLine").remove();
+        $( ".Heading1Center").remove();
+        $( ".Heading2Center").remove();
+        $( ".libCenter").remove();
+        $( ".libBold1").remove();
+        $( "table").remove();
+        $( "a").remove();
 
-        // .. notify up to this step
-        report.notify( "Books Loaded!" );
+        textBook = "";
+        for ( let p of $( "p" ) ) {
+            if ( $(p).text() ) textBook += $(p);
+        }
+        textBook = textBook.replace( /<p><\/p>/g, "" );
+        textBook = textBook.replace( /<p class="libNormal"><\/p>/g, "" );
+        textBook = textBook.replace( /<p class="libNormal0"><\/p>/g, "" );
+        textBook = textBook.replace( /<span class="libAlaem">\(<\/span>/g, "" );
+        textBook = textBook.replace( /<span class="libAlaem">\)<\/span>/g, "" );
+        textBook = textBook.replace( /<br clear="all">/g, "" );
+        textBook = textBook.replace( /<span/g, " <span" );
+        textBook = textBook.replace( /<\/span>/g, " <\/span> " );
 
-        // .. convert set v1 to v2 [ string[][]=>string[] ]
-        for ( let i in set_v1 ) set_v2 = [ ...set_v2, ...set_v1[i] ];
-        // .. get hadith prepared for extraction id from sourceText
-        for ( let i in set_v2 ) set_v2[i] = __.set_trimmer ( set_v2[i] );
-        // .. trim set v2
-        set_v2 = set_v2.filter( x => x );
-        // .. get hadith from sourceText and [ assign d & j ]
-        db_v0 = hadith_db_generator( set_v2 );
+        let db = [];
+        for ( let p of textBook.split( "</p>" ) ) {
+            db.push( cheerio.load(p).text().replace( /\n/g, " " ).replace( / +/g, " " ) )
+        }
+        // textBook = cheerio.load(textBook).text( );
+        // fs.writeFileSync( "tmp/test.html", tag + textBook );
+        storage.saveData( db, tmpFolder, name + "-000" );
+
+        // هذَا آخِرُ كِتَابِ
+        // تَمَّ كِتَابُ
+        // تَمَّ الْمُجَلَّدُ
+        // // .. notify up to this step
+        // report.notify( "Books Loaded!" );
+
+        // // .. generate basic DB
+        // db_v0 = hadith_db_generator( BOOK );
 
         // .. save it in storage
-        storage.saveData( db_v0, tmpFolder, name + "-00" );
+        // storage.saveData( db_v0, tmpFolder, name + "-00" );
+
     }
 
     return db_v0;
@@ -128,18 +165,14 @@ function readSrcBook ( num: number ): string {
     let a = txt.indexOf( "<a name='aaa'></a>" );
     let b = txt.indexOf( "<a name='xxx'></a>" );
 
-    if ( a>0 && b>0 ) {
-        txt = txt.slice( a, b +19 );
-        txt = lines_PureText( txt );
-        return txt;
-    }
+    if ( a>0 && b>0 ) return txt.slice( a, b +19 );
     else console.log( "err-01",a , b )
 
 }
 
-// .. purify =============================================================
+// .. ====================================================================
 
-function lines_PureText ( txt: string ) {
+function pureText ( txt: string ) {
 
     // .. remove arabic numbers:
     txt = basic_tools.removeArabicDigits( txt );
@@ -177,7 +210,7 @@ function lines_PureText ( txt: string ) {
 
 // .. ====================================================================
 
-function getBook_v0 ( source: string ): string[][] {
+function getBook ( source: string ): string[][] {
 
     let book: string[][] = [],
         tmpPage: string[] = [],
@@ -212,7 +245,7 @@ function getBook_v0 ( source: string ): string[][] {
 
 // .. ====================================================================
 
-function getBook_v1 ( book: string[][] ) {
+function essentialBook ( book: string[][] ) {
 
     // .. remove FootNote Sections
     for ( let i=0; i<book.length; i++ ) {
@@ -368,27 +401,32 @@ function removeUnimportantLines ( page: string[] ) {
 function hadith_db_generator ( book: string[] ) {
 
     let newBook: TS.db = [],
-        hadith: TS.db_item = {} as any;
+        hadith: TS.db_item = { w: [] } as any;
 
     for ( let p of book ) {
 
         let cdn = p.match( /[0-9]+ ?\/ ?[0-9]+ ?\.? / ) || [];
         // .. just append line
-        if ( cdn.length === 0 ) hadith.a += " ^" + p;
+        if ( cdn.length === 0 ) hadith.w.push(p);
         // .. beginning of a new Hadith
         else if ( cdn.length === 1 ) {
-            if ( hadith.a ) newBook.push( hadith );
-            hadith = {} as any;
-            hadith.a = " ^" + p.slice( cdn[0].length );
+            // .. add to newBook
+            newBook.push( hadith );
+            // .. reset the HadithBox
+            hadith = { w: [] } as any;
+            hadith.w.push( p.slice( cdn[0].length ) );
             let dp = cdn[0].split( "/" );
             hadith.d = Number( dp[0] ).toString();
-            hadith.idInSection = Number( dp[1] );
+            hadith.idInSection = Number( dp[1].replace(".","").trim() );
         }
         // .. error report
         else console.log( "Unexpected Line:", p );
     }
     // .. add ĺast item
-    if ( hadith.a ) newBook.push( hadith );
+    if ( hadith.w.length ) {
+        hadith.a = hadith.w.join( " " );
+        newBook.push( hadith )
+    };
 
     return newBook;
 
@@ -401,11 +439,11 @@ function a_0_9 ( db: TS.db ) {
     let lines: string[],
         firstLineIndex: number,
         a_ID: number,
-        z_ID: number,
-        cdnBOX = [
-            121,350,492,649,652,653,777,859,907,999,1307,1316,1367,1876,2314,
-            2867,2965,4749,5258,6729,8154,11802,11836,13481,14620,14927,15195,
-        ];
+        z_ID: number;
+        // cdnBOX = [
+        //     121,350,492,649,652,653,777,859,907,999,1307,1316,1367,1876,2314,
+        //     2867,2965,4749,5258,6729,8154,11802,11836,13481,14620,14927,15195,
+        // ];
 
     for( let p of db ) {
 
@@ -413,12 +451,11 @@ function a_0_9 ( db: TS.db ) {
         firstLineIndex = lines.findIndex( x => x.includes( ":" ) );
 
         // .. Skip Mode!
-        if ( cdnBOX.includes( Number( p.d ) ) ) {
-            let patchFilePath = "source/" + name + "/patches.json";
-            let patches = JSON.parse( fs.readFileSync( patchFilePath, 'utf8' ) );
-            p = patches.find( x => x.d === p.d );
-            if ( !p ) console.log( "Unexpected ID from Patches: ", p.d );
-        }
+        let patchFilePath = "source/" + name + "/patches.json";
+        let patches = JSON.parse( fs.readFileSync( patchFilePath, 'utf8' ) );
+        let patch = patches.find( x => x.d === p.d );
+        if ( patch ) p = patch;
+        // ! check if all patches applies
 
         // .. Purge Mode!
         else if ( !~firstLineIndex ) { p[0] = p.a; p.a = null; }
@@ -434,6 +471,11 @@ function a_0_9 ( db: TS.db ) {
 
             // .. actual step
             p = a_0(p);
+
+            // .. in case of : » . * ...
+            z_ID = p.a.lastIndexOf( " . *" );
+            if ( ~z_ID ) p = __.append_9( p, z_ID );
+
             // .. trim
             a_ID = p.a.indexOf( "«" );
             if ( ~a_ID && a_ID < 2 ) p = __.append_0( p, a_ID +1 );
@@ -443,10 +485,6 @@ function a_0_9 ( db: TS.db ) {
             if ( !~a_ID && ~z_ID )
                 if ( z_ID > p.a.length - 4 )
                     p = __.append_9( p, z_ID );
-
-            z_ID = p.a.lastIndexOf( "» . *" );
-            // .. in case of : » . * ...
-            if ( ~z_ID ) p = __.append_9( p, z_ID );
 
             p.a = p.a.replace( / ‌/g, " " ).replace( / +/g, " " ).trim();
 
@@ -740,16 +778,22 @@ async function dedicated_R () {
         processes.push( runService( v1 ) );
     }
 
+    // .. init R
+    R = [];
     // .. wait for all processes get Done.
     await Promise.all( processes ).then( RS => { 
         for ( let r of RS ) R = [ ...R, ...r ]
     } );
+
+    // R = await __._R_( v1 );
 
     // .. wait a bit
     await new Promise( _ => setTimeout( _, 700 ) );
     report.cursor( 22, 0 );
 
     storage.saveData( R, tmpFolder, name + "-R", true );
+
+    return R;
 
 }
 

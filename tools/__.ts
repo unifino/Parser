@@ -34,6 +34,8 @@ export function some_edits ( str: string ) {
     str = str.replace( /،  ،/g, " ، " );
     str = str.replace( /، +/g, "،" );
 
+    str = str.replace( /«/g, " « " );
+    str = str.replace( /»/g, " » " );
     str = str.replace( /،/g, " ، " );
     str = str.replace( /؛/g, " ؛ " );
     str = str.replace( /:/g, " : " );
@@ -42,33 +44,22 @@ export function some_edits ( str: string ) {
     str = str.trim();
 
     str = str.replace( /عَزَّوَجَلَّ/g, " عزوجل " );
-    str = str.replace( /- جَلَّ وعَزَّ -/g, " عزوجل " );
-    str = str.replace( /- عَزَّ وجَلَّ -/g, " عزوجل " );
-    str = str.replace( /- عز وجل -/g, " عزوجل " );
     str = str.replace( /عَزَّ وجَلَّ/g, " عزوجل " );
     str = str.replace( /جَلَّ وعَزَّ/g, " عزوجل " );
     str = str.replace( /عز وجل/g, " عزوجل " );
-    str = str.replace( /- عَزَّ وَجَلَّ -/g, " عزوجل " );
     str = str.replace( /عَزَّ وَجَلَّ/g, " عزوجل " );
-    str = str.replace( /- عَزَّ وَجَلَ -/g, " عزوجل " );
     str = str.replace( /عَزَّ وَجَلَ/g, " عزوجل " );
-    str = str.replace( /- عَزّ وَجَلَّ -/g, " عزوجل " );
     str = str.replace( /عَزّ وَجَلَّ/g, " عزوجل " );
-    str = str.replace( /- عَزَّ وجلَّ -/g, " عزوجل " );
     str = str.replace( /عَزَّ وجلَّ/g, " عزوجل " );
-    str = str.replace( /- عَزَّ وَ جَلَّ -/g, " عزوجل " );
     str = str.replace( /عَزَّ وَ جَلَّ/g, " عزوجل " );
-    str = str.replace( /- عزَّ وَ جَلَّ -/g, " عزوجل " );
-    str = str.replace( /- عزَّ وَ جَلَّ -/g, " عزوجل " );
     str = str.replace( /عز و جل/g, " عزوجل " );
     str = str.replace( /عزَّ وَ جَلَّ/g, " عزوجل " );
     str = str.replace( /عزّوجلّ/g, " عزوجل " );
     str = str.replace( /عَزَّوجلَّ/g, " عزوجل " );
+    str = str.replace( /عَزَّوَ جَلَّ/g, " عزوجل " );
     str = str.replace( /عَزَّوَجلَّ \.\.\./g, " عزوجل " );
-    str = str.replace( /- عَزَّوَ جَلَّ -/g, " عزوجل " );
-    str = str.replace( /تَبَارَكَ اسْمُهُ/g, " عزوجل " );
-    str = str.replace( /- تَبَارَكَ وَتَعَالى -/g, " عزوجل " );
     str = str.replace( /تَبَارَكَ وَتَعَالى/g, " عزوجل " );
+    str = str.replace( /تَبَارَكَ اسْمُهُ/g, " عزوجل " );
 
     str = str.replace( /\(ص\)/g, " صلى‌الله‌عليه‌وآله‌وسلم " );
     str = str.replace( /صلی الله علیه وآیه/g, " صلى‌الله‌عليه‌وآله‌وسلم " );
@@ -82,31 +73,36 @@ export function some_edits ( str: string ) {
     str = str.replace( /صلی الله علیه و آله و سلم/g, " صلى‌الله‌عليه‌وآله‌وسلم " );
     str = str.replace( /صَلَّى اللَّهُ عَلَيْهِ وَ آلِهِ وَ سَلَّمَ/g, " صلى‌الله‌عليه‌وآله‌وسلم " );
     str = str.replace( /صلّى اللّه عليه و آله و سلّم/g, " صلى‌الله‌عليه‌وآله‌وسلم " );
-    
+
     str = str.replace( /علیه‏ السلام/g, " عليه‌السلام " );
     str = str.replace( /عليه السلام/g, " عليه‌السلام " );
     str = str.replace( /علیه السلام/g, " عليه‌السلام " );
     str = str.replace( /علیه السّلام/g, " عليه‌السلام " );
 
     str = str.replace( /علیها السلام/g, " عليها‌السلام " );
-    str = str.replace( /- علیها السلام -/g, " عليها‌السلام " );
+    str = str.replace( /- عليها‌السلام -/g, " عليها‌السلام " );
 
-    str = str.replace( /- عليهما السلام -/g, " عليهما‌السلام " );
+    str = str.replace( /عليهما السلام/g, " عليهما‌السلام " );
     str = str.replace( /علیهماالسلام/g, " عليهما‌السلام " );
     str = str.replace( /علیهما السلام/g, " عليهما‌السلام " );
 
     str = str.replace( /عليهم السلام/g, " عليهم‌السلام " );
     str = str.replace( /علیهم السلام/g, " عليهم‌السلام " );
+    str = str.replace( /- عليهم‌السلام -/g, " عليهم‌السلام " );
 
-    str = str.replace( /- رَحِمَهُ اللهُ -/g, " رحمه‌الله " );
     str = str.replace( /رَحِمَهُ اللهُ/g, " رحمه‌الله " );
 
     str = str.replace( / +/g, " " );
-    str = str.replace( /\( عليه‌السلام \)/g, " عليه‌السلام " );
-    str = str.replace( /\( عليهما‌السلام \)/g, " عليهما‌السلام " );
-    str = str.replace( /\( صلى‌الله‌عليه‌وآله‌وسلم \)/g, " صلى‌الله‌عليه‌وآله‌وسلم " );
+    str = str.replace( /- عزوجل -/g, " عزوجل " );
+    str = str.replace( /\( عزوجل \)/g, " عزوجل " );
     str = str.replace( /- صلى‌الله‌عليه‌وآله‌وسلم -/g, " صلى‌الله‌عليه‌وآله‌وسلم " );
-
+    str = str.replace( /\( صلى‌الله‌عليه‌وآله‌وسلم \)/g, " صلى‌الله‌عليه‌وآله‌وسلم " );
+    str = str.replace( /- عليه‌السلام -/g, " عليه‌السلام " );
+    str = str.replace( /\( عليه‌السلام \)/g, " عليه‌السلام " );
+    str = str.replace( /- عليهما‌السلام -/g, " عليهما‌السلام " );
+    str = str.replace( /\( عليهما‌السلام \)/g, " عليهما‌السلام " );
+    str = str.replace( /- رحمه‌الله -/g, " رحمه‌الله " );
+    str = str.replace( /\( رحمه‌الله \)/g, " رحمه‌الله " );
 
     // str = str.replace( /\. ،/g, " ، " ).replace( /  +/g, " " );
     // str = str.replace( /\. :/g, " . " ).replace( /  +/g, " " );
@@ -170,33 +166,33 @@ export function hrCtr ( page: string[], HR: string ) {
 
 // .. ====================================================================
 
-export function set_trimmer ( str: string ) {
+// export function set_trimmer ( str: string ) {
 
-    str = str.replace( /<span class=libFootnote>/g, "" );
-    str = str.replace( "<p class=libFootnote>", "" );
-    str = str.replace( "<p class=libNormal>", "" );
-    str = str.replace( "<span class=libNormal>", "" );
-    str = str.replace( "<span class=libNum>", "" );
-    str = str.replace( "<p class=libPoem>", "" );
-    str = str.replace( "<p class=libPoemCenter>", "" );
-    str = str.replace( /<\/span>/g, "" );
-    str = str.replace( /<p>/g, "" );
-    str = str.replace( /<\/p>/g, "" );
+//     str = str.replace( /<span class=libFootnote>/g, "" );
+//     str = str.replace( "<p class=libFootnote>", "" );
+//     str = str.replace( "<p class=libNormal>", "" );
+//     str = str.replace( "<span class=libNormal>", "" );
+//     str = str.replace( "<span class=libNum>", "" );
+//     str = str.replace( "<p class=libPoem>", "" );
+//     str = str.replace( "<p class=libPoemCenter>", "" );
+//     str = str.replace( /<\/span>/g, "" );
+//     str = str.replace( /<p>/g, "" );
+//     str = str.replace( /<\/p>/g, "" );
 
-    str = str.replace( /(<([^>]+)>)/ig, '' );
+//     str = str.replace( /(<([^>]+)>)/ig, '' );
 
-    str = str.replace( / ‌/g, " " );
-    str = str.replace( / +/g, " " );
-    str = str.trim();
+//     str = str.replace( / ‌/g, " " );
+//     str = str.replace( / +/g, " " );
+//     str = str.trim();
 
-    let a = ( str.match( /\[/g ) || [] ).length;
-    let b = ( str.match( /\]/g ) || [] ).length;
-    // .. report errors
-    if ( a !== b ) console.log( "Unexpected ID Format: ", a, b, str );
+//     // let a = ( str.match( /\[/g ) || [] ).length;
+//     // let b = ( str.match( /\]/g ) || [] ).length;
+//     // // .. report errors
+//     // if ( a !== b ) console.log( "Unexpected ID Format: ", a, b, str );
 
-    return str;
+//     return str;
 
-}
+// }
 
 // .. ====================================================================
 
@@ -244,3 +240,23 @@ export function janitor ( tmpFolder: string ) {
 }
 
 // .. ====================================================================
+
+export async function _R_ ( db: TS.db ) {
+
+    let R: TS.R[] = [],
+        r: TS.R[],
+        time = new Date().getTime(),
+        title = " R Calc " + db.length;
+
+    // .. [addTmpProps]
+    db = tools.addTmpProps( db );
+
+    for ( let i in db ) {
+        report.timer( Number(i), db.length, time );
+        await tools.R( db[i], db.slice( Number(i) +1 ) ).then( x => r = x );
+        R = [ ...R, ...r ];
+    }
+
+    return R;
+
+}

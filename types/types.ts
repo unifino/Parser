@@ -6,6 +6,7 @@ export type newDB = {
 }[];
 
 export type db_item = {
+    w?:string[],
     0?: string,
     9?: string,
     a: string,

@@ -26,7 +26,8 @@
             "node_modules"
         ],
         "watch": [
-            "."
+            "**/*.ts",
+            "tools/R.js"
         ],
         "exec": "npm start",
         "ext": "ts,htm"

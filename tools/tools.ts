@@ -1,72 +1,7 @@
 import * as TS                          from "../types/types";
 import * as basic_tools                 from "./basic_tools";
 import * as storage                     from "./storage";
-
-
-// .. ====================================================================
-
-export function timer (
-    length: number,
-    i: number,
-    startTime: number,
-    title: string = "     Timer    ",
-    version: string = "1.0.4",
-    quality: number = null,
-    dupC: number = null
-) {
-
-    let passedTime, ets,
-        p_H, p_M, p_S, p_M_r, p_S_r,
-        ets_H, ets_M, ets_S, ets_M_r, ets_S_r,
-        dialog: string = "";
-
-    notify( title );
-
-    passedTime = ( new Date().getTime() - startTime ) / 1000;
-
-    p_H = ( passedTime/3600 )|0;
-    p_M = ( passedTime/60 )|0;
-    p_S = ( passedTime )|0;
-    p_M_r = ( ( passedTime - p_H*3600 ) /60 ) |0;
-    p_S_r = ( ( passedTime - ( (p_H*3600) + (p_M_r*60) ) ) ) | 0;
-
-    ets = ( length * passedTime / i ) - passedTime;
-    ets_H = ( ets/3600 )|0;
-    ets_M = ( ets/60 )|0;
-    ets_S = ( ets )|0;
-    ets_M_r = ( ( ets - ets_H*3600 ) /60 ) |0;
-    ets_S_r = ( ( ets - ( (ets_H*3600) + (ets_M_r*60) ) ) ) | 0;
-    dialog = ( (i/length ) *100 ).toFixed(2) + "%";
-    if ( quality !== null ) dialog += " | QC: " + quality;
-    if ( dupC !== null ) dialog += " | F: " + dupC;
-    dialog += " | T: " + p_H + "°: " + p_M_r + "': " + p_S_r;
-    dialog += " | ETS: " + ets_H + "°: " + ets_M_r + "': " + ets_S_r + "\"";
-    console.log( dialog );
-
-}
-
-// .. ====================================================================
-
-export function notify ( title = " Server Script", end?: boolean ) {
-
-    let pad = "        ",
-        msg = "";
-
-
-    if ( end ) {
-        console.log( "" );
-        console.timeEnd( "App Clock" );
-        msg = "\n##########################################\n";
-    }
-    else { 
-        console.clear();
-        msg += "##### " + pad + title + pad + " #####";
-        msg += '\n';
-    }
-
-    console.log(msg);
-
-}
+import * as report                      from "./logger"
 
 // .. ====================================================================
 
@@ -119,11 +54,12 @@ export function R_old ( newDB: TS.db, reference: TS.db, detour: boolean ) {
 
     let R: TS.R[] = [],
         title = " Mutual R Calc.",
-        start_time = new Date().getTime();
+        time = new Date().getTime();
 
-    for ( let i=0; i<newDB.length; i++ ) {
+        report.notify( "Mutual R Calc." );
+        for ( let i=0; i<newDB.length; i++ ) {
 
-        timer( newDB.length, i, start_time, title );
+        report.timer( i, newDB.length, time, 16 );
 
         // .. detour mode just for same : db-db mode
         if ( detour )
@@ -231,14 +167,15 @@ export function R_optimizer ( data: TS.R[], min: number ) {
 
 export function R2Bound ( R: TS.R[], ref_db_length: number ) {
 
-    let sTime = new Date().getTime(),
+    let time = new Date().getTime(),
         boundBox: TS.boundBox = [],
         boundLine: TS.boundLine,
         a: number,
         b: number;
 
+    report.notify( "R => Bound" );
     for ( let i=0; i<ref_db_length; i++ ) {
-        if ( !(i%100) ) timer( ref_db_length, i, sTime, "    R2Bound   " );
+        if ( !(i%100) ) report.timer( i, ref_db_length, time, 3 );
         boundLine = [];
         for ( let j=0; j<R.length; j++ ) {
             a = R[j][0];
@@ -356,12 +293,13 @@ function simpleClusterPeptics ( other: TS.ClusterBox ) {
 
     let oneCluster: TS.Cluster = [],
         clusterBox: TS.ClusterBox = [],
-        startTime = new Date().getTime(),
+        time = new Date().getTime(),
         c = 0,
         total = other.length;
 
+    report.notify( "Simple Cluster Peptic" );
     for ( oneCluster of other ) {
-        timer( total, c, startTime, "clusterPeptic-" );
+        report.timer( c, total, time, 3 );
         oneCluster = [ ...new Set( oneCluster ) ];
         clusterBox.push( oneCluster );
         c++;
@@ -376,15 +314,16 @@ function simpleClusterPeptics ( other: TS.ClusterBox ) {
 export function aggressiveClusterPeptics ( m_1: TS.ClusterBox, R: TS.R[] ) {
 
     let clusterBox: TS.ClusterBox = [],
-        startTime = new Date().getTime();
+        time = new Date().getTime();
 
     // .. unify multiDB
     let uni = []
     for ( let r of m_1 ) uni = [ ...uni, ...r  ];
     uni = [ ...new Set(uni) ];
-
+    
+    report.notify( "Advance Cluster Peptic" );
     for ( let i in uni ) {
-        timer( uni.length, Number(i), startTime, "clusterPeptic+" );
+        report.timer( Number(i), uni.length, time, 3 );
         clusterBox.push( cluster( uni[i], R ) );
     }
 
@@ -787,8 +726,8 @@ export function dbCleaner ( db: TS.db ) {
 // .. ====================================================================
 
 async function trap ( msg: string ) {
-    notify( msg );
-    notify( null, true );
+    report.notify( msg );
+    report.notify( null, true );
     await new Promise( () => {} );
 }
 

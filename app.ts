@@ -1,5 +1,6 @@
 import * as __                          from "./tools/__";
-import * as server001                   from "./server/الكافي";
+import * as report                      from "./tools/logger"
+import * as server_الكافي                  from "./server/الكافي";
 import * as server002                   from "./server/server_002";
 import * as server003                   from "./server/server_003";
 import * as finder                      from "./tmp/finder";
@@ -8,35 +9,16 @@ import * as storage                     from "./tools/storage";
 import * as tools                       from "./tools/tools";
 import * as fs                          from "fs";
 import * as TS                          from "./types/types";
-
-// .. ====================================================================
-
-let tmpFolder = "db/tmp/";
-
-// .. ====================================================================
-
-console.clear();
+import * as WS                          from "worker_threads";
 
 // .. ====================================================================
 
 async function run () {
-    console.log("hatef");
+    await server_الكافي.ignite( "Scratch", 1 );
+
+    // setInterval( () => process.stdout.write(`\rhatef: ${new Date().getTime()}\r` ), 1000)
+    // setInterval( () => process.stdout.write(`clock?: ${new Date()}` ), 1000);
 }
-
-// .. ====================================================================
-
-// .. major init function
-( async function self_ignite () {
-    // .. create title
-    tools.notify();
-    // .. capture time
-    console.time( "App Clock" );
-    // .. actual steps goes here:
-    await run();
-    // .. end of the application
-    tools.notify( null, true );
-    // .. done.
-} )();
 
 // .. ====================================================================
 
@@ -136,5 +118,23 @@ async function run () {
 // _dbdb_();
 
 // finder.init();
+
+// .. ====================================================================
+
+// .. major init function
+( async function self_ignite () {
+    // .. reset terminal
+    console.clear();
+    // .. create title
+    report.notify();
+    // .. actual steps goes here:
+    await run();
+    // .. wait a bit
+    await new Promise( _ => setTimeout( _, 700 ) );
+    // .. end of the application
+    report.notify( null, true );
+    report.clock();
+    // .. done.
+} )();
 
 // .. ====================================================================

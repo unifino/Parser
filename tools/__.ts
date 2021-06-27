@@ -1,4 +1,5 @@
 import * as tools                       from "./tools";
+import * as report                      from "./logger"
 import * as TS                          from "../types/types";
 import * as storage                     from "./storage";
 import * as basic_tools                 from "./basic_tools";
@@ -194,28 +195,6 @@ export function set_trimmer ( str: string ) {
     if ( a !== b ) console.log( "Unexpected ID Format: ", a, b, str );
 
     return str;
-
-}
-
-// .. ====================================================================
-
-export async function _R_ ( db: TS.db, tmpFolder: string ) {
-
-    let R: TS.R[] = [],
-        r: TS.R[],
-        start_time = new Date().getTime(),
-        title = " R Calc " + db.length;
-
-    // .. [addTmpProps]
-    tools.addTmpProps( db );
-
-    for ( let i in db ) {
-        tools.timer( db.length, Number(i), start_time, title );
-        await tools.R( db[i], db.slice( Number(i) +1 ) ).then( x => r = x );
-        R = [ ...R, ...r ];
-    }
-
-    storage.saveData( R, tmpFolder, "RR", true );
 
 }
 

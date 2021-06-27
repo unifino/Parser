@@ -1,51 +1,54 @@
 import * as tools                       from "../tools/tools";
+import * as report                      from "../tools/logger"
 import * as __                          from "../tools/__";
 import * as TS                          from "../types/types";
 import * as storage                     from "../tools/storage";
 import * as basic_tools                 from "../tools/basic_tools";
 import * as fs                          from "fs";
+import * as WS                          from "worker_threads";
 
 // .. ====================================================================
 
 export let name         = "الكافي";
 export let db           : TS.db;
+export let R            : TS.R[];
 
-let tmpFolder           = "db/tmp/" + name + "/";
-let db_Path             = "db/ready/" + name + ".json";
-let db_v1_Path          = tmpFolder + "01.json";
-let db_v1               : TS.db;
-let R_Path              = tmpFolder + "RR.json";
-let R                   : TS.R[];
-let R__                 : TS.R[];
+let tmpFolder           = "tmp/" + name + "/";
+let db_Path             = "db/" + name + ".json";
+let v1_Path             = tmpFolder + "/" + name + "-01.json";
+let R_Path              = tmpFolder + "/" + name + "-R.json";
+let v1                  : TS.db;
 
 resource_update ();
 
 // .. ====================================================================
 
-async function ignite ( mode: "Scratch"|"Cached", n_pad: number ) {
+export async function ignite ( mode: "Scratch"|"Cached", n_pad: number ) {
     // .. init server
     await init( mode );
     // .. update resources
     resource_update ();
     // .. N allocation
-    n_pad = tools.n_allocation( db_v1, n_pad );
-    // .. search for optimizing
-    __._db_( R__, db_v1, tmpFolder );
-    // .. check optimized info
-    await tools._db_chcek_( tmpFolder, db_v1 );
-    // .. create and save DBs
-    db_exporter();
-    // .. clean the tmpFolder
-    __.janitor( tmpFolder );
-    // .. N-PAD report
-    return n_pad -1;
+    n_pad = tools.n_allocation( v1, n_pad );
+    // .. R allocation
+    await dedicated_R();
+    // // .. search for optimizing
+    // __._db_( R, v1, tmpFolder );
+    // // .. check optimized info
+    // await tools._db_chcek_( tmpFolder, v1 );
+    // // .. create and save DBs
+    // db_exporter();
+    // // .. clean the tmpFolder
+    // __.janitor( tmpFolder );
+    // // .. N-PAD report
+    // return n_pad -1;
 }
 
 // .. ====================================================================
 
 async function init ( mode: "Scratch"|"Cached" ) {
 
-    tools.notify( "     " + name + "   " );
+    report.notify( name );
 
     let db: TS.db = [];
 
@@ -55,7 +58,7 @@ async function init ( mode: "Scratch"|"Cached" ) {
     db = a_0_9( db );
 
     // .. write-down DB
-    storage.saveData( db, tmpFolder, "01" );
+    storage.saveData( db, tmpFolder, name + "-01" );
 
 }
 
@@ -64,7 +67,7 @@ async function init ( mode: "Scratch"|"Cached" ) {
 function load_db_v0 ( mode: "Scratch"|"Cached" ) {
 
     let db_v0: TS.db,
-        _00_Path = tmpFolder + "00.json";
+        _00_Path = tmpFolder + "/" + name + "-00.json";
 
     if ( mode === "Cached" ) {
         db_v0 = JSON.parse( fs.readFileSync( _00_Path, 'utf8' ) );
@@ -81,7 +84,7 @@ function load_db_v0 ( mode: "Scratch"|"Cached" ) {
             set_v2: string[] = [];
 
         // .. convert all sourceText => set v1
-        for ( let i=1; i<=15; i ++ ) {
+        for ( let i=1; i<=1; i ++ ) {
             textBook = readSrcBook(i);
             textBook = __.some_edits( textBook );
             book_v0 = getBook_v0( textBook );
@@ -90,7 +93,7 @@ function load_db_v0 ( mode: "Scratch"|"Cached" ) {
         }
 
         // .. notify up to this step
-        tools.notify( " Books Loaded!" );
+        report.notify( "Books Loaded!" );
 
         // .. convert set v1 to v2 [ string[][]=>string[] ]
         for ( let i in set_v1 ) set_v2 = [ ...set_v2, ...set_v1[i] ];
@@ -102,8 +105,7 @@ function load_db_v0 ( mode: "Scratch"|"Cached" ) {
         db_v0 = hadith_db_generator( set_v2 );
 
         // .. save it in storage
-        storage.saveData( db_v0, tmpFolder, "00" );
-
+        storage.saveData( db_v0, tmpFolder, name + "-00" );
     }
 
     return db_v0;
@@ -114,9 +116,9 @@ function load_db_v0 ( mode: "Scratch"|"Cached" ) {
 
 function readSrcBook ( num: number ): string {
 
-    tools.notify( "  book num: " + num + ( num > 9 ? "" : " ") );
+    report.notify( "book " + num + "/" + 15 );
 
-    let filePath = "db/source/" + name + "/" + num + ".htm";
+    let filePath = "source/" + name + "/" + num + ".htm";
     // .. check
     fs.accessSync( filePath, fs.constants.R_OK );
     // .. get source
@@ -379,7 +381,7 @@ function hadith_db_generator ( book: string[] ) {
             hadith = {} as any;
             hadith.a = " ^" + p.slice( cdn[0].length );
             let dp = cdn[0].split( "/" );
-            hadith.d = dp[0];
+            hadith.d = Number( dp[0] ).toString();
             hadith.idInSection = Number( dp[1] );
         }
         // .. error report
@@ -412,7 +414,7 @@ function a_0_9 ( db: TS.db ) {
 
         // .. Skip Mode!
         if ( cdnBOX.includes( Number( p.d ) ) ) {
-            let patchFilePath = "db/source/" + name + "/patches.json";
+            let patchFilePath = "source/" + name + "/patches.json";
             let patches = JSON.parse( fs.readFileSync( patchFilePath, 'utf8' ) );
             p = patches.find( x => x.d === p.d );
             if ( !p ) console.log( "Unexpected ID from Patches: ", p.d );
@@ -706,22 +708,67 @@ function a_0 ( item: TS.db_item ) {
 
 // .. ====================================================================
 
+async function dedicated_R () {
+
+    let R: TS.R[] = [];
+
+    // // .. return cached
+    // if ( fs.existsSync( R_Path ) ) {
+    //     R = JSON.parse( fs.readFileSync( R_Path, 'utf8' ) );
+    //     return R;
+    // }
+
+    function runService(workerData): Promise<TS.R[  ]> {
+
+        return new Promise( (rs, rx) => {
+            const worker = new WS.Worker( './tools/R.js', { workerData } );
+            worker.on( 'message', rs );
+            worker.on( 'error', rx );
+            worker.on( 'exit', code => {
+            if ( code !== 0 )
+                rx( new Error(`Worker stopped with exit code ${code}`) );
+            } )
+        } );
+
+    }
+
+    // ..  do processes synchronously
+    let processes: Promise<TS.R[]>[] = [];
+    for ( let i=0; i<8; i++ ) {
+        processes.push( runService( v1 ) );
+    }
+
+    // .. wait for all processes get Done.
+    await Promise.all( processes ).then( RS => { 
+        for ( let r of RS ) R = [ ...R, ...r ]
+    } );
+
+    // .. wait a bit
+    await new Promise( _ => setTimeout( _, 700 ) );
+    report.cursor( 22, 0 );
+
+    storage.saveData( R, tmpFolder, name + "-R", true );
+
+}
+
+// .. ====================================================================
+
 function db_exporter () {
 
-    db_v1 = tools.relation_definer( tmpFolder, db_v1 );
+    v1 = tools.relation_definer( tmpFolder, v1 );
 
     // .. last trims
-    for ( let p of db_v1 ) {
+    for ( let p of v1 ) {
         try { p[0] = p[0].replace( / +/g, " " ).trim() } catch {}
         try { p[9] = p[9].replace( / +/g, " " ).trim() } catch {}
         try { p.a = p.a.replace( / +/g, " " ).trim() } catch {}
     }
 
     // .. D Publisher
-    for ( let p of db_v1 ) 
+    for ( let p of v1 ) 
         p.d = basic_tools.arabicDigits( name + "، الحديث: " + p.d );
 
-    storage.saveData( db_v1, "db/ready", name );
+    storage.saveData( v1, "db", name );
 
 }
 
@@ -729,10 +776,8 @@ function db_exporter () {
 
 function resource_update () {
     try { fs.mkdirSync( tmpFolder ) } catch {}
-    try { db_v1 = JSON.parse( fs.readFileSync( db_v1_Path, 'utf8' ) ) } catch {}
-    try { db    = JSON.parse( fs.readFileSync( db_Path   , 'utf8' ) ) } catch {}
-    try { R     = JSON.parse( fs.readFileSync( R_Path    , 'utf8' ) ) } catch {}
-    try { R__   = tools.R_optimizer ( R, 67 )                         } catch {}
+    try { v1 = JSON.parse( fs.readFileSync( v1_Path, 'utf8' ) ) } catch {}
+    try { db = JSON.parse( fs.readFileSync( db_Path, 'utf8' ) ) } catch {}
 }
 
 // .. ====================================================================

@@ -84,7 +84,7 @@ function load_db_v0 ( mode: "Scratch"|"Cached" ) {
             set_v2: string[] = [];
 
         // .. convert all sourceText => set v1
-        for ( let i=1; i<=1; i ++ ) {
+        for ( let i=1; i<=5; i ++ ) {
             textBook = readSrcBook(i);
             textBook = __.some_edits( textBook );
             book_v0 = getBook_v0( textBook );
@@ -712,11 +712,11 @@ async function dedicated_R () {
 
     let R: TS.R[] = [];
 
-    // // .. return cached
-    // if ( fs.existsSync( R_Path ) ) {
-    //     R = JSON.parse( fs.readFileSync( R_Path, 'utf8' ) );
-    //     return R;
-    // }
+    // .. return cached
+    if ( fs.existsSync( R_Path ) ) {
+        R = JSON.parse( fs.readFileSync( R_Path, 'utf8' ) );
+        return R;
+    }
 
     function runService(workerData): Promise<TS.R[  ]> {
 
@@ -734,7 +734,7 @@ async function dedicated_R () {
 
     // ..  do processes synchronously
     let processes: Promise<TS.R[]>[] = [];
-    for ( let i=0; i<8; i++ ) {
+    for ( let i=0; i<tools.frag; i++ ) {
         processes.push( runService( v1 ) );
     }
 

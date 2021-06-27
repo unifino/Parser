@@ -15,8 +15,8 @@ let db = workerData;
     // .. [addTmpProps]
     tools.addTmpProps( db );
 
-    let A = db.length*( threadId-1 )/8 | 0;
-    let B = db.length*( threadId )/8 | 0;
+    let A = db.length*( threadId-1 )/tools.frag | 0;
+    let B = db.length*( threadId )/tools.frag | 0;
 
     for ( let i=A; i<B; i++ ) {
         report.timer( i, B-1, time, threadId +4 );

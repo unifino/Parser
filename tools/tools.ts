@@ -2,6 +2,11 @@ import * as TS                          from "../types/types";
 import * as basic_tools                 from "./basic_tools";
 import * as storage                     from "./storage";
 import * as report                      from "./logger"
+import * as OS                          from "os";
+
+// .. ====================================================================
+
+export let frag = OS.cpus().length * 1.67 | 0;
 
 // .. ====================================================================
 

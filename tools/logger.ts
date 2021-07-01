@@ -45,9 +45,8 @@ export function notify ( title?: string, end?: boolean ) {
     process.stdout.write( msg + "\r" );
 
     if ( end ) {
-        title = "   Done   ";
-        x = (46 - title.length)/2|0;
-        cursor( 19, 15 );
+        title = "###############  Done  ##################";
+        cursor( 19, 0 );
     }
 
     else {

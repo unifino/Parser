@@ -2,25 +2,31 @@
     direction: rtl;
     background-color: rgb(243, 25, 25);
     color: aliceblue;
-    border: 1px red dotted;
+    border: 1px rgb(255, 0, 106) dotted;
     padding: 10px;
     margin: 10px;
     font-family: Terafik;
     display: inline-block;
+}
+head,
+style,
+link{
+    display: none;
 }
 .libNormal,
 .libNormal0{
     background-color: rgb(68, 68, 68);
 }
 html{
+    border: none;
     background-color: rgb(68, 68, 68);
-
 }
 body{
     width: 600px;
     margin: auto;
     background-color: rgb(68, 68, 68);
-
+    display: block;
+    border: none;
 }
 
 p {
@@ -36,8 +42,15 @@ span {
     background-color: rgb(21, 120, 201);
     display: none;
 }
+q{
+    background-color: rgb(21, 120, 201);
+}
 
 .libAlaem{
     background-color: rgb(118, 180, 19);
-    display: none;
+    /* display: nones; */
+}
+
+.libBold2 {
+    background-color: rgb(75, 19, 180);
 }

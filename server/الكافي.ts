@@ -6,6 +6,7 @@ import * as storage                     from "../tools/storage";
 import * as basic_tools                 from "../tools/basic_tools";
 import * as fs                          from "fs";
 import * as WS                          from "worker_threads";
+import * as cheerio                     from 'cheerio';
 
 // .. ====================================================================
 
@@ -18,7 +19,6 @@ let db_Path             = "db/" + name + ".json";
 let v1_Path             = tmpFolder + "/" + name + "-01.json";
 let R_Path              = tmpFolder + "/" + name + "-R.json";
 let v1                  : TS.db;
-import * as cheerio                     from 'cheerio';
 
 resource_update ();
 
@@ -34,8 +34,6 @@ export async function ignite ( mode: "Scratch"|"Cached", n_pad: number ) {
     db = load_db_v0( mode );
     // .. divider
     db = mine ( db );
-    storage.saveData( db, tmpFolder, name + "-00" );
-
     // // .. main dividers
     // db = a_0_9( db );
     // // .. write-down DB
@@ -70,78 +68,46 @@ function mine ( db: TS.db ) {
 
 function load_db_v0 ( mode: "Scratch"|"Cached" ) {
 
-    let db_v0: TS.db,
-        _00_Path = tmpFolder + "/" + name + "-00.json";
+    let db_v0: TS.db = [];
+    let db_v0_Path = tmpFolder + "/" + name + "-00.json";
 
     if ( mode === "Cached" ) {
-        db_v0 = JSON.parse( fs.readFileSync( _00_Path, 'utf8' ) );
+        db_v0 = JSON.parse( fs.readFileSync( db_v0_Path, 'utf8' ) );
     }
 
     if ( mode === "Scratch" ) {
 
-        fs.rmSync( _00_Path, { force: true } );
+        fs.rmSync( db_v0_Path, { force: true } );
 
-        let textBook: string,
-            book: string[][],
-            BOOK: string[] = [];
+        let textBook: string = "";
+        let tmp_db = [];
 
-
-        // .. convert all sourceText => set v1
+        // .. merge Books as Source
         for ( let i=1; i<=1; i ++ ) {
             textBook = readSrcBook(i);
-            // textBook = pureText( textBook );
+            // ..  do some edits
             textBook = __.some_edits( textBook );
-            // book = getBook( textBook );
-            // book = essentialBook( book );
-            // for ( let p of book ) BOOK = [ ...BOOK, ...p ];
+            // .. remove unwanted parted => neat
+            let neatBook = getNeatBook( textBook );
+            // .. build first db => rawDB
+            let raw_db = getRawDB( neatBook );
+            // .. provide a preview for checking
+            preview( raw_db );
+            // .. build main db
+            tmp_db = hadith_db_generator( raw_db );
+            // .. scatter 0-a-9
+            tmp_db = a_0_9( tmp_db );
+            // .. assign c code
+            tmp_db = c_allocator( tmp_db );
+            // .. sum up Books
+            db_v0 = [ ...db_v0, ...tmp_db ];
         }
-        let tag = "<!DOCTYPE html><html><head>"+
-        '<link rel="stylesheet" type="text/css" href="main.css" />'+
-        "</head><body>";
-        let $ = cheerio.load(textBook);
-        $( ".libFootnote0").remove();
-        $( ".libFootnotenum").remove();
-        $( ".libFootnoteAlaem").remove();
-        $( ".libLine").remove();
-        $( ".Heading1Center").remove();
-        $( ".Heading2Center").remove();
-        $( ".libCenter").remove();
-        $( ".libBold1").remove();
-        $( "table").remove();
-        $( "a").remove();
+        // .. notify up to this step
+        report.notify( "Books Loaded!" );
+        console.log( db_v0.length );
 
-        textBook = "";
-        for ( let p of $( "p" ) ) {
-            if ( $(p).text() ) textBook += $(p);
-        }
-        textBook = textBook.replace( /<p><\/p>/g, "" );
-        textBook = textBook.replace( /<p class="libNormal"><\/p>/g, "" );
-        textBook = textBook.replace( /<p class="libNormal0"><\/p>/g, "" );
-        textBook = textBook.replace( /<span class="libAlaem">\(<\/span>/g, "" );
-        textBook = textBook.replace( /<span class="libAlaem">\)<\/span>/g, "" );
-        textBook = textBook.replace( /<br clear="all">/g, "" );
-        textBook = textBook.replace( /<span/g, " <span" );
-        textBook = textBook.replace( /<\/span>/g, " <\/span> " );
-
-        let db = [];
-        for ( let p of textBook.split( "</p>" ) ) {
-            db.push( cheerio.load(p).text().replace( /\n/g, " " ).replace( / +/g, " " ) )
-        }
-        // textBook = cheerio.load(textBook).text( );
-        // fs.writeFileSync( "tmp/test.html", tag + textBook );
-        storage.saveData( db, tmpFolder, name + "-000" );
-
-        // هذَا آخِرُ كِتَابِ
-        // تَمَّ كِتَابُ
-        // تَمَّ الْمُجَلَّدُ
-        // // .. notify up to this step
-        // report.notify( "Books Loaded!" );
-
-        // // .. generate basic DB
-        // db_v0 = hadith_db_generator( BOOK );
-
-        // .. save it in storage
-        // storage.saveData( db_v0, tmpFolder, name + "-00" );
+        // .. save it
+        storage.saveData( db_v0, tmpFolder, name + "-00" );
 
     }
 
@@ -172,144 +138,28 @@ function readSrcBook ( num: number ): string {
 
 // .. ====================================================================
 
-function pureText ( txt: string ) {
+function removeAlaemTags ( text: string ) {
 
-    // .. remove arabic numbers:
-    txt = basic_tools.removeArabicDigits( txt );
-    // .. remove break-Lines
-    txt = txt.replace( /\n/g, " " );
-    // .. add break-Line
-    txt = txt.replace( /<p/g, "\n<p" );
-    txt = txt.replace( /<a/g, "\n<a" );
-    txt = txt.replace( /<t/g, "\n<t" );
-    txt = txt.replace( /<\/t/g, "\n</t" );
-    // .. remove tables
-    txt = txt.replace( /<.?t(.*?)>/g, " " );
-    // .. remove footnote marks
-    let regx = /<span class=libFootnotenum>(.*?)<\/span>/g;
-    txt = txt.replace( regx, " " );
-    // .. some trims
-    txt = txt.replace( /<br clear=all>/g, " " );
-    txt = txt.replace( /<br>/g, " " );
-    txt = txt.replace( /<\/?b>/g, " " );
-    txt = txt.replace( /&nbsp;/g, " " );
-    txt = txt.replace( /&quot;/g, "\"" );
-    txt = txt.replace( /<p class='MsoNormal'>/g, " " );
-    txt = txt.replace( /<p><\/p>/g, " " );
-    txt = txt.replace( /<p> +<\/p>/g, " " );
+    text = text.replace( /libNormal0/g, "libNormal" );
+    // text = text.replace( / ?class="libNormal" ?/g, "" );
+    text = text.replace( /<p class="libNormal"><\/p>/g, "" );
+    text = text.replace( /<p><\/p>/g, "" );
+    text = text.replace( /<br clear="all">/g, "" );
 
-    txt = txt.replace( / +/g, " " );
-    // .. some edits
-    txt = txt.replace( /<p>/g, "<p class=libNormal>" );
-    txt = txt.replace( /<p class=libFootnote>__________________<\/p>/g, "<p class=libLine></p>" );
-    txt = txt.replace( /<p class=libNormal><\/p>/g, "" );
-
-    return txt;
-
-}
-
-// .. ====================================================================
-
-function getBook ( source: string ): string[][] {
-
-    let book: string[][] = [],
-        tmpPage: string[] = [],
-        lines = source.split( "\n" );
-
-    // ..  do some trims
-    for ( let i in lines ) lines[i] = lines[i].trim();
-
-    // .. do the Action f
-    for ( let line of lines.filter( x => x ) ) {
-
-        if ( line.startsWith( "<a name=" ) && line.endsWith( "</a>" ) ) {
-            // .. add Page to the Book
-            book.push( tmpPage );
-            // .. get a new Page
-            tmpPage = [];
-        }
-        // .. add to the Page
-        else if ( line.startsWith( "<p" ) && line.endsWith( "</p>" ) )
-            tmpPage.push( line );
-        // .. report error
-        else console.warn( "\n", line );
-
-    }
-    // .. add last page
-    if ( tmpPage.length ) book.push( tmpPage );
-
-    // .. return it back
-    return book.filter( x => x.length );
-
-}
-
-// .. ====================================================================
-
-function essentialBook ( book: string[][] ) {
-
-    // .. remove FootNote Sections
-    for ( let i=0; i<book.length; i++ ) {
-
-        let page = book[i];
-        let hr_ID = -1;
-        let hr: RegExpMatchArray;
-        let HR = "<p class=libLine>";
-
-        [ hr, page ] = __.hrCtr( page, HR );
-
-        // .. page has multiple divide lines!
-        if ( hr.length > 1 ) console.log( "Unexpected Page: ", page );
-        // .. divide page by the LineID
-        else if ( hr.length === 1 ) {
-            hr_ID = page.findIndex( x => x.startsWith(HR) );
-            // .. just Upper-Part of Pages remains!
-            if ( ~hr_ID ) book[i] = page.filter( (x,i) => i < hr_ID );
-            else console.log( "Unexpected HR Location: ", page );
-        }
-        // .. do nothing
-        else {}
-
-        book[i] = removeAlaemTags( book[i] );
-        book[i] = removeUnimportantLines( book[i] );
-
-    }
-
-    book = book.filter( p => p.length );
-
-    return book;
-
-}
-
-// .. ====================================================================
-
-function removeAlaemTags ( page: string[] ) {
-
-    for ( let j=0; j<page.length; j++ ) {
-        page[j] = removeAlaemTags_Assistant( page[j] );
-    }
-
-    return page;
-
-}
-
-// .. ====================================================================
-
-function removeAlaemTags_Assistant ( text: string ) {
-
-    text = text.replace( /<span class=libAlaem>عزوجل<\/span>/g, " عزوجل " );
-    text = text.replace( /<span class=libAlaem>رحمه‌الله<\/span>/g, " رحمه‌الله " );
-    text = text.replace( /<span class=libAlaem>رحمهم‌الله<\/span>/g, " رحمهم‌الله " );
-    text = text.replace( /<span class=libAlaem>عليه‌السلام<\/span>/g, " عليه‌السلام " );
-    text = text.replace( /<span class=libAlaem>عليها‌السلام<\/span>/g, " عليها‌السلام " );
-    text = text.replace( /<span class=libAlaem>عليهم‌السلام<\/span>/g, " عليهم‌السلام " );
-    text = text.replace( /<span class=libAlaem>عليه‌السلام\(<\/span>/g, " عليه‌السلام " );
-    text = text.replace( /<span class=libAlaem>عليهما‌السلام<\/span>/g, " عليهما‌السلام " );
-    text = text.replace( /<span class=libAlaem>رضي‌الله‌عنه<\/span>/g, " رضي‌الله‌عنه " );
-    text = text.replace( /<span class=libAlaem>عليها‌السلام\(<\/span>/g, " عليها‌السلام " );
-    text = text.replace( /<span class=libAlaem>صلى‌الله‌عليه‌وآله<\/span>/g, " صلى‌الله‌عليه‌وآله‌وسلم " );
-    text = text.replace( /<span class=libAlaem>صلى‌الله‌عليه‌وآله‌<\/span>/g, " صلى‌الله‌عليه‌وآله‌وسلم " );
-    text = text.replace( /<span class=libAlaem>صلى‌الله‌عليه‌وآله\(<\/span>/g, " صلى‌الله‌عليه‌وآله‌وسلم " );
-    text = text.replace( /<span class=libAlaem>صلى‌الله‌عليه‌وآله‌وسلم<\/span>/g, " صلى‌الله‌عليه‌وآله‌وسلم " );
+    text = text.replace( /<span class="libAlaem"> ?عزوجل ?<\/span>/g, " عزوجل " );
+    text = text.replace( /<span class="libAlaem"> ?رحمه‌الله ?<\/span>/g, " رحمه‌الله " );
+    text = text.replace( /<span class="libAlaem"> ?رحمهم‌الله ?<\/span>/g, " رحمهم‌الله " );
+    text = text.replace( /<span class="libAlaem"> ?عليه‌السلام ?<\/span>/g, " عليه‌السلام " );
+    text = text.replace( /<span class="libAlaem"> ?عليها‌السلام ?<\/span>/g, " عليها‌السلام " );
+    text = text.replace( /<span class="libAlaem"> ?عليهم‌السلام ?<\/span>/g, " عليهم‌السلام " );
+    text = text.replace( /<span class="libAlaem"> ?عليه‌السلام\( ?<\/span>/g, " عليه‌السلام " );
+    text = text.replace( /<span class="libAlaem"> ?عليهما‌السلام ?<\/span>/g, " عليهما‌السلام " );
+    text = text.replace( /<span class="libAlaem"> ?رضي‌الله‌عنه ?<\/span>/g, " رضي‌الله‌عنه " );
+    text = text.replace( /<span class="libAlaem"> ?عليها‌السلام\( ?<\/span>/g, " عليها‌السلام " );
+    text = text.replace( /<span class="libAlaem"> ?صلى‌الله‌عليه‌وآله ?<\/span>/g, " صلى‌الله‌عليه‌وآله‌وسلم " );
+    text = text.replace( /<span class="libAlaem"> ?صلى‌الله‌عليه‌وآله‌ ?<\/span>/g, " صلى‌الله‌عليه‌وآله‌وسلم " );
+    text = text.replace( /<span class="libAlaem"> ?صلى‌الله‌عليه‌وآله\( ?<\/span>/g, " صلى‌الله‌عليه‌وآله‌وسلم " );
+    text = text.replace( /<span class="libAlaem"> ?صلى‌الله‌عليه‌وآله‌وسلم ?<\/span>/g, " صلى‌الله‌عليه‌وآله‌وسلم " );
 
     text = text.replace( /- صَلَوَاتُ اللهِ عَلَيْهَا -/g, " عليها‌السلام " );
     text = text.replace( /- صَلَوَاتُ الله عَليْهَا -/g, " عليها‌السلام " );
@@ -334,44 +184,19 @@ function removeAlaemTags_Assistant ( text: string ) {
     text = text.replace( /أَبِي عَبْدِ اللهِ صلى‌الله‌عليه‌وآله‌وسلم/g, " أَبِي عَبْدِ اللهِ عليه‌السلام " );
     text = text.replace( /أَبَا عَبْدِ اللهِ صلى‌الله‌عليه‌وآله‌وسلم/g, " أَبَا عَبْدِ اللهِ عليه‌السلام " );
 
-    text = text.replace( /<span class=libAlaem>\(<\/span>/g, "" );
-    text = text.replace( /<span class=libAlaem>\)<\/span>/g, "" );
+    text = text.replace( /<span class="libAlaem">\( ?<\/span>/g, "" );
+    text = text.replace( /<span class="libAlaem">\) ?<\/span>/g, "" );
 
     // .. replace libAie with native Q tag
-    let q = ( text.match( /<span class=libAie>(.*?)<\/span>/g ) || [] );
+    let q = ( text.match( /<span class="libAie">(.*?)<\/span>/g ) || [] );
     for ( let c of q ) {
         let r = c;
-        r = r.replace( "<span class=libAie>", " #Q# " );
-        r = r.replace( "<\/span>", " #/Q# " );
+        r = r.replace( "<span class=\"libAie\">", " |Q| " );
+        r = r.replace( "<\/span>", " |/Q| " );
         text = text.replace( c, r );
     }
 
-    // .. remove some Tags
-    text = text.replace( /<p class=libNormal>/g, " " );
-    text = text.replace( /<p class=libNormal0>/g, " " );
-    text = text.replace( /<p class=libPoem>/g, " " );
-    text = text.replace( /<p class=libCenter>/g, " " );
-    text = text.replace( /<p class=libCenterBold1>/g, " " );
-    text = text.replace( /<p class=libBold1>/g, " " );
-    text = text.replace( /<\/p>/g, " " );
-    text = text.replace( /<span class=libAlaem>/g, " " );
-    text = text.replace( /<span class=libNormal0>/g, " " );
-    text = text.replace( /<span class=libNormal>/g, " " );
-    text = text.replace( /<span class=libBold2>/g, " " );
-    text = text.replace( /<span class=libFootnoteBold>/g, " " );
-    text = text.replace( /<span class=libFootnoteAlaem>/g, " " );
-    text = text.replace( /<span class=libFootnoteAie>/g, " " );
-    text = text.replace( /<span class=libPoemTiniChar0>/g, " " );
-    text = text.replace( /<\/span>/g, " " );
-    // .. some fine trims
-    text = text.replace( /<span class=libFootnote0>/g, " " );
-    text = text.replace( /<p class=libBold2>/g, " " );
-    text = text.replace( /<p class=libFootnote0>/g, " " );
-
-    // .. trim
-    text = text.replace( /\.\.\.\.\.+/g, "....." );
-    text = text.replace( /\.\.\.\.\./g, " " );
-    text = text.replace( /\[\.\.\.\]/g, " " );
+    text = text.replace( /\n+/g, " " );
     text = text.replace( / +/g, " " );
     text = text.trim();
 
@@ -381,40 +206,91 @@ function removeAlaemTags_Assistant ( text: string ) {
 
 // .. ====================================================================
 
-function removeUnimportantLines ( page: string[] ) {
-    page = page.filter( x => { 
-        if ( x.replace( /(<([^>]+)>)/ig, '' ).trim().length < 2 ) return false;
-        if ( x === "<p class=libFootnote>" ) return false;
-        if ( x.startsWith( "<p class=libCenterBold2>" ) ) return false;
-        if ( x.startsWith( "<p class=Heading1Center>" ) ) return false;
-        if ( x.startsWith( "<p class=Heading2Center>" ) ) return false;
-        // ! double check
-        if ( x.startsWith( "<p class=libCenterBold1" ) ) return false;
+function getNeatBook ( text: string ) {
 
-        return true;
-    } );
-    return page;
+    let $: cheerio.CheerioAPI = cheerio.load( text );
+
+    $( ".libFootnote0" ).remove();
+    $( ".libFootnotenum" ).remove();
+    $( ".libFootnoteAlaem" ).remove();
+    $( ".libLine" ).remove();
+    $( ".Heading1Center" ).remove();
+    $( ".Heading2Center" ).remove();
+    $( ".libCenter" ).remove();
+    $( ".libBold1" ).remove();
+    $( "table" ).remove();
+    $( "a" ).remove();
+
+    // .. reset var
+    text = "";
+    for( let p of $("p") ) text += $(p);
+
+    text = removeAlaemTags( text );
+    text = basic_tools.latinDigits( text );
+
+    return text;
+
 }
 
 // .. ====================================================================
 
-function hadith_db_generator ( book: string[] ) {
+function getRawDB ( text: string ) {
 
-    let newBook: TS.db = [],
+    let db: string[] = [];
+
+    // .. build DB: based on <P>
+    for ( let p of text.split( "</p>" ) ) {
+        // .. remove number span tags
+        let match = p.match( /<span class="libBold2">(.*?)<\/span>/ ) || [];
+        let rgx = new RegExp( match[0], "g" );
+        if ( match.length ) p = p.replace( rgx, match[1] );
+        // .. register in DB
+        db.push(p);
+    }
+
+    return db;
+
+}
+
+// .. ====================================================================
+
+function preview ( db: string[] ) {
+
+    let header = "<!DOCTYPE html><html><head>"+
+        '<link rel="stylesheet" type="text/css" href="main.css" />'+
+        "</head><body>";
+
+    fs.writeFileSync( 
+        "tmp/preview.html", 
+        header + 
+        db.join( "</p>" )
+            .replace( /<p/g, "\n<p" ) 
+            .replace( /\|Q\|/g, "<Q>" ) 
+            .replace( /\|\/Q\|/g, "</Q>" ) 
+    );
+
+}
+
+// .. ====================================================================
+
+function hadith_db_generator ( raw_db: string[] ) {
+
+    let db: TS.db = [],
         hadith: TS.db_item = { w: [] } as any;
 
-    for ( let p of book ) {
+    for ( let p of raw_db ) {
 
         let cdn = p.match( /[0-9]+ ?\/ ?[0-9]+ ?\.? / ) || [];
-        // .. just append line
-        if ( cdn.length === 0 ) hadith.w.push(p);
+        // .. append this line
+        if ( cdn.length === 0 ) hadith.w.push( cheerio.load(p).text() );
         // .. beginning of a new Hadith
         else if ( cdn.length === 1 ) {
             // .. add to newBook
-            newBook.push( hadith );
+            db.push( hadith );
             // .. reset the HadithBox
             hadith = { w: [] } as any;
-            hadith.w.push( p.slice( cdn[0].length ) );
+            p = p.slice( cdn.index + cdn[0].length );
+            hadith.w.push( cheerio.load(p).text() );
             let dp = cdn[0].split( "/" );
             hadith.d = Number( dp[0] ).toString();
             hadith.idInSection = Number( dp[1].replace(".","").trim() );
@@ -425,10 +301,14 @@ function hadith_db_generator ( book: string[] ) {
     // .. add ĺast item
     if ( hadith.w.length ) {
         hadith.a = hadith.w.join( " " );
-        newBook.push( hadith )
+        db.push( hadith )
     };
 
-    return newBook;
+    // .. remove first cell
+    db.shift();
+
+    // .. return
+    return db;
 
 }
 
@@ -436,64 +316,25 @@ function hadith_db_generator ( book: string[] ) {
 
 function a_0_9 ( db: TS.db ) {
 
-    let lines: string[],
-        firstLineIndex: number,
-        a_ID: number,
-        z_ID: number;
-        // cdnBOX = [
-        //     121,350,492,649,652,653,777,859,907,999,1307,1316,1367,1876,2314,
-        //     2867,2965,4749,5258,6729,8154,11802,11836,13481,14620,14927,15195,
-        // ];
+    let first_ID: number;
 
     for( let p of db ) {
 
-        lines = p.a.split("^").filter( x => x && x !== " " );
-        firstLineIndex = lines.findIndex( x => x.includes( ":" ) );
-
-        // .. Skip Mode!
-        let patchFilePath = "source/" + name + "/patches.json";
-        let patches = JSON.parse( fs.readFileSync( patchFilePath, 'utf8' ) );
-        let patch = patches.find( x => x.d === p.d );
-        if ( patch ) p = patch;
-        // ! check if all patches applies
-
-        // .. Purge Mode!
-        else if ( !~firstLineIndex ) { p[0] = p.a; p.a = null; }
-
-        // .. Actual Mode
-        else  {
-
-            // .. prepare
-            p[0] = lines.slice( 0, firstLineIndex +1 ).join( " " );
-            p.a = lines.slice( firstLineIndex +1 ).join( " " );
-            // .. patch
-            if ( p.a === "" ) { p.a = p[0]; delete p[0] }
-
-            // .. actual step
-            p = a_0(p);
-
-            // .. in case of : » . * ...
-            z_ID = p.a.lastIndexOf( " . *" );
-            if ( ~z_ID ) p = __.append_9( p, z_ID );
-
-            // .. trim
-            a_ID = p.a.indexOf( "«" );
-            if ( ~a_ID && a_ID < 2 ) p = __.append_0( p, a_ID +1 );
-            a_ID = p.a.indexOf( "«" );
-            z_ID = p.a.indexOf( "»" );
-            // .. in case of : «---»
-            if ( !~a_ID && ~z_ID )
-                if ( z_ID > p.a.length - 4 )
-                    p = __.append_9( p, z_ID );
-
-            p.a = p.a.replace( / ‌/g, " " ).replace( / +/g, " " ).trim();
-
-        }
-
+        first_ID = p.w.findIndex( x => x.endsWith( " : " ) );
+        if ( ~first_ID ) p[0] = p.w.splice( 0, first_ID +1 ).join( " " );
 
     }
 
     return db;
+
+}
+
+// .. ====================================================================
+
+function c_allocator ( db: TS.db ) {
+
+    for( let p of db ) p = a_0(p);
+    return db.filter( x => !x.c );
 
 }
 
@@ -507,6 +348,7 @@ function a_0 ( item: TS.db_item ) {
     cdnBOX = [
 
         // .. includesText
+        { text: "أَبَا عَبْدِ اللهِ عليه‌السلام يَقُولُ : «", c:6, excludesText: false },
         { text: "قُلْتُ لِأَبِي الْحَسَنِ عليه‌السلام :", c:7, excludesText: false },
         { text: "قُلْتُ لِأَبِي عَبْدِ اللهِ عليه‌السلام :", c:6, excludesText: false },
         { text: "قُلْتُ لِأَبِي جَعْفَرٍ عليه‌السلام :", c:5, excludesText: false },
@@ -522,7 +364,6 @@ function a_0 ( item: TS.db_item ) {
         { text: "سَأَلْتُ أَبَا الْحَسَنِ مُوسى عليه‌السلام", c:7, excludesText: false },
         { text: "سَأَلْتُ أَبَا عَبْدِ اللهِ عليه‌السلام", c:6, excludesText: false },
         { text: "سَأَلَ رَجُلٌ أَبَا عَبْدِ اللهِ عليه‌السلام", c:6, excludesText: false },
-        { text: "عَنْ أَبِي الْحَسَنِ مُوسى عليه‌السلام ، قَالَ", c:7, excludesText: false },
         { text: "قُلْتُ لِأَمِيرِ الْمُؤْمِنِينَ عليه‌السلام :", c:1, excludesText: false },
         { text: "سَأَلْتُ أَبَا الْحَسَنِ عليه‌السلام :", c:7, excludesText: false },
         { text: "سَأَلْتُ أَبَا الْحَسَنِ الرِّضَا عليه‌السلام", c:7, excludesText: false },
@@ -531,7 +372,6 @@ function a_0 ( item: TS.db_item ) {
         { text: "قُلْتُ لِأَبِي عَبْدِ اللهِ أَوْ لِأَبِي جَعْفَرٍ عليهما‌السلام :", c:5, excludesText: false },
         { text: "سأل رجل أبا جعفر عليه‌السلام", c:5, excludesText: false },
         { text: "كنت عند أبي عبد الله عليه‌السلام", c:6, excludesText: false },
-        { text: "كان علي بن الحسين عليهما‌السلام", c:4, excludesText: false },
         { text: "قلت لأبي عبد الله عليه‌السلام :", c:6, excludesText: false },
         { text: "دخلت على أبي الحسن الرضا عليه‌السلام", c:8, excludesText: false },
         { text: "سألت علي بن الحسين عليهما‌السلام :", c:4, excludesText: false },
@@ -551,14 +391,9 @@ function a_0 ( item: TS.db_item ) {
         { text: "سَأَلْتُ أَبَا إِبْرَاهِيمَ عليه‌السلام", c:7, excludesText: false },
         { text: "دَخَلْتُ عَلى أَبِي الْحَسَنِ عليه‌السلام ،", c:7, excludesText: false },
         { text: "كَتَبْتُ إِلى أَبِي مُحَمَّدٍ عليه‌السلام", c:11, excludesText: false },
-        { text: "كَانَ لِأَبِي مُحَمَّدٍ عليه‌السلام", c:11, excludesText: false },
         { text: "دَخَلْتُ عَلى أَبِي مُحَمَّدٍ عليه‌السلام", c:11, excludesText: false },
-        { text: "أَنَّ أَبَا مُحَمَّدٍ عليه‌السلام", c:11, excludesText: false },
-        { text: "خَرَجَ عَنْ أَبِي مُحَمَّدٍ عليه‌السلام", c:11, excludesText: false },
         { text: "سَمِعْتُ أَبَا عَبْدِ اللهِ عليه‌السلام يَقُولُ فِي الْإِيلَاءِ :", c:6, excludesText: false },
-        { text: "عَنْ أَبِي جَعْفَرٍ عليه‌السلام فِي الْأَمَةِ :", c:5, excludesText: false },
         { text: "رَأَيْتُ أَبَا عَبْدِ اللهِ عليه‌السلام", c:6, excludesText: false },
-        { text: "كَانَ أَبُو الْحَسَنِ عليه‌السلام", c:7, excludesText: false },
         { text: "قُلْتُ لِأَبِي الْحَسَنِ الرِّضَا عليه‌السلام :", c:8, excludesText: false },
         { text: "قُلْتُ لِأَبِي جَعْفَرٍ الثَّانِي عليه‌السلام :", c:9, excludesText: false },
         { text: "سُئِلَ أَبُو جَعْفَرٍ عليه‌السلام :", c:6, excludesText: false },
@@ -576,6 +411,7 @@ function a_0 ( item: TS.db_item ) {
         { text: "سَأَلْتُ أَبَا جَعْفَرٍ الثَّانِيَ عليه‌السلام :", c:10, excludesText: false },
         { text: "قُلْتُ لِلرِّضَا عليه‌السلام :", c:8, excludesText: false },
         { text: "أَنَّهُ كَتَبَ إِلَيْهِ الرِّضَا عليه‌السلام :", c:8, excludesText: false },
+        { text: "قُلْتُ لِأَبِي إِبْرَاهِيمَ عليه‌السلام :", c:7, excludesText: false },
         { text: "", c:null, excludesText: false },
         { text: "", c:null, excludesText: false },
         { text: "", c:null, excludesText: false },
@@ -583,15 +419,38 @@ function a_0 ( item: TS.db_item ) {
         { text: "", c:null, excludesText: false },
 
         // ! important
-        { text: "قَالَ :", c:null, excludesText: false },
+        // { text: "قَالَ :", c:null, excludesText: false },
 
         // .. excludesText
         { text: "", c:null, excludesText: true },
-        { text: "", c:null, excludesText: true },
-        { text: "", c:null, excludesText: true },
-        { text: "قُلْتُ لِأَبِي إِبْرَاهِيمَ عليه‌السلام :", c:7, excludesText: true },
-        { text: "عَنْ أَبِي الْحَسَنِ عليه‌السلام أَنَّهُ قَالَ :", c:8, excludesText: true },
-        { text: "فَقَالَ أَبُو جَعْفَرٍ :", c:5, excludesText: true },
+        { text: "عَنْ أَبِي عَبْدِ اللهِ عليه‌السلام ، قَالَ : «", c:6, excludesText: true },
+        { text: "أَبِي جَعْفَرٍ عليه‌السلام ، قَالَ : «", c:5, excludesText: true },
+        { text: "قَالَ أَبُو جَعْفَرٍ عليه‌السلام : «", c:5, excludesText: true },
+        { text: "عَنْ أَمِيرِ الْمُؤْمِنِينَ عليه‌السلام ، قَالَ : «", c:1, excludesText: true },
+        { text: "أَنَّ أَمِيرَ الْمُؤْمِنِينَ عليه‌السلام قَالَ : «", c:1, excludesText: true },
+        { text: "عَنْ أَبِي عَبْدِ اللهِ عليه‌السلام ، أَنَّهُ قَالَ : «", c:6, excludesText: true },
+        { text: "عَنْ أَبِي الْحَسَنِ مُوسَى بْنِ جَعْفَرٍ عليهما‌السلام ، قَالَ : «", c:7, excludesText: true },
+        { text: "عَنْ أَبِي عَبْدِ اللهِ عليه‌السلام ، أَنَّهُ قَالَ : «", c:6, excludesText: true },
+        { text: "عَنْ أَبِي عَبْدِ اللهِ عليه‌السلام : «", c:6, excludesText: true },
+        { text: "عَنْ أَبِي عَبْدِ اللهِ عليه‌السلام : قَالَ : «", c:6, excludesText: true },
+        { text: "مِنْ قَوْلِ أَبِي عَبْدِ اللهِ عليه‌السلام : «", c:6, excludesText: true },
+        { text: "قَالَ أَبُو جَعْفَرٍ عليه‌السلام : «", c:5, excludesText: true },
+        { text: "دَخَلَ أَبُو حَنِيفَةَ عَلى أَبِي عَبْدِ اللهِ عليه‌السلام ، فَقَالَ لَهُ : «", c:6, excludesText: true },
+        { text: "عَنْ أَبِي الْحَسَنِ مُوسى عليه‌السلام ، قَالَ :", c:7, excludesText: true },
+        { text: "عَنْ أَبِي عَبْدِ اللهِ عليه‌السلام فِي قَوْلِ اللهِ عزوجل :", c:6, excludesText: true },
+        { text: "عَنْ أَبِي عَبْدِ اللهِ عليه‌السلام ، عَنْ آبَائِهِ عليهم‌السلام ، قَالَ : «", c:6, excludesText: true },
+        { text: "كَانَ أَمِيرُ الْمُؤْمِنِينَ عليه‌السلام يَقُولُ : «", c:1, excludesText: true },
+        { text: "عَنْ أَبِي عَبْدِ اللهِ عليه‌السلام فِي هذِهِ الْآيَةِ :", c:6, excludesText: true },
+        { text: "قَالَ لُقْمَانُ لِابْنِهِ : «", c:123, excludesText: true },
+        { text: "قَالَ أَمِيرُ الْمُؤْمِنِينَ عليه‌السلام : «", c:1, excludesText: true },
+        { text: "عَنْ عَلِيِّ بْنِ الْحُسَيْنِ عليهما‌السلام ، قَالَ : «", c:4, excludesText: true },
+        { text: "عَنْ أَبِي عَبْدِ اللهِ عليه‌السلام ، عَنْ آبَائِهِ عليهم‌السلام ، قَالَ : «", c:6, excludesText: true },
+        { text: "عَنْ أَبِي الْحَسَنِ مُوسى عليه‌السلام ، قَالَ : «", c:7, excludesText: true },
+        { text: "قَالَ أَمِيرُ الْمُؤْمِنِينَ عليه‌السلام : «", c:1, excludesText: true },
+        { text: "قَالَ رَسُولُ اللهِ صلى‌الله‌عليه‌وآله‌وسلم : «", c:13, excludesText: true },
+        { text: "قَالَ أَبُو عَبْدِ اللهِ عليه‌السلام : «", c:6, excludesText: true },
+        { text: "قَالَ أَبُو عَبْدِ اللهِ عليه‌السلام لِحُمْرَانَ بْنِ أَعْيَنَ فِي شَيْ‌ءٍ سَأَلَهُ : «", c:6, excludesText: true },
+        { text: "قَالَ أَمِيرُ المُؤْمِنِينَ عليه‌السلام : «", c:1, excludesText: true },
         { text: "حَدَّثَنِي مُوسَى بْنُ جَعْفَرٍ عليهما‌السلام ، قَالَ :", c:7, excludesText: true },
         { text: "عَنْ أَبِي الْحَسَنِ الرِّضَا عليه‌السلام فِي قَوْلِ اللهِ عزوجل :", c:8, excludesText: true },
         { text: "عَنْ أَبِي جَعْفَرٍ وَأَبِي عَبْدِ اللهِ عليهما‌السلام ، قَالَ :", c:5, excludesText: true },
@@ -603,35 +462,27 @@ function a_0 ( item: TS.db_item ) {
         { text: "عَنْ أَبِي جَعْفَرٍ الثَّانِي عليه‌السلام ، قَالَ عليه‌السلام :", c:10, excludesText: true },
         { text: "دَخَلْتُ عَلى أَبِي عَبْدِ اللهِ عليه‌السلام ، فَقَالَ :", c:6, excludesText: true },
         { text: "سَأَلَ أَبَا عَبْدِ اللهِ عليه‌السلام بَعْضُ أَصْحَابِنَا عَنِ الْجَفْرِ ، فَقَالَ :", c:6, excludesText: true },
-        { text: "دَخَلْتُ عَلى أَبِي عَبْدِ اللهِ عليه‌السلام ،", c:6, excludesText: true },
-        { text: "كُنْتُ عِنْدَ أَبِي عَبْدِ اللهِ عليه‌السلام", c:6, excludesText: true },
         { text: "عَنْ أَبِي الْحَسَنِ صَاحِبِ الْعَسْكَرِ عليه‌السلام ، قَالَ", c:11, excludesText: true },
         { text: "عَنْ أَبِي الْحَسَنِ صَاحِبِ الْعَسْكَرِ عليه‌السلام ، قَالَ : سَمِعْتُهُ يَقُولُ :", c:11, excludesText: true },
         { text: "كُنْتُ عِنْدَ أَبِي عَبْدِ اللهِ عليه‌السلام وَعِنْدَهُ أَبُو بَصِيرٍ ، فَقَالَ أَبُو عَبْدِ اللهِ عليه‌السلام :", c:6, excludesText: true },
         { text: "عَنْ جَعْفَرِ بْنِ مُحَمَّدٍ ، عَنْ أَبِيهِ عليهما‌السلام ، قَالَ :", c:5, excludesText: true },
         { text: "كُنْتُ عِنْدَ أَبِي عَبْدِ اللهِ عليه‌السلام ، فَسَأَلَهُ رَجُلٌ عَنْ قَوْلِ اللهِ عزوجل :", c:6, excludesText: true },
-        { text: "كُنْتُ عِنْدَ أَبِي عَبْدِ اللهِ عليه‌السلام ،", c:6, excludesText: true },
         { text: "تَلَا أَبُو عَبْدِ اللهِ عليه‌السلام هذِهِ الْآيَةَ :", c:6, excludesText: true },
         { text: "قَالَ أَبُو جَعْفَرٍ عليه‌السلام فِي هذِهِ الْآيَةِ :", c:5, excludesText: true },
         { text: "عَنْ أَحَدِهِمَا عليهما‌السلام فِي قَوْلِ اللهِ عزوجل :", c:5, excludesText: true },
         { text: "سَأَلَ الْهَيْثَمُ أَبَا عَبْدِ اللهِ عليه‌السلام - وَأَنَا عِنْدَهُ - عَنْ قَوْلِ اللهِ عزوجل :", c:6, excludesText: true },
         { text: "عَنْ أَبِي الْحَسَنِ عليه‌السلام فِي قَوْلِ اللهِ عزوجل :", c:8, excludesText: true },
         { text: "قَالَ أَبُو عَبْدِ اللهِ عليه‌السلام فِي قَوْلِ اللهِ تَعَالى :", c:6, excludesText: true },
-        { text: "عَنْ أَمِيرِ الْمُؤْمِنِينَ عليه‌السلام ، قَالَ :", c:1, excludesText: true },
         { text: "قَالَ أَبُو عَبْدِ اللهِ عليه‌السلام فِي قَوْلِ اللهِ عزوجل :", c:6, excludesText: true },
-        { text: "أَشْهَدُ أَنِّي سَمِعْتُ أَبَا عَبْدِ اللهِ عليه‌السلام يَقُولُ :", c:6, excludesText: true },
+        { text: "أَشْهَدُ أَنِّي سَمِعْتُ أَبَا عَبْدِ اللهِ عليه‌السلام يَقُولُ : « :", c:6, excludesText: true },
         { text: "قَالَ لِي أَبُو جَعْفَرٍ عليه‌السلام : «", c:5, excludesText: true },
-        { text: "أَنَّ أَمِيرَ الْمُؤْمِنِينَ عليه‌السلام قَالَ :", c:1, excludesText: true },
         { text: "عَنِ الْعَبْدِ الصَّالِحِ عليه‌السلام ، قَالَ :", c:7, excludesText: true },
         { text: "قَالَ لِي أَبُو الْحَسَنِ الرِّضَا عليه‌السلام :", c:8, excludesText: true },
         { text: "قَالَ أَبُو الْحَسَنِ الرِّضَا عليه‌السلام :", c:8, excludesText: true },
         { text: "سَمِعْتُ أَبَا الْحَسَنِ مُوسَى بْنَ جَعْفَرٍ عليهما‌السلام يَقُولُ :", c:7, excludesText: true },
-        { text: "عَنْ أَبِي الْحَسَنِ مُوسَى بْنِ جَعْفَرٍ عليهما‌السلام", c:7, excludesText: true },
         { text: "عَنْ أَبِي إِبْرَاهِيمَ عليه‌السلام أَنَّهُ قَالَ :", c:7, excludesText: true },
         { text: "ذَكَرْتُ لِأَبِي عَبْدِ اللهِ عليه‌السلام قَوْلَنَا فِي الْأَوْصِيَاءِ :", c:6, excludesText: true },
         { text: "حَمَّادُ بْنُ عُثْمَانَ ، عَنْ بَشِيرٍ الْعَطَّارِ ، قَالَ :  سَمِعْتُ أَبَا عَبْدِ اللهِ عليه‌السلام يَقُولُ :", c:6, excludesText: true },
-        { text: "سَمِعْتُ أَبَا عَبْدِ اللهِ عليه‌السلام", c:6, excludesText: true },
-        { text: "عَنْ أَبِي جَعْفَرٍ عليه‌السلام", c:5, excludesText: true },
         { text: "كَتَبَ أَبُو الْحَسَنِ مُوسَى بْنُ جَعْفَرٍ عليهما‌السلام إِلى أَبِي :", c:5, excludesText: true },
         { text: "قَالَ لِي عَلِيُّ بْنُ الْحُسَيْنِ عليهما‌السلام :", c:4, excludesText: true },
         { text: "عَنْ أَبِي عَبْدِ اللهِ ، عَنْ آبَائِهِ عليهم‌السلام ، قَالَ :", c:6, excludesText: true },
@@ -639,14 +490,8 @@ function a_0 ( item: TS.db_item ) {
         { text: "قَالَ لِي أَبُو الْحَسَنِ عليه‌السلام :", c:7, excludesText: true },
         { text: "أَنَّ أَمِيرَ الْمُؤْمِنِينَ عليه‌السلام قَالَ فِي بَعْضِ خُطَبِهِ :", c:1, excludesText: true },
         { text: "رَفَعَهُ إِلى أَبِي عَبْدِ اللهِ عليه‌السلام ، قَالَ :", c:6, excludesText: true },
-        { text: "كَانَ أَمِيرُ الْمُؤْمِنِينَ عليه‌السلام يَقُولُ :", c:1, excludesText: true },
-        { text: "قَالَ لُقْمَانُ لِابْنِهِ :", c:321, excludesText: true },
         { text: "سَمِعْتُ أَبَا الْحَسَنِ مُوسَى بْنَ جَعْفَرٍ عليه‌السلام يَقُولُ :", c:7, excludesText: true },
-        { text: "قَالَ عِيسَى بْنُ مَرْيَمَ عليه‌السلام :", c:963, excludesText: true },
-        { text: "عَنْ عَلِيِّ بْنِ الْحُسَيْنِ عليهما‌السلام ، قَالَ :", c:4, excludesText: true },
-        { text: "قَالَ أَمِيرُ المـُؤْمِنِينَ عليه‌السلام :", c:1, excludesText: true },
         { text: "رَفَعَهُ إِلَى أَبِي عَبْدِ اللهِ عليه‌السلام ، قَالَ :", c:6, excludesText: true },
-        { text: "قَالَ أَمِيرُ الْمُؤْمِنِينَ عليه‌السلام :", c:1, excludesText: true },
         { text: "قَالَ أَبُو الْحَسَنِ الْمَاضِي عليه‌السلام :", c:7, excludesText: true },
         { text: "قَالَ لَنَا أَبُو الْحَسَنِ عليه‌السلام :", c:7, excludesText: true },
         { text: "عَنْ أَخِيهِ مُوسى عليه‌السلام :", c:7, excludesText: true },
@@ -666,7 +511,6 @@ function a_0 ( item: TS.db_item ) {
         { text: "عَنْ أَبِي جَعْفَرٍ عليه‌السلام : أَنَّهُ قَالَ :", c:5, excludesText: true },
         { text: "عَنْ أَبِي جَعْفَرٍ وَأَبِي عَبْدِ اللهِ عليهما‌السلام : أَنَّهُمَا كَانَا يَقُولَانِ :", c:5, excludesText: true },
         { text: "عَنْ أَبِي جَعْفَرٍ وَأَبِي عَبْدِ اللهِ عليهما‌السلام أَنَّهُمَا قَالَا :", c:5, excludesText: true },
-        { text: "عَنْ أَبِي عَبْدِ الله عليه‌السلام :", c:6, excludesText: true },
         { text: "عَنْ أَبِي جَعْفَرٍ عليه‌السلام فِي قَوْلِ اللهِ عزوجل :", c:5, excludesText: true },
         { text: "عَنْ‌أَبِي عَبْدِ اللهِ عليه‌السلام ، قَالَ :", c:6, excludesText: true },
         { text: "عَنْ أَبِي الْحَسَنِ عليه‌السلام ، قَالَ :", c:7, excludesText: true },
@@ -682,8 +526,6 @@ function a_0 ( item: TS.db_item ) {
         { text: "عن أبي عبد الله عليه‌السلام في قول الله تبارك وتعالى :", c:6, excludesText: true },
         { text: "سمعت أبا عبد الله عليه‌السلام ، يقول :", c:6, excludesText: true },
         { text: "سمعت أبا عبد الله عليه‌السلام يقول :", c:6, excludesText: true },
-        { text: "قال أبو عبد الله عليه‌السلام :", c:6, excludesText: true },
-        { text: "عن الرضا عليه‌السلام :", c:8, excludesText: true },
         { text: "سمعت أبا عبد الله عليه‌السلام يقول في هذه الآية :", c:6, excludesText: true },
         { text: "سئل أبو عبد الله عليه‌السلام عن قول الله عزوجل :", c:6, excludesText: true },
         { text: "عن أبي جعفر عليه‌السلام في قول الله عزوجل :", c:5, excludesText: true },
@@ -694,27 +536,17 @@ function a_0 ( item: TS.db_item ) {
         { text: "خطب أمير المؤمنين عليه‌السلام ـ ورواها غيره بغير هذا الإسناد ، وذكر أنه خطب بذي قار ـ فحمد الله وأثنى عليه ، ثم قال :", c:1, excludesText: true },
         { text: "عن علي بن الحسين عليهما‌السلام أنه كان يقول :", c:4, excludesText: true },
         { text: "عن أبي عبد الله عليه‌السلام مثله إلا أنه قال في حديثه :", c:6, excludesText: true },
-        { text: "عن أبي جعفر عليه‌السلام :", c:5, excludesText: true },
         { text: "عن أبي جعفر عليه‌السلام ، قال :", c:5, excludesText: true },
         { text: "قال أبو عبد الله عليه‌السلام  لرجل :", c:6, excludesText: true },
-        { text: "قال أبو جعفر عليه‌السلام ،", c:6, excludesText: true },
-        { text: "عَنْ أَبِي الْحَسَنِ الرِّضَا عليه‌السلام :", c:8, excludesText: true },
         { text: "قَالَ أَبُو عَبْدِ اللهِ عليه‌السلام لِي وَلِسُلَيْمَانَ بْنِ خَالِدٍ :", c:6, excludesText: true },
-        { text: "سَمِعْتُ أَبَا جَعْفَرٍ عليه‌السلام", c:5, excludesText: true },
-        { text: "قَالَ عَلِيُّ بْنُ الْحُسَيْنِ عليهما‌السلام :", c:4, excludesText: true },
-        { text: "قَالَ أَبُو جَعْفَرٍ عليه‌السلام :", c:5, excludesText: true },
         { text: "حَدَّثَنِي جَعْفَرٌ ، عَنْ أَبِيهِ عليهما‌السلام :", c:6, excludesText: true },
         { text: "عَنْ أَبِي جَعْفَرٍ وَأَبِي عَبْدِ اللهِ عليهما‌السلام ، قَالَا :", c:5, excludesText: true },
         { text: "عَنْ أَبِي جَعْفَرٍ عليه‌السلام ، قَالَ :", c: 5, excludesText: true },
         { text: "سَمِعْتُ الرِّضَا عليه‌السلام يَقُولُ :", c:8, excludesText: true },
-        { text: "قَالَ أَبُو عَبْدِ اللهِ عليه‌السلام :", c:6, excludesText: true },
         { text: "عَنْ أَبِي عَبْدِ اللهِ عليه‌السلام ، قَالَ :", c:6, excludesText: true },
-        { text: "قَالَ رَسُولُ اللهِ صلى‌الله‌عليه‌وآله‌وسلم :", c:13, excludesText: true },
         { text: "قَالَ لِي أَبُو الْحَسَنِ مُوسَى بْنُ جَعْفَرٍ عليه‌السلام :", c:7, excludesText: true },
-        { text: "عَنْ أَبِي عَبْدِ اللهِ عليه‌السلام ، قَالَ :", c:6, excludesText: true },
         { text: "عَنِ الرِّضَا عليه‌السلام ، قَالَ :", c:8, excludesText: true },
         { text: "سَمِعْتُ أَبَا عَبْدِ اللهِ عليه‌السلام يَقُولُ :", c:6, excludesText: true },
-        { text: "عَنْ أَبِي عَبْدِ اللهِ عليه‌السلام", c:6, excludesText: true },
         { text: "عَنْ عَلِيٍّ عليه‌السلام ، قَالَ :", c:1, excludesText: true },
         { text: "عَنْ جَعْفَرٍ ، عَنْ أَبِيهِ عليهما‌السلام ، قَالَ :", c:5, excludesText: true },
         { text: "قال أَبُو عَبدِ اللهِ عليه‌السلام :", c:6, excludesText: true },
@@ -726,13 +558,12 @@ function a_0 ( item: TS.db_item ) {
         { text: "قَالَ أَمِيرُ الْمُؤْمِنِينَ عليه‌السلام فِي كَلَامٍ لَهُ خَطَبَ بِهِ عَلَى الْمِنْبَرِ :", c:1, excludesText: true },
         { text: "سَمِعْتُ أَبَا جَعْفَرٍ عليه‌السلام يَقُولُ :", c:5, excludesText: true },
         { text: "عَنْ أَمِيرِ الْمُؤْمِنِينَ عليه‌السلام أَنَّهُ قَالَ :", c:1, excludesText: true },
-
     ];
 
     // .. cut BeginningOfHadith "STRICK"
     for ( let p of cdnBOX ) {
         if ( p.c !== null ) {
-            cut_ID = item.a.indexOf( p.text );
+            cut_ID = item.w[0].indexOf( p.text );
             if ( ~cut_ID ) {
                 if ( cut_ID < 3 ) {
                     if ( p.excludesText ) cut_ID += p.text.length;
@@ -743,6 +574,16 @@ function a_0 ( item: TS.db_item ) {
             }
         }
     }
+
+    // for ( let p of cdnBOX ) {
+    //     if ( p.c !== null && !item.c ) {
+    //         cut_ID = item.w[0].indexOf( p.text );
+    //         if ( ~cut_ID ) {
+    //             console.log( item.w[0] );
+    //             break;
+    //         }
+    //     }
+    // }
 
     return item;
 

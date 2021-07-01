@@ -121,9 +121,14 @@ export function append_0 ( item: TS.db_item, idx: number ) {
     // .. skip
     if ( !~idx ) return item;
 
+    // .. preparation slot 0
     item[0] = item[0] ? item[0] +" " : "";
-    item[0] = item[0] + item.a.slice( 0, idx );
-    item.a = item.a.slice( idx );
+    // .. concat slot 0
+    item[0] = item[0] + item.w[0].slice( 0, idx );
+    // .. preparation slot a
+    item.a = item.a ? item.a +" " : "";
+    // .. concat slot a
+    item.a = item.a + item.w[0].slice( idx );
 
     return item;
 

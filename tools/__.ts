@@ -78,6 +78,8 @@ export function some_edits ( str: string ) {
     str = str.replace( /عليه السلام/g, " عليه‌السلام " );
     str = str.replace( /علیه السلام/g, " عليه‌السلام " );
     str = str.replace( /علیه السّلام/g, " عليه‌السلام " );
+    str = str.replace( /صَلَوَاتُ اللهِ عَلَيْهِمْ أَجْمَعِينَ/g, " عليه‌السلام " );
+    str = str.replace( /صَلَوَاتُ اللهِ عَلَيْهِمْ/g, " عليه‌السلام " );
 
     str = str.replace( /علیها السلام/g, " عليها‌السلام " );
     str = str.replace( /- عليها‌السلام -/g, " عليها‌السلام " );
@@ -129,6 +131,8 @@ export function append_0 ( item: TS.db_item, idx: number ) {
     item.a = item.a ? item.a +" " : "";
     // .. concat slot a
     item.a = item.a + item.w[0].slice( idx );
+    // .. remove temp w[0] slot
+    item.w.shift();
 
     return item;
 
@@ -141,8 +145,11 @@ export function append_9 ( item: TS.db_item, idx: number ) {
     // .. skip
     if ( !~idx ) return item;
 
+    // .. preparation slot 9
     item[9] = item[9] ? " " +item[9] : "";
+    // .. preparation slot 9
     item[9] = item.a.slice( idx ) + item[9];
+    // .. preparation slot a
     item.a = item.a.slice( 0, idx );
 
     return item;

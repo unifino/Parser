@@ -35,7 +35,6 @@ export async function ignite ( mode: "Scratch"|"Cached", n_pad: number ) {
     db = build_db ( db );
     // .. N allocation
     n_pad = tools.n_allocation( db, n_pad );
-    storage.saveData( db, tmpFolder, name + "-01" );
     // .. R allocation
     R = await dedicated_R();
     // .. search for optimizing
@@ -70,7 +69,7 @@ function load_db_v0 ( mode: "Scratch"|"Cached" ) {
         let tmp_db = [];
 
         // .. merge Books as Source
-        for ( let i=1; i<=1; i ++ ) {
+        for ( let i=1; i<=15; i ++ ) {
             textBook = readSrcBook(i);
             // ..  do some edits
             textBook = __.some_edits( textBook );
@@ -115,6 +114,8 @@ function build_db ( db: TS.db ) {
         p.a = [ ...p.tmp.a, ...p.tmp.w ].join( " " );
         p.a = p.a.replace( / +/g, " " ).trim();
     }
+
+    storage.saveData( db, tmpFolder, name + "-01" );
 
     return db;
 

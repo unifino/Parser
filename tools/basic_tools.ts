@@ -73,7 +73,8 @@ export const erabs = [
     "ً", "ٌ", "ٍ",  "َ", "ُ",  "ِ",  "ّ",  "ْ", "‎ٓ", "ٔ",  "ٰ", 
     "ـ",
 ];
-function erabTrimmer ( str ) {
+
+export function erabTrimmer ( str ) {
     if ( !str ) return "";
     for ( const erab of erabs ) str = str.replace( new RegExp( erab, 'g' ), "" );
     str = str.replace( /ٱ/g, 'ا' );

@@ -2,21 +2,15 @@
     direction: rtl;
     background-color: rgb(243, 25, 25);
     color: aliceblue;
-    border: 1px rgb(255, 0, 106) dotted;
+    border: 0px rgb(255, 0, 106) dotted;
+    border-radius: 7px;
     padding: 10px;
-    margin: 10px;
+    margin: 5px;
     font-family: Terafik;
     display: inline-block;
 }
-head,
-style,
-link{
-    display: none;
-}
-.libNormal,
-.libNormal0{
-    background-color: rgb(68, 68, 68);
-}
+head, style, link{ display: none; }
+
 html{
     border: none;
     background-color: rgb(68, 68, 68);
@@ -29,12 +23,9 @@ body{
     border: none;
 }
 
-p {
-    border-width: 3px;
-}
+p { border-width: 3px; }
 
 span {
-    /* border-width: 1px; */
     background-color: rgb(194, 138, 48);
 }
 
@@ -53,4 +44,30 @@ q{
 
 .libBold2 {
     background-color: rgb(173, 47, 110);
+}
+
+.libNormal,
+.libNormal0{
+    background-color: rgb(68, 68, 68);
+}
+
+
+.box {
+    background-color: rgb(48, 47, 47);
+    padding: 40px;
+}
+
+.pre {
+    background-color: rgb(39, 33, 33);
+    /* display: none; */
+}
+
+.main {
+    background-color: rgb(78, 78, 78);
+    /* display: none; */
+
+}
+
+.suffix {
+    background-color: rgb(39, 33, 33);
 }

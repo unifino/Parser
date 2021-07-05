@@ -28,9 +28,9 @@ export function addTmpProps ( db: TS.db ) {
 
     for ( let cell of db ) {
         tmp_1 = basic_tools.inFarsiLetters( cell.a );
-        cell.tmp_inFarsiLetter = basic_tools.cutSomePhrases( tmp_1 );
-        tmp_2 = cell.tmp_inFarsiLetter.split( " " );
-        cell.tmp_kalamat = basic_tools.deleteSomeWords( tmp_2 );
+        cell.tmp.inFarsiLetter = basic_tools.cutSomePhrases( tmp_1 );
+        tmp_2 = cell.tmp.inFarsiLetter.split( " " );
+        cell.tmp.kalamat = basic_tools.deleteSomeWords( tmp_2 );
     }
 
     return db;
@@ -91,8 +91,8 @@ function R_Calc ( A: TS.db_item, X: TS.db_item ): TS.R {
     // .. critical error
     if ( typeof A.n !== "number" || typeof X.n !== "number" ) return;
 
-    let partsA = A.tmp_kalamat.slice(0);
-    let partsX = X.tmp_kalamat.slice(0);
+    let partsA = A.tmp.kalamat.slice(0);
+    let partsX = X.tmp.kalamat.slice(0);
     let totalParts = partsA.length + partsX.length;
 
     // .. trimming by A on (X and A)
@@ -111,8 +111,8 @@ function R_Calc ( A: TS.db_item, X: TS.db_item ): TS.R {
 
 function R_Calc__old ( i: number, j: number, db: TS.db ): TS.R {
 
-    let partsA = db[i].tmp_kalamat.slice(0);
-    let partsX = db[j].tmp_kalamat.slice(0);
+    let partsA = db[i].tmp.kalamat.slice(0);
+    let partsX = db[j].tmp.kalamat.slice(0);
     let totalParts = partsA.length + partsX.length;
 
     // .. trimming by A on (X and A)
@@ -689,56 +689,52 @@ function dbExporter ( db: TS.db ) {
 
 // .. ====================================================================
 
-function finalEditor ( db: TS.db ) {
+// function finalEditor ( db: TS.db ) {
 
-    for ( let p of db ) {
+//     for ( let p of db ) {
 
-        if ( p.a ) {
-            p.a = basic_tools.arabicDigits( p.a );
+//         if ( p.a ) {
+//             p.a = basic_tools.arabicDigits( p.a );
 
-            if ( p.b ) {
-                p.b = basic_tools.arabicDigits( p.b );
-            }
-            if ( typeof p.d === "string" ) {
-                p.d = basic_tools.arabicDigits( p.d );
-            }
-        }
+//             if ( p.b ) {
+//                 p.b = basic_tools.arabicDigits( p.b );
+//             }
+//             if ( typeof p.d === "string" ) {
+//                 p.d = basic_tools.arabicDigits( p.d );
+//             }
+//         }
 
-    }
+//     }
 
-    return db;
+//     return db;
 
-}
+// }
 
 // .. ====================================================================
 
-function newDBConverter ( newDB: TS.newDB ) {
-    let db: TS.db = [];
-    db = newDB.map( (x,j) => {
-        return { 
-            a: x.a,
-            b: x.b,
-            c: x.c || null,
-            d: x.d || null,
-            n: -1,
-            tmp_kalamat: null,
-            tmp_inFarsiLetter: null,
-            j: j,
-            cDB: null
-        }
-    } );
-    return db;
-}
+// function newDBConverter ( newDB: TS.newDB ) {
+//     let db: TS.db = [];
+//     db = newDB.map( (x,j) => {
+//         return { 
+//             a: x.a,
+//             b: x.b,
+//             c: x.c || null,
+//             d: x.d || null,
+//             n: -1,
+//             tmp_kalamat: null,
+//             tmp_inFarsiLetter: null,
+//             j: j,
+//             cDB: null
+//         }
+//     } );
+//     return db;
+// }
 
 // .. ====================================================================
 
 export function dbCleaner ( db: TS.db ) {
 
-    for ( let p of db ) {
-        delete p.tmp_inFarsiLetter;
-        delete p.tmp_kalamat;
-    }
-
+    for ( let p of db ) delete p.tmp;
     return db;
 
 }

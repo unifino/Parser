@@ -18,7 +18,6 @@ let tmpFolder           = "tmp/" + name + "/";
 let db_Path             = "db/" + name + ".json";
 let v1_Path             = tmpFolder + "/" + name + "-01.json";
 let R_Path              = tmpFolder + "/" + name + "-R.json";
-let v1                  : TS.db;
 
 resource_update ();
 
@@ -32,36 +31,24 @@ export async function ignite ( mode: "Scratch"|"Cached", n_pad: number ) {
     db = [];
     // .. get v0 [ Scratch | Cached ]
     db = load_db_v0( mode );
-    // .. divider
-    db = mine ( db );
-    // // .. main dividers
-    // db = a_0_9( db );
-    // // .. write-down DB
-    // storage.saveData( db, tmpFolder, name + "-01" );
-    // // .. update resources
-    // resource_update ();
-    // // .. N allocation
-    // n_pad = tools.n_allocation( v1, n_pad );
-    // // .. R allocation
-    // R = await dedicated_R();
-    // // .. search for optimizing
-    // __.cook( R, v1, tmpFolder );
-    // // .. check optimized info
-    // await tools._db_check_( tmpFolder, v1 );
-    // // .. create and save DBs
-    // db_exporter();
-    // // .. clean the tmpFolder
-    // __.janitor( tmpFolder );
-    // // .. N-PAD report
-    // return n_pad -1;
+    // .. get Actual DB
+    db = load_db ( db );
+    // .. N allocation
+    n_pad = tools.n_allocation( db, n_pad );
+    storage.saveData( db, tmpFolder, name + "-01" );
+    // .. R allocation
+    R = await dedicated_R();
+    // .. search for optimizing
+    __.cook( R, db, tmpFolder );
+    // .. check optimized info
+    await tools._db_check_( tmpFolder, db );
+    // .. create and save DBs
+    db_exporter();
+    // .. clean the tmpFolder
+    __.janitor( tmpFolder );
+    // .. N-PAD report
+    return n_pad -1;
 
-}
-
-// .. ====================================================================
-
-function mine ( db: TS.db ) {
-
-    return db;
 }
 
 // .. ====================================================================
@@ -83,16 +70,18 @@ function load_db_v0 ( mode: "Scratch"|"Cached" ) {
         let tmp_db = [];
 
         // .. merge Books as Source
-        for ( let i=15; i<=15; i ++ ) {
+        for ( let i=1; i<=1; i ++ ) {
             textBook = readSrcBook(i);
             // ..  do some edits
             textBook = __.some_edits( textBook );
+            // .. remove FootNotes => main Text
+            textBook = removeFootNotes( textBook );
             // .. remove unwanted parted => neat
-            let neatBook = getNeatBook( textBook );
+            textBook = getNeatBook( textBook );
             // .. build first db => rawDB
-            let raw_db = getRawDB( neatBook );
+            let raw_db = getRawDB( textBook );
             // .. provide a preview for checking
-            preview( raw_db );
+            preview_1( raw_db );
             // .. build main db
             tmp_db = hadith_db_generator( raw_db );
             // .. scatter 0-a-9
@@ -102,15 +91,32 @@ function load_db_v0 ( mode: "Scratch"|"Cached" ) {
             // .. sum up Books
             db_v0 = [ ...db_v0, ...tmp_db ];
         }
+
+        // .. provide a preview for checking
+        preview_2( db_v0 );
         // .. notify up to this step
         report.notify( "Books Loaded! : " + db_v0.length );
-
         // .. save it
         storage.saveData( db_v0, tmpFolder, name + "-00" );
 
     }
 
     return db_v0;
+
+}
+
+// .. ====================================================================
+
+function load_db ( db: TS.db ) {
+
+    for ( let p of db ) {
+        p[0] = p.tmp[0].join( " " ).replace( / +/g, " " ).trim();
+        p[9] = p.tmp[9].join( " " ).replace( / +/g, " " ).trim();
+        p.a = [ ...p.tmp.a, ...p.tmp.w ].join( " " );
+        p.a = p.a.replace( / +/g, " " ).trim();
+    }
+
+    return db;
 
 }
 
@@ -132,6 +138,35 @@ function readSrcBook ( num: number ): string {
 
     if ( a>0 && b>0 ) return txt.slice( a, b +19 );
     else console.log( "err-01",a , b )
+
+}
+
+// .. ====================================================================
+
+function removeFootNotes ( text: string ) {
+
+    // .. split pages
+    let pages = text.split( "</a>" );
+    let match: RegExpMatchArray;
+    let lines: number;
+    let p: string;
+
+    for ( let i in pages ) {
+        p = pages[i];
+        // .. find line divider(s)
+        match = p.match( "<p class=libLine>" );
+        lines = ( match || [] ).length;
+        // .. too many lines
+        if ( lines > 1 ) console.log( "Unexpected Page Structure!", p );
+        // .. just one line
+        else if ( lines ) pages[i] = p.slice( 0, match.index );
+    }
+
+    // .. join-back pages
+    text = pages.join( "</a>" );
+
+    // .. return text
+    return text;
 
 }
 
@@ -259,20 +294,54 @@ function getRawDB ( text: string ) {
 
 // .. ====================================================================
 
-function preview ( db: string[] ) {
+function preview_1 ( html: string[] ) {
 
     let header = "<!DOCTYPE html><html><head>"+
         '<link rel="stylesheet" type="text/css" href="main.css" />'+
         "</head><body>";
 
-    fs.writeFileSync( 
-        "tmp/preview.html", 
-        header + 
-        db.join( "</p>" )
-            .replace( /<p/g, "\n<p" ) 
-            .replace( /\|Q\|/g, "<Q>" ) 
-            .replace( /\|\/Q\|/g, "</Q>" ) 
+    fs.writeFileSync(
+        "tmp/preview_1.html",
+        header +
+        html.join( "</p>" )
+            .replace( /<p/g, "\n<p" )
+            .replace( /\|Q\|/g, "<Q>" )
+            .replace( /\|\/Q\|/g, "</Q>" )
     );
+
+}
+
+// .. ====================================================================
+
+function preview_2 ( db: TS.db ) {
+
+    let html = "<!DOCTYPE html><html><head>"+
+        '<link rel="stylesheet" type="text/css" href="main.css" />'+
+        "</head><body></body></html>";
+
+    let $ = cheerio.load(html);
+    let part_0: string;
+    let part_9: string;
+    let part_a: string;
+
+    for ( let p of db ) {
+
+        $ ( "body" ).append( "<div class='box'>" );
+
+        part_0 = "<p class='pre'>" + p.tmp[0].join( " " ) + "</p>";
+        part_9 = "<p class='suffix'>" + p.tmp[9].join( " " ) + "</p>";
+        p.tmp.a = [ ...(p.tmp.a||[]), ...p.tmp.w ];
+        part_a = "<p class='main'>" + p.tmp.a.join( " " ) + "</p>";
+
+        $( "div" ).last().append( part_0, part_a, part_9 );
+
+    }
+
+    html = $.html()
+        .replace( /\|Q\|/g, "<Q>" )
+        .replace( /\|\/Q\|/g, "</Q>" );
+
+    fs.writeFileSync( "tmp/preview_2.html", html );
 
 }
 
@@ -281,21 +350,21 @@ function preview ( db: string[] ) {
 function hadith_db_generator ( raw_db: string[] ) {
 
     let db: TS.db = [],
-        hadith: TS.db_item = { w: [] } as any;
+        hadith: TS.db_item = { tmp: { 0: [], 9:[], a: [], w: [] } } as any;
 
     for ( let p of raw_db ) {
 
         let cdn = p.match( /[0-9]+ ?\/ ?[0-9]+ ?\.? / ) || [];
         // .. append this line
-        if ( cdn.length === 0 ) hadith.w.push( cheerio.load(p).text() );
+        if ( cdn.length === 0 ) hadith.tmp.w.push( cheerio.load(p).text() );
         // .. beginning of a new Hadith
         else if ( cdn.length === 1 ) {
             // .. add to newBook
             db.push( hadith );
             // .. reset the HadithBox
-            hadith = { w: [] } as any;
+            hadith = { tmp: { 0: [], 9:[], a: [], w: [] } } as any;
             p = p.slice( cdn.index + cdn[0].length );
-            hadith.w.push( cheerio.load(p).text() );
+            hadith.tmp.w.push( cheerio.load(p).text() );
             let dp = cdn[0].split( "/" );
             hadith.d = Number( dp[0] ).toString();
             hadith.idInSection = Number( dp[1].replace(".","").trim() );
@@ -304,10 +373,7 @@ function hadith_db_generator ( raw_db: string[] ) {
         else console.log( "Unexpected Line:", p );
     }
     // .. add ĺast item
-    if ( hadith.w.length ) {
-        hadith.a = hadith.w.join( " " );
-        db.push( hadith )
-    };
+    if ( hadith.tmp.w.length ) db.push( hadith );
 
     // .. remove first cell
     db.shift();
@@ -326,12 +392,12 @@ function a_0_9 ( db: TS.db ) {
     for( let p of db ) {
 
         // .. find snd part
-        find_ID = p.w.findIndex( x => x.endsWith( " : " ) );
-        if ( ~find_ID ) p[0] = p.w.splice( 0, find_ID +1 ).join( " " );
+        find_ID = p.tmp.w.findIndex( x => x.endsWith( " : " ) );
+        if ( ~find_ID ) p.tmp[0] = p.tmp.w.splice( 0, find_ID +1 );
 
         // .. find same part
-        find_ID = p.w.findIndex( x => x.startsWith( "*" ) );
-        if ( ~find_ID ) p[9] = p.w.splice( find_ID ).join( " " );
+        find_ID = p.tmp.w.findIndex( x => x.startsWith( "*" ) );
+        if ( ~find_ID ) p.tmp[9] = p.tmp.w.splice( find_ID );
 
     }
 
@@ -384,12 +450,6 @@ function _0 ( item: TS.db_item ) {
         { text: "كَتَبْتُ إِلى أَبِي الْحَسَنِ عليه‌السلام", c:7, excludesText: false },
         { text: "سَأَلْتُ أَبَا الْحَسَنِ الرِّضَا عليه‌السلام :", c:8, excludesText: false },
         { text: "قُلْتُ لِأَبِي عَبْدِ اللهِ أَوْ لِأَبِي جَعْفَرٍ عليهما‌السلام :", c:5, excludesText: false },
-        { text: "سأل رجل أبا جعفر عليه‌السلام", c:5, excludesText: false },
-        { text: "كنت عند أبي عبد الله عليه‌السلام", c:6, excludesText: false },
-        { text: "قلت لأبي عبد الله عليه‌السلام :", c:6, excludesText: false },
-        { text: "دخلت على أبي الحسن الرضا عليه‌السلام", c:8, excludesText: false },
-        { text: "سألت علي بن الحسين عليهما‌السلام :", c:4, excludesText: false },
-        { text: "عن أبي عبد الله عليه‌السلام أنه سئل :", c:6, excludesText: false },
         { text: "سَأَلْتُ الرِّضَا عليه‌السلام", c:8, excludesText: false },
         { text: "مَرَرْتُ مَعَ أَبِي جَعْفَرٍ عليه‌السلام", c:5, excludesText: false },
         { text: "كَتَبْتُ إِلى أَبِي جَعْفَرٍ عليه‌السلام :", c:5, excludesText: false },
@@ -428,27 +488,19 @@ function _0 ( item: TS.db_item ) {
         { text: "قُلْتُ لِأَبِي إِبْرَاهِيمَ عليه‌السلام :", c:7, excludesText: false },
         { text: "قُلْتُ لَأَبِي عَبْدِ اللهِ عليه‌السلام :", c:6, excludesText: false },
         { text: "سَأَلْتُ أَبَا الْحَسَنِ الْأَوَّلَ عليه‌السلام :", c:1, excludesText: false },
-        { text: "", c:null, excludesText: false },
-        { text: "", c:null, excludesText: false },
-        { text: "", c:null, excludesText: false },
 
-        // ! important
-        { text: "عَنْ أَبِي عَبْدِ اللهِ عليه‌السلام ،", c:6, excludesText: true },
-        { text: "عَنْ أَبِي عَبْدِ اللهِ عليه‌السلام", c:6, excludesText: true },
-        { text: "عَنْهُمْ عليهم‌السلام ، قَالَ : «", c:null, excludesText: true },
-        { text: "عَنْ أَبِي عَبْدِ اللهِ عليه‌السلام :", c:6, excludesText: true },
-        { text: "سَمِعْتُ رَجُلاً يَقُولُ لِأَبِي عَبْدِ اللهِ عليه‌السلام :", c:6, excludesText: false },
-        { text: "سَمِعْتُهُ يَقُولُ :", c:null, excludesText: true },
-        { text: "", c:null, excludesText: false },
-        { text: "", c:null, excludesText: false },
+        { text: "سأل رجل أبا جعفر عليه‌السلام", c:5, excludesText: false },
+        { text: "كنت عند أبي عبد الله عليه‌السلام", c:6, excludesText: false },
+        { text: "قلت لأبي عبد الله عليه‌السلام :", c:6, excludesText: false },
+        { text: "دخلت على أبي الحسن الرضا عليه‌السلام", c:8, excludesText: false },
+        { text: "سألت علي بن الحسين عليهما‌السلام :", c:4, excludesText: false },
+        { text: "عن أبي عبد الله عليه‌السلام أنه سئل :", c:6, excludesText: false },
 
-        { text: "قَالَ : «", c:null, excludesText: true },
-        { text: "قَالَ :", c:null, excludesText: true },
-        { text: "سَمِعْتُهُ يَقُولُ : «", c:null, excludesText: true },
-        // ! important 
+        { text: "", c:null, excludesText: false },
+        { text: "", c:null, excludesText: false },
+        { text: "", c:null, excludesText: false },
 
         // .. excludesText
-        { text: "", c:null, excludesText: true },
         { text: "", c:null, excludesText: true },
         { text: "", c:null, excludesText: true },
         { text: "سَمِعْتُ أَبَا الْحَسَنِ الْأَوَّلَ عليه‌السلام يَقُولُ : «", c:1, excludesText: true },
@@ -562,6 +614,35 @@ function _0 ( item: TS.db_item ) {
         { text: "عَنْ‌أَبِي عَبْدِ اللهِ عليه‌السلام ، قَالَ :", c:6, excludesText: true },
         { text: "عَنْ أَبِي الْحَسَنِ عليه‌السلام ، قَالَ :", c:7, excludesText: true },
         { text: "عَنْ أَحَدِهِمَا عليهما‌السلام ، قَالَ :", c:5, excludesText: true },
+        { text: "قَالَ أَبُو عَبْدِ اللهِ عليه‌السلام لِي وَلِسُلَيْمَانَ بْنِ خَالِدٍ :", c:6, excludesText: true },
+        { text: "حَدَّثَنِي جَعْفَرٌ ، عَنْ أَبِيهِ عليهما‌السلام :", c:6, excludesText: true },
+        { text: "عَنْ أَبِي جَعْفَرٍ وَأَبِي عَبْدِ اللهِ عليهما‌السلام ، قَالَا :", c:5, excludesText: true },
+        { text: "عَنْ أَبِي جَعْفَرٍ عليه‌السلام ، قَالَ :", c: 5, excludesText: true },
+        { text: "سَمِعْتُ الرِّضَا عليه‌السلام يَقُولُ :", c:8, excludesText: true },
+        { text: "عَنْ أَبِي عَبْدِ اللهِ عليه‌السلام ، قَالَ :", c:6, excludesText: true },
+        { text: "قَالَ لِي أَبُو الْحَسَنِ مُوسَى بْنُ جَعْفَرٍ عليه‌السلام :", c:7, excludesText: true },
+        { text: "عَنِ الرِّضَا عليه‌السلام ، قَالَ :", c:8, excludesText: true },
+        { text: "سَمِعْتُ أَبَا عَبْدِ اللهِ عليه‌السلام يَقُولُ :", c:6, excludesText: true },
+        { text: "عَنْ عَلِيٍّ عليه‌السلام ، قَالَ :", c:1, excludesText: true },
+        { text: "عَنْ جَعْفَرٍ ، عَنْ أَبِيهِ عليهما‌السلام ، قَالَ :", c:5, excludesText: true },
+        { text: "قال أَبُو عَبدِ اللهِ عليه‌السلام :", c:6, excludesText: true },
+        { text: "عَنْ أَبِي الْحَسَنِ الرِّضَا عليه‌السلام ، قَالَ :", c:8, excludesText: true },
+        { text: "سَمِعْنَا أَبَا عَبْدِ اللهِ عليه‌السلام يَقُولُ :", c:6, excludesText: true },
+        { text: "سَمِعْتُ أَمِيرَ الْمُؤْمِنِينَ عليه‌السلام يَقُولُ :", c:1, excludesText: true },
+        { text: "عَنْ أَبِي الْحَسَنِ مُوسَى بْنِ جَعْفَرٍ عليه‌السلام ، قَالَ :", c:7, excludesText: true },
+        { text: "قَالَ لِي أَبُو عَبْدِ اللهِ عليه‌السلام :", c:6, excludesText: true },
+        { text: "قَالَ أَمِيرُ الْمُؤْمِنِينَ عليه‌السلام فِي كَلَامٍ لَهُ خَطَبَ بِهِ عَلَى الْمِنْبَرِ :", c:1, excludesText: true },
+        { text: "سَمِعْتُ أَبَا جَعْفَرٍ عليه‌السلام يَقُولُ :", c:5, excludesText: true },
+        { text: "عَنْ أَمِيرِ الْمُؤْمِنِينَ عليه‌السلام أَنَّهُ قَالَ :", c:1, excludesText: true },
+
+        { text: "", c:null, excludesText: true },
+        { text: "", c:null, excludesText: true },
+        { text: "", c:null, excludesText: true },
+        { text: "قال أبو عبد الله عليه‌السلام : «", c:6, excludesText: true },
+        { text: "عن عبد صالح عليه‌السلام ، قال : «", c:7, excludesText: true },
+        { text: "عن الرضا عليه‌السلام : «", c:8, excludesText: true },
+        { text: "عن أبي جعفر عليه‌السلام : «", c:6, excludesText: true },
+        { text: "عن أبي الحسن موسى عليه‌السلام ، قال : «", c:7, excludesText: true },
         { text: "سمعت أبا الحسن عليه‌السلام يقول في قول الله تبارك وتعالى :", c:7, excludesText: true },
         { text: "سمعت أبا الحسن عليه‌السلام يقول :", c:7, excludesText: true },
         { text: "عن أبي عبد الله عليه‌السلام في قول الله عزوجل :", c:6, excludesText: true },
@@ -585,43 +666,46 @@ function _0 ( item: TS.db_item ) {
         { text: "عن أبي عبد الله عليه‌السلام مثله إلا أنه قال في حديثه :", c:6, excludesText: true },
         { text: "عن أبي جعفر عليه‌السلام ، قال :", c:5, excludesText: true },
         { text: "قال أبو عبد الله عليه‌السلام  لرجل :", c:6, excludesText: true },
-        { text: "قَالَ أَبُو عَبْدِ اللهِ عليه‌السلام لِي وَلِسُلَيْمَانَ بْنِ خَالِدٍ :", c:6, excludesText: true },
-        { text: "حَدَّثَنِي جَعْفَرٌ ، عَنْ أَبِيهِ عليهما‌السلام :", c:6, excludesText: true },
-        { text: "عَنْ أَبِي جَعْفَرٍ وَأَبِي عَبْدِ اللهِ عليهما‌السلام ، قَالَا :", c:5, excludesText: true },
-        { text: "عَنْ أَبِي جَعْفَرٍ عليه‌السلام ، قَالَ :", c: 5, excludesText: true },
-        { text: "سَمِعْتُ الرِّضَا عليه‌السلام يَقُولُ :", c:8, excludesText: true },
-        { text: "عَنْ أَبِي عَبْدِ اللهِ عليه‌السلام ، قَالَ :", c:6, excludesText: true },
-        { text: "قَالَ لِي أَبُو الْحَسَنِ مُوسَى بْنُ جَعْفَرٍ عليه‌السلام :", c:7, excludesText: true },
-        { text: "عَنِ الرِّضَا عليه‌السلام ، قَالَ :", c:8, excludesText: true },
-        { text: "سَمِعْتُ أَبَا عَبْدِ اللهِ عليه‌السلام يَقُولُ :", c:6, excludesText: true },
-        { text: "عَنْ عَلِيٍّ عليه‌السلام ، قَالَ :", c:1, excludesText: true },
-        { text: "عَنْ جَعْفَرٍ ، عَنْ أَبِيهِ عليهما‌السلام ، قَالَ :", c:5, excludesText: true },
-        { text: "قال أَبُو عَبدِ اللهِ عليه‌السلام :", c:6, excludesText: true },
-        { text: "عَنْ أَبِي الْحَسَنِ الرِّضَا عليه‌السلام ، قَالَ :", c:8, excludesText: true },
-        { text: "سَمِعْنَا أَبَا عَبْدِ اللهِ عليه‌السلام يَقُولُ :", c:6, excludesText: true },
-        { text: "سَمِعْتُ أَمِيرَ الْمُؤْمِنِينَ عليه‌السلام يَقُولُ :", c:1, excludesText: true },
-        { text: "عَنْ أَبِي الْحَسَنِ مُوسَى بْنِ جَعْفَرٍ عليه‌السلام ، قَالَ :", c:7, excludesText: true },
-        { text: "قَالَ لِي أَبُو عَبْدِ اللهِ عليه‌السلام :", c:6, excludesText: true },
-        { text: "قَالَ أَمِيرُ الْمُؤْمِنِينَ عليه‌السلام فِي كَلَامٍ لَهُ خَطَبَ بِهِ عَلَى الْمِنْبَرِ :", c:1, excludesText: true },
-        { text: "سَمِعْتُ أَبَا جَعْفَرٍ عليه‌السلام يَقُولُ :", c:5, excludesText: true },
-        { text: "عَنْ أَمِيرِ الْمُؤْمِنِينَ عليه‌السلام أَنَّهُ قَالَ :", c:1, excludesText: true },
+
+        // ! important
+        { text: "عَنْ أَبِي عَبْدِ اللهِ عليه‌السلام ،", c:6, excludesText: true },
+        { text: "عَنْ أَبِي عَبْدِ اللهِ عليه‌السلام", c:6, excludesText: true },
+        { text: "عَنْهُمْ عليهم‌السلام ، قَالَ : «", c:null, excludesText: true },
+        { text: "عَنْ أَبِي عَبْدِ اللهِ عليه‌السلام :", c:6, excludesText: true },
+        { text: "سَمِعْتُ رَجُلاً يَقُولُ لِأَبِي عَبْدِ اللهِ عليه‌السلام :", c:6, excludesText: false },
+        // ! important 
+
     ];
 
     // .. cut BeginningOfHadith "STRICK"
     for ( let p of cdnBOX ) {
+
         if ( p.c !== null ) {
 
-            cut_ID = item.w[0].indexOf( p.text );
+            cut_ID = item.tmp.w[0].indexOf( p.text );
             if ( ~cut_ID ) {
                 if ( cut_ID < 3 ) {
-                    if ( p.excludesText ) cut_ID += p.text.length;
-                    item = __.append_0 ( item, cut_ID );
+                    if ( p.excludesText ) {
+                        cut_ID += p.text.length;
+                        if ( p.text.endsWith( "«" ) ) cut_ID--;
+                    }
+                    item = __.w_0__0 ( item, cut_ID );
                     item.c = p.c;
                     break;
                 }
             }
+
         }
+
     }
+
+    // cdnBOX = [
+    //     { text: "قَالَ : «", c:null, excludesText: true },
+    //     { text: "سَمِعْتُهُ يَقُولُ : «", c:null, excludesText: true },
+    //     { text: "قَالَ :", c:null, excludesText: true },
+    //     { text: "سَمِعْتُهُ يَقُولُ :", c:null, excludesText: true },
+    // ]
+    // for ( let p of cdnBOX ) {
 
     return item;
 
@@ -654,7 +738,7 @@ async function dedicated_R () {
     // ..  do processes synchronously
     let processes: Promise<TS.R[]>[] = [];
     for ( let i=0; i<tools.frag; i++ ) {
-        processes.push( runService( v1 ) );
+        processes.push( runService( db ) );
     }
 
     // .. init R
@@ -663,8 +747,6 @@ async function dedicated_R () {
     await Promise.all( processes ).then( RS => { 
         for ( let r of RS ) R = [ ...R, ...r ]
     } );
-
-    // R = await __._R_( v1 );
 
     // .. wait a bit
     await new Promise( _ => setTimeout( _, 700 ) );
@@ -680,20 +762,21 @@ async function dedicated_R () {
 
 function db_exporter () {
 
-    v1 = tools.relation_definer( tmpFolder, v1 );
+    db = tools.relation_definer( tmpFolder, db );
 
     // .. last trims
-    for ( let p of v1 ) {
-        try { p[0] = p[0].replace( / +/g, " " ).trim() } catch {}
-        try { p[9] = p[9].replace( / +/g, " " ).trim() } catch {}
-        try { p.a = p.a.replace( / +/g, " " ).trim() } catch {}
+    // ! check this
+    for ( let p of db ) {
+        // try { p[0] = p[0].replace( / +/g, " " ).trim() } catch {}
+        // try { p[9] = p[9].replace( / +/g, " " ).trim() } catch {}
+        // try { p.a = p.a.replace( / +/g, " " ).trim() } catch {}
     }
 
     // .. D Publisher
-    for ( let p of v1 ) 
+    for ( let p of db ) 
         p.d = basic_tools.arabicDigits( name + "، الحديث: " + p.d );
 
-    storage.saveData( v1, "db", name );
+    storage.saveData( db, "db", name );
 
 }
 
@@ -701,7 +784,6 @@ function db_exporter () {
 
 function resource_update () {
     try { fs.mkdirSync( tmpFolder ) } catch {}
-    try { v1 = JSON.parse( fs.readFileSync( v1_Path, 'utf8' ) ) } catch {}
     try { db = JSON.parse( fs.readFileSync( db_Path, 'utf8' ) ) } catch {}
 }
 

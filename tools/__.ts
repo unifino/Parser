@@ -118,21 +118,23 @@ export function some_edits ( str: string ) {
 
 // .. ====================================================================
 
-export function append_0 ( item: TS.db_item, idx: number ) {
+export function w_0__0 ( item: TS.db_item, idx: number ) {
 
     // .. skip
     if ( !~idx ) return item;
 
     // .. preparation slot 0
-    item[0] = item[0] ? item[0] +" " : "";
-    // .. concat slot 0
-    item[0] = item[0] + item.w[0].slice( 0, idx );
+    if ( !item[0] ) item.tmp[0] = [];
     // .. preparation slot a
-    item.a = item.a ? item.a +" " : "";
+    if ( !item.a ) item.tmp.a = [];
+
+    // .. concat slot 0
+    item.tmp[0].push( item.tmp.w[0].slice( 0, idx ) );
     // .. concat slot a
-    item.a = item.a + item.w[0].slice( idx );
+    item.tmp.a.push( item.tmp.w[0].slice( idx ) );
+
     // .. remove temp w[0] slot
-    item.w.shift();
+    item.tmp.w.shift();
 
     return item;
 
@@ -140,21 +142,24 @@ export function append_0 ( item: TS.db_item, idx: number ) {
 
 // .. ====================================================================
 
-export function append_9 ( item: TS.db_item, idx: number ) {
+// export function append_9 ( item: TS.db_item, idx: number ) {
 
-    // .. skip
-    if ( !~idx ) return item;
+//     // .. skip
+//     if ( !~idx ) return item;
 
-    // .. preparation slot 9
-    item[9] = item[9] ? " " +item[9] : "";
-    // .. preparation slot 9
-    item[9] = item.a.slice( idx ) + item[9];
-    // .. preparation slot a
-    item.a = item.a.slice( 0, idx );
+//     // .. preparation slot 0
+//     if ( !item[9] ) item[9] = [];
+//     // .. preparation slot a
+//     if ( !item.a ) item.a = [];
 
-    return item;
+//     // .. preparation slot 9
+//     item[9].unshift( item.a.slice( idx ) );
+//     // .. preparation slot a
+//     item.a = item.a.slice( 0, idx );
 
-}
+//     return item;
+
+// }
 
 // .. ====================================================================
 
@@ -208,19 +213,19 @@ export function hrCtr ( page: string[], HR: string ) {
 
 // .. ====================================================================
 
-export function R_R ( db_01: TS.db, db_02: TS.db ) {
+// export function R_R ( db_01: TS.db, db_02: TS.db ) {
 
-    let R: TS.R[] = [];
+//     let R: TS.R[] = [];
 
-    // .. [addTmpProps]
-    tools.addTmpProps( db_01 );
-    tools.addTmpProps( db_02 );
+//     // .. [addTmpProps]
+//     tools.addTmpProps( db_01 );
+//     tools.addTmpProps( db_02 );
 
-    R = tools.R_old( db_02, db_01, false );
+//     R = tools.R_old( db_02, db_01, false );
 
-    return R;
+//     return R;
 
-}
+// }
 
 // .. ====================================================================
 
@@ -253,22 +258,22 @@ export function janitor ( tmpFolder: string ) {
 
 // .. ====================================================================
 
-export async function _R_ ( db: TS.db ) {
+// export async function _R_ ( db: TS.db ) {
 
-    let R: TS.R[] = [],
-        r: TS.R[],
-        time = new Date().getTime(),
-        title = " R Calc " + db.length;
+//     let R: TS.R[] = [],
+//         r: TS.R[],
+//         time = new Date().getTime(),
+//         title = " R Calc " + db.length;
 
-    // .. [addTmpProps]
-    db = tools.addTmpProps( db );
+//     // .. [addTmpProps]
+//     db = tools.addTmpProps( db );
 
-    for ( let i in db ) {
-        report.timer( Number(i), db.length, time );
-        await tools.R( db[i], db.slice( Number(i) +1 ) ).then( x => r = x );
-        R = [ ...R, ...r ];
-    }
+//     for ( let i in db ) {
+//         report.timer( Number(i), db.length, time );
+//         await tools.R( db[i], db.slice( Number(i) +1 ) ).then( x => r = x );
+//         R = [ ...R, ...r ];
+//     }
 
-    return R;
+//     return R;
 
-}
+// }

@@ -6,18 +6,22 @@ export type newDB = {
 }[];
 
 export type db_item = {
-    w?:string[],
-    0?: string[],
-    9?: string[],
-    a: string[],
+    tmp?: {
+        w:string[],
+        0: string[],
+        9: string[],
+        a: string[],
+        inFarsiLetter: string,
+        kalamat: string[],
+    }
+    0: string,
+    a: string,
+    9: string,
     b: string,
     c: number,
     d: string,
     n: number,
-    old_n?: number,
     idInSection?: number,
-    tmp_inFarsiLetter: string,
-    tmp_kalamat: string[],
     cDB: number[]
 };
 export type db = db_item[];

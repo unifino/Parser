@@ -32,7 +32,7 @@ export async function ignite ( mode: "Scratch"|"Cached", n_pad: number ) {
     // .. get v0 [ Scratch | Cached ]
     db = load_db_v0( mode );
     // .. get Actual DB
-    db = load_db ( db );
+    db = build_db ( db );
     // .. N allocation
     n_pad = tools.n_allocation( db, n_pad );
     storage.saveData( db, tmpFolder, name + "-01" );
@@ -80,8 +80,8 @@ function load_db_v0 ( mode: "Scratch"|"Cached" ) {
             textBook = getNeatBook( textBook );
             // .. build first db => rawDB
             let raw_db = getRawDB( textBook );
-            // .. provide a preview for checking
-            preview_1( raw_db );
+            // // .. provide a preview for checking
+            // preview_1( raw_db );
             // .. build main db
             tmp_db = hadith_db_generator( raw_db );
             // .. scatter 0-a-9
@@ -92,8 +92,8 @@ function load_db_v0 ( mode: "Scratch"|"Cached" ) {
             db_v0 = [ ...db_v0, ...tmp_db ];
         }
 
-        // .. provide a preview for checking
-        preview_2( db_v0 );
+        // // .. provide a preview for checking
+        // preview_2( db_v0 );
         // .. notify up to this step
         report.notify( "Books Loaded! : " + db_v0.length );
         // .. save it
@@ -107,7 +107,7 @@ function load_db_v0 ( mode: "Scratch"|"Cached" ) {
 
 // .. ====================================================================
 
-function load_db ( db: TS.db ) {
+function build_db ( db: TS.db ) {
 
     for ( let p of db ) {
         p[0] = p.tmp[0].join( " " ).replace( / +/g, " " ).trim();
@@ -763,18 +763,28 @@ async function dedicated_R () {
 function db_exporter () {
 
     db = tools.relation_definer( tmpFolder, db );
-
-    // .. last trims
-    // ! check this
-    for ( let p of db ) {
-        // try { p[0] = p[0].replace( / +/g, " " ).trim() } catch {}
-        // try { p[9] = p[9].replace( / +/g, " " ).trim() } catch {}
-        // try { p.a = p.a.replace( / +/g, " " ).trim() } catch {}
-    }
+    let p: TS.db_item;
 
     // .. D Publisher
-    for ( let p of db ) 
+    for ( let i in db ) {
+
+        p = db[i];
+
+        // .. last trims
         p.d = basic_tools.arabicDigits( name + "، الحديث: " + p.d );
+        if ( p.a.endsWith( "» ." ) ) p.a = p.a.slice( 0, p.a.length -2 );
+        p.a  = p.a.replace ( /\|Q\|/g, "<Q>" ).replace( /\|\/Q\|/g, "</Q>" );
+        p[0] = p[0].replace( /\|Q\|/g, "<Q>" ).replace( /\|\/Q\|/g, "</Q>" );
+        p[9] = p[9].replace( /\|Q\|/g, "<Q>" ).replace( /\|\/Q\|/g, "</Q>" );
+
+        // .. re-sort
+        db[i] = {
+            0: p[0], a: p.a, 9: p[9], 
+            b: p.b, c: p.c, d: p.d, n: p.n,
+            idInSection: p.idInSection, cDB: p.cDB
+        }
+
+    }
 
     storage.saveData( db, "db", name );
 

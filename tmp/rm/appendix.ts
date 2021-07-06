@@ -1,12 +1,12 @@
-import * as __                          from "../tools/__";
-import * as server001                   from "../server/الكافي";
+import * as __                          from "../../tools/__";
+import * as server001                   from "../../server/الكافي";
 import * as server002                   from "./server_002-old";
 import * as server003                   from "../server/server_003";
-import * as storage                     from "../tools/storage";
-import * as tools                       from "../tools/tools";
+import * as storage                     from "../../tools/storage";
+import * as tools                       from "../../tools/tools";
 import * as fs                          from "fs";
 import * as Path 						from "path";
-import * as TS                          from "../types/types";
+import * as TS                          from "../../types/types";
 
 // .. ====================================================================
 

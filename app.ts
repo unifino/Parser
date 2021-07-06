@@ -1,10 +1,10 @@
 import * as __                          from "./tools/__";
 import * as report                      from "./tools/logger"
 import * as server_الكافي                  from "./server/الكافي";
-import * as server002                   from "./server/server_002";
-import * as server003                   from "./server/server_003";
-import * as finder                      from "./tmp/finder";
-import * as appendix                    from "./tmp/appendix";
+import * as server_وسائل_الشيعة             from "./server/وسائل‌الشيعة";
+import * as server003                   from "./tmp/rm/server_003";
+import * as finder                      from "./tmp/rm/finder";
+import * as appendix                    from "./tmp/rm/appendix";
 import * as storage                     from "./tools/storage";
 import * as tools                       from "./tools/tools";
 import * as fs                          from "fs";
@@ -14,7 +14,8 @@ import * as WS                          from "worker_threads";
 // .. ====================================================================
 
 async function run () {
-    await server_الكافي.ignite( "Cached", 1 );
+    // await server_الكافي.ignite( "Cached", 1 );
+    await server_وسائل_الشيعة.ignite( "Cached", 1 );
 }
 
 // .. ====================================================================

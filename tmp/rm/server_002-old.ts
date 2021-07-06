@@ -1,10 +1,10 @@
-import * as tools                       from "../tools/tools";
-import * as __                          from "../tools/__";
-import * as TS                          from "../types/types";
-import * as storage                     from "../tools/storage";
-import * as basic_tools                 from "../tools/basic_tools";
+import * as tools                       from "../../tools/tools";
+import * as __                          from "../../tools/__";
+import * as TS                          from "../../types/types";
+import * as storage                     from "../../tools/storage";
+import * as basic_tools                 from "../../tools/basic_tools";
 import * as fs                          from "fs";
-import * as report                      from "../tools/logger"
+import * as report                      from "../../tools/logger"
 
 // .. ====================================================================
 

@@ -14,7 +14,7 @@ import * as WS                          from "worker_threads";
 // .. ====================================================================
 
 async function run () {
-    await server_الكافي.ignite( "Scratch", 1 );
+    await server_الكافي.ignite( "Cached", 1 );
 }
 
 // .. ====================================================================

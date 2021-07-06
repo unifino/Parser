@@ -37,6 +37,8 @@ export async function ignite ( mode: "Scratch"|"Cached", n_pad: number ) {
     n_pad = tools.n_allocation( db, n_pad );
     // .. R allocation
     R = await dedicated_R();
+    // .. Get R_67
+    R = tools.R_optimizer( R, 67 );
     // .. search for optimizing
     __.cook( R, db, tmpFolder );
     // .. check optimized info

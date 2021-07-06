@@ -15,9 +15,6 @@ export let db           : TS.db;
 export let R            : TS.R[];
 
 let tmpFolder           = "tmp/" + name + "/";
-let db_Path             = "db/" + name + ".json";
-let v1_Path             = tmpFolder + "/" + name + "-01.json";
-let R_Path              = tmpFolder + "/" + name + "-R.json";
 
 resource_update ();
 
@@ -48,7 +45,7 @@ export async function ignite ( mode: "Scratch"|"Cached", n_pad: number ) {
     // .. clean the tmpFolder
     __.janitor( tmpFolder );
     // .. N-PAD report
-    return n_pad -1;
+    return n_pad;
 
 }
 
@@ -718,6 +715,8 @@ function _0 ( item: TS.db_item ) {
 
 async function dedicated_R () {
 
+    let R_Path = tmpFolder + "/" + name + "-R.json";
+
     // .. return cached
     if ( fs.existsSync( R_Path ) ) {
         R = JSON.parse( fs.readFileSync( R_Path, 'utf8' ) );
@@ -796,8 +795,12 @@ function db_exporter () {
 // .. ====================================================================
 
 function resource_update () {
+
+    let db_Path = "db/" + name + ".json";
+
     try { fs.mkdirSync( tmpFolder ) } catch {}
     try { db = JSON.parse( fs.readFileSync( db_Path, 'utf8' ) ) } catch {}
+
 }
 
 // .. ====================================================================

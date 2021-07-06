@@ -10,14 +10,11 @@ import * as cheerio                     from 'cheerio';
 
 // .. ====================================================================
 
-export let name         = "الكافي";
+export let name         = "وسائل‌الشيعة";
 export let db           : TS.db;
 export let R            : TS.R[];
 
 let tmpFolder           = "tmp/" + name + "/";
-let db_Path             = "db/" + name + ".json";
-let v1_Path             = tmpFolder + "/" + name + "-01.json";
-let R_Path              = tmpFolder + "/" + name + "-R.json";
 
 resource_update ();
 
@@ -29,26 +26,26 @@ export async function ignite ( mode: "Scratch"|"Cached", n_pad: number ) {
     report.notify( name );
     // .. init DB
     db = [];
-    // .. get v0 [ Scratch | Cached ]
-    db = load_db_v0( mode );
-    // .. get Actual DB
-    db = build_db ( db );
-    // .. N allocation
-    n_pad = tools.n_allocation( db, n_pad );
-    // .. R allocation
-    R = await dedicated_R();
-    // .. Get R_67
-    R = tools.R_optimizer( R, 67 );
-    // .. search for optimizing
-    __.cook( R, db, tmpFolder );
-    // .. check optimized info
-    await tools._db_check_( tmpFolder, db );
-    // .. create and save DBs
-    db_exporter();
-    // .. clean the tmpFolder
-    __.janitor( tmpFolder );
-    // .. N-PAD report
-    return n_pad -1;
+    // // .. get v0 [ Scratch | Cached ]
+    // db = load_db_v0( mode );
+    // // .. get Actual DB
+    // db = build_db ( db );
+    // // .. N allocation
+    // n_pad = tools.n_allocation( db, n_pad );
+    // // .. R allocation
+    // R = await dedicated_R();
+    // // .. Get R_67
+    // R = tools.R_optimizer( R, 67 );
+    // // .. search for optimizing
+    // __.cook( R, db, tmpFolder );
+    // // .. check optimized info
+    // await tools._db_check_( tmpFolder, db );
+    // // .. create and save DBs
+    // db_exporter();
+    // // .. clean the tmpFolder
+    // __.janitor( tmpFolder );
+    // // .. N-PAD report
+    return n_pad;
 
 }
 
@@ -718,6 +715,8 @@ function _0 ( item: TS.db_item ) {
 
 async function dedicated_R () {
 
+    let R_Path = tmpFolder + "/" + name + "-R.json";
+
     // .. return cached
     if ( fs.existsSync( R_Path ) ) {
         R = JSON.parse( fs.readFileSync( R_Path, 'utf8' ) );
@@ -796,8 +795,12 @@ function db_exporter () {
 // .. ====================================================================
 
 function resource_update () {
+
+    let db_Path = "db/" + name + ".json";
+
     try { fs.mkdirSync( tmpFolder ) } catch {}
     try { db = JSON.parse( fs.readFileSync( db_Path, 'utf8' ) ) } catch {}
+
 }
 
 // .. ====================================================================

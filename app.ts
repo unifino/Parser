@@ -14,8 +14,15 @@ import * as WS                          from "worker_threads";
 // .. ====================================================================
 
 async function run () {
-    // await server_الكافي.ignite( "Cached", 1 );
-    await server_وسائل_الشيعة.ignite( "Cached", 1 );
+
+    // .. define N-Pad
+    let n_pad = 1;
+    // n_pad = await server_الكافي.ignite( "Cached", n_pad );
+    n_pad = 15414;
+    n_pad = await server_وسائل_الشيعة.ignite( "Scratch", n_pad );
+    console.log( n_pad );
+    
+
 }
 
 // .. ====================================================================

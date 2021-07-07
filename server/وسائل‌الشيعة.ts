@@ -28,6 +28,7 @@ export async function ignite ( mode: "Scratch"|"Cached", n_pad: number ) {
     db = [];
     // .. get v0
     db = load_db();
+    storage.saveData( db, "tmp/" + name, "db" );
     // .. get Actual DB
     // db = build_db ( db );
     // // .. N allocation
@@ -64,23 +65,7 @@ function load_db () {
     textBook = __.some_edits( textBook );
 
     db = main( textBook );
-
-    return db;
-
-}
-
-// .. ====================================================================
-
-function build_db ( db: TS.db ) {
-
-    for ( let p of db ) {
-        p[0] = p.tmp[0].join( " " ).replace( / +/g, " " ).trim();
-        p[9] = p.tmp[9].join( " " ).replace( / +/g, " " ).trim();
-        p.a = [ ...p.tmp.a, ...p.tmp.w ].join( " " );
-        p.a = p.a.replace( / +/g, " " ).trim();
-    }
-
-    storage.saveData( db, tmpFolder, name + "-01" );
+    db = patch( db );
 
     return db;
 
@@ -108,6 +93,9 @@ function removeAlaemTags ( text: string ) {
     text = text.replace( / ع-/g, " ع " );
     text = text.replace( / ع /g, " عليه‌السلام " );
     text = text.replace( / ص /g, " صلى‌الله‌عليه‌وآله‌وسلم " );
+
+    // .. remove unknown data « x »
+    text = text.replace( /« ?[0-9]+ ?»/g, " " );
 
     text = text.replace( /\n+/g, "\n" );
     text = text.replace( / +/g, " " );
@@ -138,25 +126,6 @@ function addAyahNativeTag ( text: string ) {
     text = tmp.join( "\n" );
 
     return text;
-
-}
-
-// .. ====================================================================
-
-function preview_1 ( html: string[] ) {
-
-    let header = "<!DOCTYPE html><html><head>"+
-        '<link rel="stylesheet" type="text/css" href="main.css" />'+
-        "</head><body>";
-
-    fs.writeFileSync(
-        "tmp/preview_1.html",
-        header +
-        html.join( "</span>" )
-            .replace( /<span/g, "\n<span" )
-            .replace( /\|Q\|/g, "<Q>" )
-            .replace( /\|\/Q\|/g, "</Q>" )
-    );
 
 }
 
@@ -222,13 +191,14 @@ function main ( textBook: string ) {
     let d_s: number;
     let tmp: TS.db_item;
     let p: string[];
-    fs.writeFileSync( "db/tmp/f_exp.json", JSON.stringify( big_box, null, "\t") );
+
+    storage.saveData( big_box, "tmp/" + name, "full" );
 
     for ( let i in big_box ) {
 
         p = big_box[i];
         let parts0 = cheerio.load( p[0] ).text().split( "-" );
-        if ( parts0.length === 3 ) {
+        if ( parts0.length >= 3 ) {
             // .. check structure
             d = Number(parts0[0]);
             d_s = Number(parts0[1]);
@@ -261,8 +231,39 @@ function main ( textBook: string ) {
     console.log( "Remains:  ", big_box.length );
     console.log( "Progress: ", prog + "%" );
 
-    fs.writeFileSync( "db/tmp/exp.json", JSON.stringify( db, null, "\t") );
-    fs.writeFileSync( "db/tmp/d_exp.json", JSON.stringify( big_box, null, "\t") );
+    storage.saveData( big_box, "tmp/" + name, "control" );
+
+    return db;
+
+}
+
+// .. ====================================================================
+
+function patch ( db: TS.db ) {
+
+    let cdnBox = [
+        "وَ ذَكَرَ مِثْل" ,
+        "وَ ذَكَرَ نَحْوَهُ" ,
+        "وَ ذَكَرَ قَضِيَّةً" ,
+    ];
+
+    for( let p of db ) {
+        innerLoop:
+        for ( let q of cdnBox ) {
+            if ( p.a.startsWith( q ) ) {
+                p[9] = p.a + " " + p[9];
+                p.a = "";
+                break innerLoop;
+            }
+        }
+    }
+
+    // .. last trim
+    for ( let p of db ) {
+        p[0] = p[0].replace( / +/g, " " ).trim();
+        p[9] = p[9].replace( / +/g, " " ).trim();
+        p.a = p.a.replace( / +/g, " " ).trim();
+    }
 
     return db;
 
@@ -384,8 +385,11 @@ function hadith_builder( g: string[] ) {
     if ( g.length === 1 ) {
         hadith[0] = "";
         hadith[9] = "";
-        if ( ( g[0].match( /»/g ) || [] ).length === 1 ) {
-            g[0] = g[0].split( "»" )[1];
+        let cdn = "قَالَ :";
+        let idx = g[0].indexOf( cdn );
+        if ( ~idx ) {
+            hadith[0] = g[0].slice( 0, idx + cdn.length );
+            g[0] = g[0].slice( idx + cdn.length );
         }
         hadith.a = g[0];
     }
@@ -401,8 +405,6 @@ function build_patch ( g: string[] ) {
 
     let hadith: TS.db_item = {} as any;
     let parts0 = cheerio.load( g[0] ).text().split( "-" );
-    let hLineId: number;
-    let sLineId: number;
     let bak = g[0];
 
     // ! add rest of parts0

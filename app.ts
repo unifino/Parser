@@ -17,7 +17,7 @@ async function run () {
 
     // .. define N-Pad
     let n_pad = 1;
-    n_pad = await server_الكافي.ignite( "Scratch", n_pad );
+    // n_pad = await server_الكافي.ignite( "Cached", n_pad );
     n_pad = 15414;
     n_pad = await server_وسائل_الشيعة.ignite( "Scratch", n_pad );
     console.log( n_pad );

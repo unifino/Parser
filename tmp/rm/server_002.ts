@@ -60,7 +60,7 @@ function main () {
                 box[i] = box[i].replace( "span", "span class=\"snd\"" );
     }
 
-    // .. remove  2 first lines
+    // .. remove 2 first lines
     box.shift(); box.shift();
     for ( let p of box ) {
         // .. control structure

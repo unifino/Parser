@@ -26,7 +26,7 @@ body{
 p { border-width: 3px; }
 
 span {
-    background-color: rgb(194, 138, 48);
+    background-color: rgb(46, 45, 44);
 }
 
 .libAie{
@@ -71,3 +71,17 @@ q{
 .suffix {
     background-color: rgb(39, 33, 33);
 }
+
+body{width : 700px;margin : auto;padding : 50px;background-color : #2a2a2a;direction : rtl;}p,span{
+    direction : rtl;
+    color : #cecece;
+    font-family : Terafik;
+    margin : 20px;
+    padding : 10px;
+    border : gray 1px dotted;
+    display : block;
+} 
+.aya{color : #18b2e0} 
+.hdeth{color : #67bb46} 
+.snd{color : #88827d} 
+.SHR{color : #700718}

@@ -120,9 +120,6 @@ export function some_edits ( str: string ) {
 
 export function w_0__0 ( item: TS.db_item, idx: number ) {
 
-    // .. skip
-    if ( !~idx ) return item;
-
     // .. concat slot 0
     item.tmp[0].push( item.tmp.w[0].slice( 0, idx ) );
     // .. concat slot a
@@ -137,24 +134,18 @@ export function w_0__0 ( item: TS.db_item, idx: number ) {
 
 // .. ====================================================================
 
-// export function append_9 ( item: TS.db_item, idx: number ) {
+export function w_9__9 ( item: TS.db_item, idx: number ) {
 
-//     // .. skip
-//     if ( !~idx ) return item;
+    let _9ID = item.tmp.w.length -1;
 
-//     // .. preparation slot 0
-//     if ( !item[9] ) item[9] = [];
-//     // .. preparation slot a
-//     if ( !item.a ) item.a = [];
+    // .. concat slot 9
+    item.tmp[9].unshift( item.tmp.w[ _9ID ].slice( idx ) );
+    // .. remove some part of temp w[9] slot
+    item.tmp.w[ _9ID ] = item.tmp.w[ _9ID ].slice( 0, idx );
 
-//     // .. preparation slot 9
-//     item[9].unshift( item.a.slice( idx ) );
-//     // .. preparation slot a
-//     item.a = item.a.slice( 0, idx );
+    return item;
 
-//     return item;
-
-// }
+}
 
 // .. ====================================================================
 

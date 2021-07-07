@@ -391,13 +391,15 @@ function a_0_9 ( db: TS.db ) {
 
     for( let p of db ) {
 
-        // .. find snd part
-        find_ID = p.tmp.w.findIndex( x => x.endsWith( " : " ) );
-        if ( ~find_ID ) p.tmp[0] = p.tmp.w.splice( 0, find_ID +1 );
+        // .. find "snd" part
+        find_ID = p.tmp.w.findIndex( x => x.lastIndexOf(":") > x.length -5 );
+        if ( ~find_ID )
+            p.tmp[0] = [ ...p.tmp[0], ...p.tmp.w.splice( 0, find_ID +1 ) ];
 
-        // .. find same part
-        find_ID = p.tmp.w.findIndex( x => x.startsWith( "*" ) );
-        if ( ~find_ID ) p.tmp[9] = p.tmp.w.splice( find_ID );
+        // .. find "also" part
+        find_ID = p.tmp.w.findIndex( x => x.indexOf("*") < 3 && ~x.indexOf("*") );
+        if ( ~find_ID )
+            p.tmp[9] = [ ...p.tmp.w.splice( find_ID ), ...p.tmp[9] ];
 
     }
 
@@ -409,9 +411,7 @@ function a_0_9 ( db: TS.db ) {
 
 function c_allocator ( db: TS.db ) {
 
-    for( let p of db ) {
-        p = _0(p);
-    }
+    for( let p of db ) p = _0(p);
 
     return db;
 
@@ -682,7 +682,9 @@ function _0 ( item: TS.db_item ) {
 
         if ( p.c !== null ) {
 
-            cut_ID = item.tmp.w[0].indexOf( p.text );
+            try { cut_ID = item.tmp.w[0].indexOf( p.text ) }
+            catch { cut_ID = -1 }
+
             if ( ~cut_ID ) {
                 if ( cut_ID < 3 ) {
                     if ( p.excludesText ) {

@@ -123,11 +123,6 @@ export function w_0__0 ( item: TS.db_item, idx: number ) {
     // .. skip
     if ( !~idx ) return item;
 
-    // .. preparation slot 0
-    if ( !item[0] ) item.tmp[0] = [];
-    // .. preparation slot a
-    if ( !item.a ) item.tmp.a = [];
-
     // .. concat slot 0
     item.tmp[0].push( item.tmp.w[0].slice( 0, idx ) );
     // .. concat slot a

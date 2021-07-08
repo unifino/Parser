@@ -741,6 +741,9 @@ async function dedicated_R () {
 
     }
 
+    // .. prepare DB
+    db = tools.addTmpProps( db );
+
     // ..  do processes synchronously
     let processes: Promise<TS.R[]>[] = [];
     for ( let i=0; i<tools.frag; i++ ) {

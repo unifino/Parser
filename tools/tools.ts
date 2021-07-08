@@ -27,6 +27,7 @@ export function addTmpProps ( db: TS.db ) {
     let tmp_2: string[];
 
     for ( let cell of db ) {
+        if ( !cell.tmp ) cell.tmp = {} as any;
         tmp_1 = basic_tools.inFarsiLetters( cell.a );
         cell.tmp.inFarsiLetter = basic_tools.cutSomePhrases( tmp_1 );
         tmp_2 = cell.tmp.inFarsiLetter.split( " " );

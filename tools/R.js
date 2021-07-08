@@ -11,9 +11,6 @@ let db = workerData;
     let r;
     let time = new Date().getTime();
 
-    // .. [addTmpProps]
-    db = tools.addTmpProps( db );
-
     let A = db.length*( threadId-1 )/tools.frag | 0;
     let B = db.length*( threadId )/tools.frag | 0;
 

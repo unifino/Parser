@@ -31,10 +31,11 @@ export async function ignite ( mode: "Scratch"|"Cached", n_pad: number ) {
     // .. assign c ID
     db = c_allocator( db );
     // .. get Actual DB
-    db = build_db ( db );
+    db = build_db( db );
     // .. N allocation
     n_pad = tools.n_allocation( db, n_pad );
     // .. Patch Cells
+    db = cellPatcher_byHand( db );
     db = cellPatcher( db );
     // .. R allocation
     R = await dedicated_R();
@@ -623,10 +624,57 @@ function build_db ( db: TS.db ) {
     // .. fill actual data
     for ( let p of db ) newDB[ Number(p.d) -1 ] = p;
 
-    for ( let i=1; i<=35868; i++ )
-        newDB[i-1].tmp = {w:[],0:[],9:[],a:[],inFarsiLetter:"",kalamat:[]}
-
     return newDB;
+
+}
+
+// .. ====================================================================
+
+function cellPatcher_byHand ( db: TS.db ) {
+
+    for ( let p of db ) {
+
+        if
+        (
+            ( p.a.includes( "مِثْل" ) || p.a.includes( "نَحْوَهُ" ) ) &&
+            p.a.length < 20
+        )
+        {
+            // .. concat
+            p[0] += " " + p.a;
+            // .. exchange slots
+            if ( !p[9] ) { p[9] = p[0]; p[0] = ""; }
+            // .. purge
+            p.a = "";
+        }
+
+        // .. purge
+        if ( p.a === "." ) p.a = "";
+
+
+    }
+
+    let cdnBox = [ 
+        25462, 29840, 29849, 30432, 30541, 30581, 32501, 33907, 37065,
+        40543, 41036, 41918, 49662, 50087, 51136, 23907, 28334, 22367,
+        22362, 17386, 21609, 45693, 47104, 47228, 24108, 28869, 28870,
+        28887, 29483, 30309, 32278, 32866, 33751, 40947, 50887
+    ];
+    let p: TS.db_item;
+
+    for ( let q of cdnBox ) {
+
+        p = db.find( x => x.n === q );
+        // .. concat
+        p[0] += " " + p.a;
+        // .. exchange slots
+        if ( !p[9] ) { p[9] = p[0]; p[0] = ""; }
+        // .. purge
+        p.a = "";
+
+    }
+
+    return db;
 
 }
 
@@ -648,17 +696,6 @@ function cellPatcher ( db: TS.db ) {
 
 // .. ====================================================================
 
-function append_0 ( item: TS.db_item, idx: number ) {
-
-    item[0] = item[0] + " " + item.a.slice( 0, idx );
-    item.a = item.a.slice( idx );
-
-    return item;
-
-}
-
-// .. ====================================================================
-
 async function dedicated_R () {
 
     let R_Path = tmpFolder + "/" + name + "-R.json";
@@ -669,7 +706,7 @@ async function dedicated_R () {
         return R;
     }
 
-    function runService(workerData): Promise<TS.R[  ]> {
+    function runService(workerData): Promise<TS.R[]> {
 
         return new Promise( (rs, rx) => {
             const worker = new WS.Worker( './tools/R.js', { workerData } );
@@ -682,6 +719,9 @@ async function dedicated_R () {
         } );
 
     }
+
+    // .. prepare DB
+    db = tools.addTmpProps( db );
 
     // ..  do processes synchronously
     let processes: Promise<TS.R[]>[] = [];

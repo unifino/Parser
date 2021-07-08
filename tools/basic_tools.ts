@@ -1,6 +1,5 @@
 import * as TS                          from "../types/types";
 
-
 // .. ====================================================================
 
 export function beautyJSON ( str: string ) {
@@ -59,7 +58,8 @@ export function inFarsiLetters ( str: string ) {
         .replace( /ي/g, 'ی' )
         .replace( /ﺉ/g, 'ی' )
         .replace( /ئ/g, 'ی' )
-        .replace( /ى/g, 'ی' );
+        .replace( /ى/g, 'ی' )
+        .replace( /-/g, ' ' );
         // .replace( /ڑ/g, 'ر' );
 
     return str;
@@ -87,7 +87,6 @@ export function arabicDigits ( str: string ) {
     const base = [ '۰','۱','۲','۳','٤','۵','٦','۷','۸','۹' ];
     return str.replace( /[0-9]/g, w => base[+w] );
 }
-
 
 // .. ====================================================================
 

@@ -174,31 +174,26 @@ export function R_optimizer ( data: TS.R[], min: number ) {
 
 export function R2Bound ( R: TS.R[], ref_db_length: number ) {
 
-    let time = new Date().getTime(),
-        boundBox: TS.boundBox = [],
-        boundLine: TS.boundLine,
+    let boundBox: TS.boundBox = [],
         a: number,
         b: number;
 
     report.notify( "R => Bound" );
 
-    for ( let i=0; i<ref_db_length; i++ ) {
+    for ( let p of R ) {
 
-        report.timer( i, ref_db_length, time );
-
-        boundLine = [];
-        for ( let j=0; j<R.length; j++ ) {
-            a = R[j][0];
-            b = R[j][1];
-            if ( a === i ) boundLine.push(b);
-            if ( b === i ) boundLine.push(a);
-        }
-        boundBox.push( boundLine );
+        a = p[0];
+        b = p[1];
+        if ( boundBox[a] ) boundBox[a].push(b);
+        else boundBox[a] = [b];
+        if ( boundBox[b] ) boundBox[b].push(a);
+        else boundBox[b] = [a];
 
     }
 
-    if ( boundBox.length === ref_db_length ) return boundBox;
-    else console.log( "Critical Error!" );
+    for ( let p of boundBox ) p = [ ...new Set(p) ];
+
+    return boundBox;
 
 }
 
@@ -430,7 +425,9 @@ export async function _db_check_ ( tmpFolder: string, db: TS.db ) {
     let files = storage.getParts( tmpFolder );
 
     let s = files.single.length;
-    console.log( "\n\nsingle", "\t", s );
+    // .. clear line
+    console.log( "\n\n             " );
+    console.log( "\nsingle", "\t", s );
     let d = clusterBoxRealLengthReport( files.double, "double" );
     let m = clusterBoxRealLengthReport( files.multi, "multi" );
     let o = clusterBoxRealLengthReport( files.other, "other" );

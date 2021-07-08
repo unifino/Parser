@@ -264,7 +264,6 @@ function patch ( db: TS.db ) {
         }
     }
 
-    // .. last trim
     for ( let p of db ) {
         p[0] = p[0].replace( / +/g, " " ).trim();
         p[9] = p[9].replace( / +/g, " " ).trim();
@@ -763,6 +762,11 @@ function db_exporter () {
         p.a  = p.a.replace ( /\|Q\|/g, "<Q>" ).replace( /\|\/Q\|/g, "</Q>" );
         p[0] = p[0].replace( /\|Q\|/g, "<Q>" ).replace( /\|\/Q\|/g, "</Q>" );
         p[9] = p[9].replace( /\|Q\|/g, "<Q>" ).replace( /\|\/Q\|/g, "</Q>" );
+
+        p[0] = p[0].replace( /-/g, " - " ).replace( / +/g, " " ).trim();
+        p[9] = p[9].replace( /-/g, " - " ).replace( / +/g, " " ).trim();
+        p.a = p.a.replace( /-/g, " - " ).replace( / +/g, " " ).trim();
+
         if ( p[0].endsWith( " ص‏" ) ) 
             p[0] = p[0].slice( 0, p[0].length -1 ) + "صلى‌الله‌عليه‌وآله‌وسلم";
 

@@ -30,44 +30,26 @@ export async function ignite ( mode: "Scratch"|"Cached", n_pad: number ) {
     db = load_db();
     // .. assign c ID
     db = c_allocator( db );
-
-    let p;
-    // .. D Publisher
-    for ( let i in db ) {
-        p = db[i];
-        // .. last trims
-        p.d = basic_tools.arabicDigits( name + "، الحديث: " + p.d );
-        if ( p.a.endsWith( "» ." ) ) p.a = p.a.slice( 0, p.a.length -2 );
-        p.a  = p.a.replace ( /\|Q\|/g, "<Q>" ).replace( /\|\/Q\|/g, "</Q>" );
-        p[0] = p[0].replace( /\|Q\|/g, "<Q>" ).replace( /\|\/Q\|/g, "</Q>" );
-        p[9] = p[9].replace( /\|Q\|/g, "<Q>" ).replace( /\|\/Q\|/g, "</Q>" );
-        if ( p[0].endsWith( " ص‏" ) )
-            p[0] = p[0].slice( 0, p[0].length -2 ) + "صلى‌الله‌عليه‌وآله‌وسلم";
-        // .. re-sort
-        db[i] = {
-            0: p[0], a: p.a, 9: p[9], 
-            b: p.b, c: p.c, d: p.d, n: p.n,
-            idInSection: p.idInSection, cDB: p.cDB
-        }
-    }
-
+    // .. get Actual DB
+    db = build_db ( db );
     // .. N allocation
     n_pad = tools.n_allocation( db, n_pad );
-    console.log(db.length);
-
-    storage.saveData( db, "tmp/" + name, "db" );
-    // // .. R allocation
-    // R = await dedicated_R();
-    // // .. Get R_67
-    // R = tools.R_optimizer( R, 67 );
-    // // .. search for optimizing
-    // __.cook( R, db, tmpFolder );
-    // // .. check optimized info
-    // await tools._db_check_( tmpFolder, db );
-    // // .. create and save DBs
-    // db_exporter();
-    // // .. clean the tmpFolder
-    // __.janitor( tmpFolder );
+    // .. Patch Cells
+    db = cellPatcher( db );
+    // .. R allocation
+    R = await dedicated_R();
+    // .. Get R_67
+    R = tools.R_optimizer( R, 67 );
+    // .. search for optimizing
+    __.cook( R, db, tmpFolder );
+    // .. check optimized info
+    await tools._db_check_( tmpFolder, db );
+    // .. merge similar ones
+    db = tools.relation_definer( tmpFolder, db );
+    // .. create and save DBs
+    db_exporter();
+    // .. clean the tmpFolder
+    __.janitor( tmpFolder );
     // .. N-PAD report
     return n_pad;
 
@@ -303,7 +285,7 @@ function hadith_builder( g: string[] ) {
     let bak = g[0];
 
     // .. add rest of parts0
-    g[0] = parts0[2].trim();
+    g[0] = parts0.slice(2).join( " - " ).replace( / +/g, " " ).trim();
     hadith.d = Number( parts0[0] ) + "";
     hadith.idInSection = Number( parts0[1] );
 
@@ -430,8 +412,8 @@ function build_patch ( g: string[] ) {
     let parts0 = cheerio.load( g[0] ).text().split( "-" );
     let bak = g[0];
 
-    // ! add rest of parts0
-    g[0] = parts0[2].trim();
+    // .. add rest of parts0
+    g[0] = parts0.slice(2).join( " - " ).replace( / +/g, " " ).trim();
     hadith.d = Number( parts0[0] ) + "";
     hadith.idInSection = Number( parts0[1] );
 
@@ -630,6 +612,42 @@ function c_by_xx ( item: TS.db_item ) {
 
 // .. ====================================================================
 
+function build_db ( db: TS.db ) {
+
+    let newDB: TS.db = [];
+
+    // .. create empty template
+    for ( let i=1; i<=35868; i++ )
+        newDB[i-1] = {0:"",9:"",a:"",b:"",c:null,d:i+"",cDB:[],n:null}
+
+    // .. fill actual data
+    for ( let p of db ) newDB[ Number(p.d) -1 ] = p;
+
+    for ( let i=1; i<=35868; i++ )
+        newDB[i-1].tmp = {w:[],0:[],9:[],a:[],inFarsiLetter:"",kalamat:[]}
+
+    return newDB;
+
+}
+
+// .. ====================================================================
+
+function cellPatcher ( db: TS.db ) {
+
+    let filePath = "source/" + name +  "/patches.json";
+    // .. check
+    fs.accessSync( filePath, fs.constants.R_OK );
+    // .. get source
+    let patches: TS.db = JSON.parse( fs.readFileSync( filePath , 'utf8' ) );
+    // .. apply patch
+    for ( let p of patches ) db[ db.findIndex( x => x.n === p.n ) ] = p;
+
+    return db;
+
+}
+
+// .. ====================================================================
+
 function append_0 ( item: TS.db_item, idx: number ) {
 
     item[0] = item[0] + " " + item.a.slice( 0, idx );
@@ -692,7 +710,6 @@ async function dedicated_R () {
 
 function db_exporter () {
 
-    db = tools.relation_definer( tmpFolder, db );
     let p: TS.db_item;
 
     // .. D Publisher

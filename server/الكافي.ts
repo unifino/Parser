@@ -40,6 +40,8 @@ export async function ignite ( mode: "Scratch"|"Cached", n_pad: number ) {
     __.cook( R, db, tmpFolder );
     // .. check optimized info
     await tools._db_check_( tmpFolder, db );
+    // .. merge similar ones
+    db = tools.relation_definer( tmpFolder, db );
     // .. create and save DBs
     db_exporter();
     // .. clean the tmpFolder
@@ -766,7 +768,6 @@ async function dedicated_R () {
 
 function db_exporter () {
 
-    db = tools.relation_definer( tmpFolder, db );
     let p: TS.db_item;
 
     // .. D Publisher

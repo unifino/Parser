@@ -34,7 +34,7 @@ export async function ignite ( mode: "Scratch"|"Cached", n_pad: number ) {
     // .. N allocation
     n_pad = tools.n_allocation( db, n_pad );
     // .. R allocation
-    R = await dedicated_R();
+    R = await __.inner_R( R_Path, db, tmpFolder, name );
     // .. Get R_67
     R = tools.R_optimizer( R, 67 );
     // .. search for optimizing
@@ -718,56 +718,6 @@ function _0 ( item: TS.db_item ) {
 
 // .. ====================================================================
 
-async function dedicated_R () {
-
-    // .. return cached
-    if ( fs.existsSync( R_Path ) ) {
-        R = JSON.parse( fs.readFileSync( R_Path, 'utf8' ) );
-        return R;
-    }
-
-    function runService(workerData): Promise<TS.R[  ]> {
-
-        return new Promise( (rs, rx) => {
-            const worker = new WS.Worker( './tools/R.js', { workerData } );
-            worker.on( 'message', rs );
-            worker.on( 'error', rx );
-            worker.on( 'exit', code => {
-            if ( code !== 0 )
-                rx( new Error(`Worker stopped with exit code ${code}`) );
-            } )
-        } );
-
-    }
-
-    // .. prepare DB
-    db = tools.addTmpProps( db );
-
-    // ..  do processes synchronously
-    let processes: Promise<TS.R[]>[] = [];
-    for ( let i=0; i<tools.frag; i++ ) {
-        processes.push( runService( db ) );
-    }
-
-    // .. init R
-    R = [];
-    // .. wait for all processes get Done.
-    await Promise.all( processes ).then( RS => { 
-        for ( let r of RS ) R = [ ...R, ...r ]
-    } );
-
-    // .. wait a bit
-    await new Promise( _ => setTimeout( _, 700 ) );
-    report.cursor( 22, 0 );
-
-    storage.saveData( R, tmpFolder, name + "-R", true );
-
-    return R;
-
-}
-
-// .. ====================================================================
-
 function db_exporter () {
 
     let p: TS.db_item;
@@ -799,7 +749,7 @@ function db_exporter () {
 
 // .. ====================================================================
 
-function resource_update () {
+export function resource_update () {
 
     let db_Path = "db/" + name + ".json";
 

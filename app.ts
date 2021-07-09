@@ -13,114 +13,91 @@ import * as WS                          from "worker_threads";
 
 // .. ====================================================================
 
+let tmpFolder = "tmp/";
+
+// .. ====================================================================
+
 async function run () {
 
     // .. define N-Pad
     let n_pad;
     // n_pad = await server_الكافي.ignite( "Cached", n_pad || 1 );
     // n_pad = await server_وسائل_الشيعة.ignite( "Cached", n_pad || 15414 );
-    n_pad = await server_نهج_البلاغة.ignite( "Cached", n_pad || 51282 );
+    // n_pad = await server_نهج_البلاغة.ignite( "Cached", n_pad || 51282 );
+
+    // .. Mutual-R
+    // let RX_2_name = "RX_2";
+    // let RX_2_Path = tmpFolder + RX_2_name + ".json";
+    // let RX_2 = __.outer_R(
+    //     RX_2_Path,
+    //     server_وسائل_الشيعة.db,
+    //     server_الكافي.db,
+    //     tmpFolder,
+    //     RX_2_name
+    // );
+    // // .. Mutual-R
+    // let RX_3 = __.R_R( server_نهج_البلاغة.db, [ ...server_الكافي.db, ...server_وسائل_الشيعة.db ] );
 
 }
 
 // .. ====================================================================
 
-// function getFiles (): [ TS.R[], TS.db_item[] ] {
+function getFiles (): [ TS.R[], TS.db_item[] ] {
 
-//     // .. define path *
-//     let RR_1_Path = server001.tmpFolder + "RR.json";
-//     let RR_2_Path = server002.tmpFolder + "RR.json";
-//     let RR_3_Path = server003.tmpFolder + "RR.json";
-//     let RX_2_Path = tmpFolder + "RX_2.json";
-//     let RX_3_Path = tmpFolder + "RX_3.json";
+    server_الكافي.resource_update();
+    server_وسائل_الشيعة.resource_update();
+    server_نهج_البلاغة.resource_update();
 
-//     // .. get Rs
-//     let RR_1 = JSON.parse( fs.readFileSync( RR_1_Path, 'utf8' ) );
-//     let RR_2 = JSON.parse( fs.readFileSync( RR_2_Path, 'utf8' ) );
-//     let RR_3 = JSON.parse( fs.readFileSync( RR_3_Path, 'utf8' ) );
-//     let RX_2 = JSON.parse( fs.readFileSync( RX_2_Path, 'utf8' ) );
-//     let RX_3 = JSON.parse( fs.readFileSync( RX_3_Path, 'utf8' ) );
+    // .. get Rs
+    let RR_1 = server_الكافي.R;
+    let RR_2 = server_وسائل_الشيعة.R;
+    let RR_3 = server_نهج_البلاغة.R;
 
-//     // .. optimize Rs
-//     let R = [ ...RR_1, ...RR_2, ...RR_3, ...RX_2, ...RX_3 ];
-//     let R_R__ = tools.R_optimizer ( R, 67 );
+    // .. optimize Rs
+    let R = [ ...RR_1, ...RR_2, ...RR_3 ];
+    let R_R__ = tools.R_optimizer ( R, 67 );
 
-//     server001.resource_update();
-//     server002.resource_update();
-//     server003.resource_update();
+    // .. merge db_s **
+    let db = [
+        ...server_الكافي.db,
+        ...server_وسائل_الشيعة.db,
+        ...server_نهج_البلاغة.db 
+    ];
 
-//     // .. merge db_s **
-//     let db = [
-//         ...server001.db,
-//         ...server002.db,
-//         ...server003.db 
-//     ];
+    return [ R_R__, db ];
 
-//     return [ R_R__, db ];
-
-// }
+}
 
 // .. ====================================================================
 
-// async function _dbdb_ () {
+async function db_db () {
 
-//     let R_R__: TS.R[];
-//     let db: TS.db_item[];
+    let R_R__: TS.R[];
+    let db: TS.db_item[];
 
-//     [ R_R__, db ] = getFiles();
+    [ R_R__, db ] = getFiles();
 
-//     // .. get preparations
-//     __._db_( R_R__, db, tmpFolder );
+    // .. get preparations
+    // __._db_( R_R__, db, tmpFolder );
 
-//     // .. check result
-//     await tools._db_check_( tmpFolder, db );
+    // .. check result
+    await tools._db_check_( tmpFolder, db );
 
-//     // .. get relations in one BIG DB
-//     db = tools.relation_definer( tmpFolder, db );
+    // .. get relations in one BIG DB
+    db = tools.relation_definer( tmpFolder, db );
 
-//     // .. save DBs | divide them ***
-//     let n1 = server001.db.length; let c1 = n1;
-//     let n2 = server002.db.length; let c2 = n1 + n2;
-//     let n3 = server003.db.length; let c3 = n1 + n2 + n3;
-//     storage.saveData( db.slice( 0,  c1 ), "db/ready", server001.name );
-//     storage.saveData( db.slice( c1, c2 ), "db/ready", server002.name );
-//     storage.saveData( db.slice( c2, c3 ), "db/ready", server003.name );
+    // .. save DBs | divide them ***
+    let n1 = server_الكافي.db.length; let c1 = n1;
+    let n2 = server_وسائل_الشيعة.db.length; let c2 = n1 + n2;
+    let n3 = server_نهج_البلاغة.db.length; let c3 = n1 + n2 + n3;
+    storage.saveData( db.slice( 0,  c1 ), "db/ready", server_الكافي.name );
+    storage.saveData( db.slice( c1, c2 ), "db/ready", server_وسائل_الشيعة.name );
+    storage.saveData( db.slice( c2, c3 ), "db/ready", server_نهج_البلاغة.name );
 
-//     // .. clean the tmpFolder
-//     __.janitor( tmpFolder );
+    // .. clean the tmpFolder
+    __.janitor( tmpFolder );
 
-// }
-
-// .. ====================================================================
-
-// let n_pad: number;
-// // .. ignite server 001 | n_pad: 1 => 15413
-// await server001.ignite( "Cached", 1 ).then( n => n_pad = n );
-// // .. ignite server 002 | n_pad: 15414 => 51281 ( 15413 + 35868 )
-// await server002.ignite( "Cached", n_pad ).then( n => n_pad = n );
-// // .. ignite server 003 | n:pad: 51281 => 52564 ( 51281 + 1 + 1283 )
-// await server003.ignite( "Cached", n_pad ).then( n => n_pad = n );
-// // .. Self-R
-// __._R_( server001.db_v1, server001.tmpFolder );
-// __._R_( server002.db_v1, server002.tmpFolder );
-// __._R_( server003.db_v1, server003.tmpFolder );
-
-// // .. update files
-// server001.resource_update();
-// server002.resource_update();
-// server003.resource_update();
-
-// // .. Mutual-R
-// let R = __.R_R( server002.db, server001.db );
-// storage.saveData( R, "db/tmp/", "RX_2" );
-// // .. Mutual-R
-// let R = __.R_R( server003.db, [ ...server001.db, ...server002.db ] );
-// storage.saveData( R, "db/tmp/", "RX_3" );
-
-// // .. optimizing: search & check & save
-// _dbdb_();
-
-// finder.init();
+}
 
 // .. ====================================================================
 

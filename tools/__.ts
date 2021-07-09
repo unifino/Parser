@@ -1,6 +1,7 @@
 import * as tools                       from "./tools";
 import * as report                      from "./logger"
 import * as TS                          from "../types/types";
+import * as WS                          from "worker_threads";
 import * as storage                     from "./storage";
 import * as basic_tools                 from "./basic_tools";
 import * as fs                          from "fs";
@@ -169,49 +170,100 @@ export function hrCtr ( page: string[], HR: string ) {
 
 // .. ====================================================================
 
-// export function set_trimmer ( str: string ) {
+export async function inner_R (
+    R_Path: string,
+    db: TS.db,
+    tmpFolder: string,
+    name: string
+) {
 
-//     str = str.replace( /<span class=libFootnote>/g, "" );
-//     str = str.replace( "<p class=libFootnote>", "" );
-//     str = str.replace( "<p class=libNormal>", "" );
-//     str = str.replace( "<span class=libNormal>", "" );
-//     str = str.replace( "<span class=libNum>", "" );
-//     str = str.replace( "<p class=libPoem>", "" );
-//     str = str.replace( "<p class=libPoemCenter>", "" );
-//     str = str.replace( /<\/span>/g, "" );
-//     str = str.replace( /<p>/g, "" );
-//     str = str.replace( /<\/p>/g, "" );
+    let R: TS.R[] = [];
 
-//     str = str.replace( /(<([^>]+)>)/ig, '' );
+    // .. return cached
+    if ( fs.existsSync( R_Path ) ) {
+        R = JSON.parse( fs.readFileSync( R_Path, 'utf8' ) );
+        return R;
+    }
 
-//     str = str.replace( / ‌/g, " " );
-//     str = str.replace( / +/g, " " );
-//     str = str.trim();
+    // .. prepare DB
+    db = tools.addTmpProps( db );
 
-//     // let a = ( str.match( /\[/g ) || [] ).length;
-//     // let b = ( str.match( /\]/g ) || [] ).length;
-//     // // .. report errors
-//     // if ( a !== b ) console.log( "Unexpected ID Format: ", a, b, str );
+    // .. do processes synchronously
+    let prs: Promise<TS.R[]>[] = [];
+    for ( let i=0; i<tools.frag; i++ ) prs.push( R_worker( db, "inner" ) );
 
-//     return str;
+    // .. wait for all processes get Done.
+    await Promise.all( prs ).then( RS => {
+        for ( let r of RS ) R = [ ...R, ...r ]
+    } );
+
+    // .. wait a bit
+    await new Promise( _ => setTimeout( _, 700 ) );
+    report.cursor( 22, 0 );
+
+    storage.saveData( R, tmpFolder, name + "-R", true );
+
+    return R;
+
+}
+
+// .. ====================================================================
+
+// export async function outer_R ( 
+//     R_Path: string,
+//     db_01: TS.db,
+//     db_02: TS.db,
+//     tmpFolder: string,
+//     name: string
+// ) {
+
+//     let R: TS.R[] = [];
+
+//     // .. return cached
+//     if ( fs.existsSync( R_Path ) ) {
+//         R = JSON.parse( fs.readFileSync( R_Path, 'utf8' ) );
+//         return R;
+//     }
+
+//     // .. prepare DBs
+//     tools.addTmpProps( db_01 );
+//     tools.addTmpProps( db_02 );
+
+//     // .. do processes synchronously
+//     let prs: Promise<TS.R[]>[] = [];
+//     for ( let i=0; i<tools.frag; i++ ) prs.push( R_worker( db, "outer" ) );
+
+//     // .. wait for all processes get Done.
+//     await Promise.all( prs ).then( RS => {
+//         for ( let r of RS ) R = [ ...R, ...r ]
+//     } );
+
+//     // .. wait a bit
+//     await new Promise( _ => setTimeout( _, 700 ) );
+//     report.cursor( 22, 0 );
+
+//     storage.saveData( R, tmpFolder, name + "-R", true );
+
+//     return R;
 
 // }
 
 // .. ====================================================================
 
-// export function R_R ( db_01: TS.db, db_02: TS.db ) {
+function R_worker( workerData: TS.db, type: "inner"|"outer" ): Promise<TS.R[]> {
 
-//     let R: TS.R[] = [];
+    let address = "./tools/" + type + "R_worker.js";
 
-//     // .. [addTmpProps]
-//     tools.addTmpProps( db_01 );
-//     tools.addTmpProps( db_02 );
+    return new Promise( (rs, rx) => {
+        const worker = new WS.Worker( address, { workerData } );
+        worker.on( 'message', rs );
+        worker.on( 'error', rx );
+        worker.on( 'exit', code => {
+            if ( code ) rx( new Error(`Worker stopped! ${code}`) );
+        } )
+    } );
 
-//     R = tools.R_old( db_02, db_01, false );
-
-//     return R;
-
-// }
+}
 
 // .. ====================================================================
 

@@ -1,5 +1,5 @@
-const tools = require( "../tools/tools" );
-const report = require( "../tools/logger" );
+const tools = require( "./tools" );
+const report = require( "./logger" );
 const readline = require( "readline" );
 const { workerData, parentPort, threadId } = require('worker_threads');
 

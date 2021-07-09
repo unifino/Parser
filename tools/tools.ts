@@ -56,37 +56,6 @@ export async function R ( item: TS.db_item, reference: TS.db ) {
 
 // .. ====================================================================
 
-export function R_old ( newDB: TS.db, reference: TS.db, detour: boolean ) {
-
-    let R: TS.R[] = [],
-        title = " Mutual R Calc.",
-        time = new Date().getTime();
-
-        report.notify( "Mutual R Calc." );
-        for ( let i=0; i<newDB.length; i++ ) {
-
-            report.timer( i, newDB.length, time, 16 );
-
-            // .. detour mode just for same : db-db mode
-            if ( detour )
-                for ( let j = i+1; j < newDB.length; j++)
-                    R.push( R_Calc( newDB[i], newDB[j] ) );
-
-            // .. normal | long mode
-            else
-                for ( let x of reference ) R.push( R_Calc( newDB[i], x ) );
-
-            // .. memory releaser
-            if ( Number(i) % 999 ) R = R.filter( x => x[2] > 30 );
-
-        }
-
-    return R;
-
-}
-
-// .. ====================================================================
-
 function R_Calc ( A: TS.db_item, X: TS.db_item ): TS.R {
 
     // .. critical error
@@ -104,26 +73,6 @@ function R_Calc ( A: TS.db_item, X: TS.db_item ): TS.R {
     let correlationRate = ( (totalParts - totalRemains) / totalParts )*100;
 
     let r: TS.R = [ A.n, X.n, (correlationRate*100|0)/100 ];
-
-    return r;
-
-}
-// .. ====================================================================
-
-function R_Calc__old ( i: number, j: number, db: TS.db ): TS.R {
-
-    let partsA = db[i].tmp.kalamat.slice(0);
-    let partsX = db[j].tmp.kalamat.slice(0);
-    let totalParts = partsA.length + partsX.length;
-
-    // .. trimming by A on (X and A)
-    pAOX( partsA, partsX );
-    partsA = partsA.filter( a => a );
-
-    let totalRemains = partsA.length + partsX.length;
-    let correlationRate = ( (totalParts - totalRemains) / totalParts )*100;
-
-    let r: TS.R = [ i, j, (correlationRate*100|0)/100 ];
 
     return r;
 

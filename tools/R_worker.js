@@ -2,9 +2,7 @@ const tools = require( "./tools" );
 const { workerData, parentPort, threadId } = require('worker_threads');
 
 let R = [];
-let dbs = workerData;
-let db = [];
-for ( let p of dbs ) db = [ ...db, ...p ];
+let db = workerData;
 
 ( async function rrr () {
 

@@ -28,9 +28,10 @@ async function run () {
     // .. Mutual-R
     let final_name = "نهاية";
     let final_path = tmpFolder + final_name + "-R.json";
+    let db = [ ...server_الكافي.db, ...server_وسائل_الشيعة.db, ...server_نهج_البلاغة.db ];
     let final_R = await __.R_wrapper(
         final_path,
-        [ server_الكافي.db, server_وسائل_الشيعة.db, server_نهج_البلاغة.db ].slice(2),
+        db,
         tmpFolder,
         final_name
     );

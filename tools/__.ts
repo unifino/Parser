@@ -174,7 +174,7 @@ let R: TS.R[] = [];
 
 export async function R_wrapper (
     R_Path: string,
-    dbs: TS.db[],
+    db: TS.db,
     tmpFolder: string,
     name: string
 ) {
@@ -186,13 +186,13 @@ export async function R_wrapper (
     }
 
     time = new Date().getTime()
-    report.timer( fragged, tools.fragment, time, 4 );
+    report.timer( 0, tools.fragment, time, 4 );
 
     // .. prepare DB
-    for ( let db of dbs ) db = tools.addTmpProps( db );
+    db = tools.addTmpProps( db );
 
     // .. do processes synchronously
-    for ( let i=0; i<tools.cpus; i++ ) R_worker( dbs );
+    for ( let i=0; i<tools.cpus; i++ ) R_worker( db );
 
     // .. wait
     await waiter();
@@ -210,7 +210,7 @@ export async function R_wrapper (
 
 async function waiter () {
     await new Promise( _ => setTimeout( _, 700 ) );
-    if ( fragged >= tools.fragment ) return Promise.resolve();
+    if ( fragged > tools.fragment ) return Promise.resolve();
     else return waiter();
 }
  
@@ -219,23 +219,24 @@ async function waiter () {
 let fragged = tools.cpus;
 let time: number;
 
-function R_worker( workerData: TS.db[] ): Promise<TS.R[]> {
+function R_worker( workerData: TS.db ): Promise<TS.R[]> {
 
     let address = "./tools/R_worker.js";
 
     return new Promise( (rs, rx) => {
         const worker = new WS.Worker( address, { workerData } );
         worker.on( 'message', r => {
-            // .. report progress
-            report.timer( fragged, 100, time, 4 );
             // .. concat R
             R = [ ...R, ...r ];
-            rs;
+            // .. counter
+            fragged++;
+            // .. new Worker
+            if ( fragged < tools.fragment ) R_worker( workerData );
+            // .. report progress
+            report.timer( fragged, tools.fragment, time, 4 );
         } );
         worker.on( 'error', rx );
         worker.on( 'exit', code => {
-            fragged++;
-            if ( fragged < tools.fragment ) R_worker( workerData );
             if ( code ) rx( new Error(`Worker stopped! ${code}`) );
         } )
     } );

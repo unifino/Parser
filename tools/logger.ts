@@ -31,7 +31,7 @@ export function timer ( i: number, z: number, time: number, line=4 ) {
     readline.clearLine( process.stdout, 0 );
     cursor( line, 0 );
     console.log( dialog );
-    cursor( line, 0 );
+    cursor( line+1, 0 );
 
 }
 
@@ -86,3 +86,5 @@ export function clock () {
     cursor( 22, 0 );
 
 }
+
+// .. ====================================================================

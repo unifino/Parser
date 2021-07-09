@@ -2,7 +2,7 @@ import * as __                          from "./tools/__";
 import * as report                      from "./tools/logger"
 import * as server_الكافي                  from "./server/الكافي";
 import * as server_وسائل_الشيعة             from "./server/وسائل‌الشيعة";
-import * as server003                   from "./tmp/rm/server_003";
+import * as server_نهج_البلاغة              from "./server/نهج‌البلاغة";
 import * as finder                      from "./tmp/rm/finder";
 import * as appendix                    from "./tmp/rm/appendix";
 import * as storage                     from "./tools/storage";
@@ -17,8 +17,9 @@ async function run () {
 
     // .. define N-Pad
     let n_pad;
-    n_pad = await server_الكافي.ignite( "Cached", n_pad || 1 );
-    n_pad = await server_وسائل_الشيعة.ignite( "Cached", n_pad || 15414 );
+    // n_pad = await server_الكافي.ignite( "Cached", n_pad || 1 );
+    // n_pad = await server_وسائل_الشيعة.ignite( "Cached", n_pad || 15414 );
+    n_pad = await server_نهج_البلاغة.ignite( "Cached", n_pad || 51282 );
 
 }
 

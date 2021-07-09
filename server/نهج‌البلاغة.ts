@@ -1,67 +1,52 @@
 import * as tools                       from "../tools/tools";
 import * as __                          from "../tools/__";
 import * as TS                          from "../types/types";
+import * as WS                          from "worker_threads";
 import * as storage                     from "../tools/storage";
 import * as basic_tools                 from "../tools/basic_tools";
 import * as fs                          from "fs";
 import * as cheerio                     from 'cheerio';
+import * as report                      from "../tools/logger"
 
 // .. ====================================================================
 
 export let name      = "نهج‌البلاغة";
-export let tmpFolder = "db/tmp/" + name + "/";
-export let tmpDB_Path = tmpFolder + name + ".json";
-export let tmpDB;
-try { tmpDB = JSON.parse( fs.readFileSync( tmpDB_Path, 'utf8' ) ) } catch {}
-let db_v1_Path       = tmpFolder + "01.json";
-export let db_Path   = "db/ready/" + name + ".json";
-let R_Path           = tmpFolder + "RR.json";
-export let db_v1     : TS.db;
 export let db        : TS.db;
-let R                : TS.R[];
-let R__              : TS.R[];
+export let R         : TS.R[];
+
+let tmpFolder        = "tmp/" + name + "/";
+let R_Path              = tmpFolder + "/" + name + "-R.json";
 
 resource_update ();
 
 // .. ====================================================================
 
 export async function ignite ( mode: "Scratch"|"Cached", n_pad: number ) {
-    // .. tiny edit
-    n_pad = n_pad +1;
+
     // .. init server
-    await init( mode );
-    // .. update resources
-    resource_update ();
+    report.notify( name );
+    // .. init DB
+    db = [];
+    // .. get v0 [ Scratch | Cached ]
+    db = load_db_v0( mode );
+    // .. rename d section
+    db = setTitle( db );
     // .. N allocation
-    n_pad = tools.n_allocation( db_v1, n_pad );
+    n_pad = tools.n_allocation( db, n_pad );
+    // .. R allocation
+    R = await dedicated_R();
+    // .. Get R_67
+    R = tools.R_optimizer( R, 67 );
     // .. search for optimizing
-    __._db_( R__, db_v1, tmpFolder );
+    __.cook( R, db, tmpFolder );
     // .. check optimized info
-    await tools._db_check_( tmpFolder, db_v1 );
+    await tools._db_check_( tmpFolder, db );
     // .. create and save DBs
     db_exporter();
     // .. clean the tmpFolder
     __.janitor( tmpFolder );
     // .. N-PAD report
-    return n_pad -1;
-}
-
-// .. ====================================================================
-
-export function init ( mode: "Scratch"|"Cached" ) {
-
-    tools.notify( "  " + name + " " );
-
-    let db = [];
-
-    // .. get v0 [ Scratch | Cached ]
-    db = load_db_v0( mode );
-    // .. rename d section
-    db = setTitle( db );
-
-    // .. write-down DB
-    storage.saveData( db, tmpFolder, "01" );
-    storage.saveData( db, "db/ready", name );
+    return n_pad;
 
 }
 
@@ -320,29 +305,82 @@ function setTitle ( db: TS.db ) {
 
 // .. ====================================================================
 
+async function dedicated_R () {
+
+    // .. return cached
+    if ( fs.existsSync( R_Path ) ) {
+        R = JSON.parse( fs.readFileSync( R_Path, 'utf8' ) );
+        return R;
+    }
+
+    function runService(workerData): Promise<TS.R[]> {
+
+        return new Promise( (rs, rx) => {
+            const worker = new WS.Worker( './tools/R.js', { workerData } );
+            worker.on( 'message', rs );
+            worker.on( 'error', rx );
+            worker.on( 'exit', code => {
+            if ( code !== 0 )
+                rx( new Error(`Worker stopped with exit code ${code}`) );
+            } )
+        } );
+
+    }
+
+    // .. prepare DB
+    db = tools.addTmpProps( db );
+
+    // ..  do processes synchronously
+    let processes: Promise<TS.R[]>[] = [];
+    for ( let i=0; i<tools.frag; i++ ) {
+        processes.push( runService( db ) );
+    }
+
+    // .. init R
+    R = [];
+    // .. wait for all processes get Done.
+    await Promise.all( processes ).then( RS => { 
+        for ( let r of RS ) R = [ ...R, ...r ]
+    } );
+
+    // .. wait a bit
+    await new Promise( _ => setTimeout( _, 700 ) );
+    report.cursor( 22, 0 );
+
+    storage.saveData( R, tmpFolder, name + "-R", true );
+
+    return R;
+
+}
+
+// .. ====================================================================
+
 export function db_exporter () {
 
-    db_v1 = tools.relation_definer( tmpFolder, db_v1 );
+    db = tools.relation_definer( tmpFolder, db );
 
     // .. last trims
-    for ( let p of db_v1 ) {
+    for ( let p of db ) {
         try { p[0] = p[0].replace( / +/g, " " ).trim() } catch {}
         try { p[9] = p[9].replace( / +/g, " " ).trim() } catch {}
         try { p.a = p.a.replace( / +/g, " " ).trim() } catch {}
+        try { p.b = p.b.replace( / +/g, " " ).trim() } catch {}
     }
 
-    storage.saveData( db_v1, "db/ready", name );
+    storage.saveData( db, "db", name );
 
 }
 
 // .. ====================================================================
 
 export function resource_update () {
+
+    let db_Path = "db/" + name + ".json";
+
     try { fs.mkdirSync( tmpFolder ) } catch {}
-    try { db_v1 = JSON.parse( fs.readFileSync( db_v1_Path, 'utf8' ) ) } catch {}
-    try { db    = JSON.parse( fs.readFileSync( db_Path   , 'utf8' ) ) } catch {}
-    try { R     = JSON.parse( fs.readFileSync( R_Path    , 'utf8' ) ) } catch {}
-    try { R__   = tools.R_optimizer ( R, 67 )                         } catch {}
+    try { db = JSON.parse( fs.readFileSync( db_Path, 'utf8' ) ) } catch {}
+    try { R  = JSON.parse( fs.readFileSync( R_Path,  'utf8' ) ) } catch {}
+
 }
 
 // .. ====================================================================

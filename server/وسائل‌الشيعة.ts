@@ -15,6 +15,7 @@ export let db           : TS.db;
 export let R            : TS.R[];
 
 let tmpFolder           = "tmp/" + name + "/";
+let R_Path              = tmpFolder + "/" + name + "-R.json";
 
 resource_update ();
 
@@ -697,8 +698,6 @@ function cellPatcher ( db: TS.db ) {
 
 async function dedicated_R () {
 
-    let R_Path = tmpFolder + "/" + name + "-R.json";
-
     // .. return cached
     if ( fs.existsSync( R_Path ) ) {
         R = JSON.parse( fs.readFileSync( R_Path, 'utf8' ) );
@@ -791,6 +790,7 @@ function resource_update () {
 
     try { fs.mkdirSync( tmpFolder ) } catch {}
     try { db = JSON.parse( fs.readFileSync( db_Path, 'utf8' ) ) } catch {}
+    try { R  = JSON.parse( fs.readFileSync( R_Path,  'utf8' ) ) } catch {}
 
 }
 

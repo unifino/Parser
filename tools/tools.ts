@@ -64,13 +64,22 @@ function R_Calc ( A: TS.db_item, X: TS.db_item ): TS.R {
     let partsA = A.tmp.kalamat.slice(0);
     let partsX = X.tmp.kalamat.slice(0);
     let totalParts = partsA.length + partsX.length;
+    // .. preserve match_c info
+    let match_C = (partsA.length>=5 && partsX.length>=5) ? 
+        Math.abs( partsA.length - partsX.length ) : 0;
 
     // .. trimming by A on (X and A)
     pAOX( partsA, partsX );
     partsA = partsA.filter( a => a );
 
     let totalRemains = partsA.length + partsX.length;
-    let correlationRate = ( (totalParts - totalRemains) / totalParts )*100;
+
+    // .. match_c meets not the condition
+    if ( partsA.length > 5 && partsX.length > 5 ) match_C = 0;
+    // .. calculate final matched value
+    match_C += totalParts - totalRemains;
+
+    let correlationRate = ( match_C / totalParts )*100;
 
     let r: TS.R = [ A.n, X.n, (correlationRate*100|0)/100 ];
 

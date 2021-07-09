@@ -7,8 +7,7 @@
     },
     "include": [
         "**/*.ts",
-        "tools/innerR_worker.js",
-        "tools/outerR_worker.js"
+        "tools/R_worker.js"
     ],
     "exclude": [
         "node_modules",

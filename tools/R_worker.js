@@ -4,9 +4,11 @@ const readline = require( "readline" );
 const { workerData, parentPort, threadId } = require('worker_threads');
 
 let R = [];
-let db = workerData;
+let dbs = workerData;
+let db = [];
+for ( let p of dbs ) db = [ ...db, ...p ];
 
-( async function _R_ () {
+( async () => {
 
     let r;
     let time = new Date().getTime();
@@ -22,4 +24,4 @@ let db = workerData;
 
     parentPort.postMessage( R );
 
-} )()
+} )();

@@ -170,9 +170,9 @@ export function hrCtr ( page: string[], HR: string ) {
 
 // .. ====================================================================
 
-export async function inner_R (
+export async function R (
     R_Path: string,
-    db: TS.db,
+    dbs: TS.db[],
     tmpFolder: string,
     name: string
 ) {
@@ -186,11 +186,11 @@ export async function inner_R (
     }
 
     // .. prepare DB
-    db = tools.addTmpProps( db );
+    for ( let db of dbs ) db = tools.addTmpProps( db );
 
     // .. do processes synchronously
     let prs: Promise<TS.R[]>[] = [];
-    for ( let i=0; i<tools.frag; i++ ) prs.push( R_worker( db, "inner" ) );
+    for ( let i=0; i<tools.frag; i++ ) prs.push( R_worker( dbs ) );
 
     // .. wait for all processes get Done.
     await Promise.all( prs ).then( RS => {
@@ -209,50 +209,9 @@ export async function inner_R (
 
 // .. ====================================================================
 
-// export async function outer_R ( 
-//     R_Path: string,
-//     db_01: TS.db,
-//     db_02: TS.db,
-//     tmpFolder: string,
-//     name: string
-// ) {
+function R_worker( workerData: TS.db[] ): Promise<TS.R[]> {
 
-//     let R: TS.R[] = [];
-
-//     // .. return cached
-//     if ( fs.existsSync( R_Path ) ) {
-//         R = JSON.parse( fs.readFileSync( R_Path, 'utf8' ) );
-//         return R;
-//     }
-
-//     // .. prepare DBs
-//     tools.addTmpProps( db_01 );
-//     tools.addTmpProps( db_02 );
-
-//     // .. do processes synchronously
-//     let prs: Promise<TS.R[]>[] = [];
-//     for ( let i=0; i<tools.frag; i++ ) prs.push( R_worker( db, "outer" ) );
-
-//     // .. wait for all processes get Done.
-//     await Promise.all( prs ).then( RS => {
-//         for ( let r of RS ) R = [ ...R, ...r ]
-//     } );
-
-//     // .. wait a bit
-//     await new Promise( _ => setTimeout( _, 700 ) );
-//     report.cursor( 22, 0 );
-
-//     storage.saveData( R, tmpFolder, name + "-R", true );
-
-//     return R;
-
-// }
-
-// .. ====================================================================
-
-function R_worker( workerData: TS.db, type: "inner"|"outer" ): Promise<TS.R[]> {
-
-    let address = "./tools/" + type + "R_worker.js";
+    let address = "./tools/R_worker.js";
 
     return new Promise( (rs, rx) => {
         const worker = new WS.Worker( address, { workerData } );

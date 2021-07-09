@@ -26,16 +26,15 @@ async function run () {
     // n_pad = await server_نهج_البلاغة.ignite( "Cached", n_pad || 51282 );
 
     // .. Mutual-R
-    let RX_2_name = "RX_2";
-    let RX_2_Path = tmpFolder + RX_2_name + "-R.json";
-    let RX_2 = await __.R(
-        RX_2_Path,
-        [ server_نهج_البلاغة.db ],
+    let final_name = "نهاية";
+    let final_path = tmpFolder + final_name + "-R.json";
+    let final_R = await __.R_wrapper(
+        final_path,
+        [ server_الكافي.db, server_وسائل_الشيعة.db, server_نهج_البلاغة.db ].slice(2),
         tmpFolder,
-        RX_2_name
+        final_name
     );
-    // // .. Mutual-R
-    // let RX_3 = __.R_R( server_نهج_البلاغة.db, [ ...server_الكافي.db, ...server_وسائل_الشيعة.db ] );
+
 
 }
 

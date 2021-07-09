@@ -6,7 +6,8 @@ import * as OS                          from "os";
 
 // .. ====================================================================
 
-export let frag = OS.cpus().length * 1.67 | 0;
+export let cpus = OS.cpus().length;
+export let fragment = 100;
 
 // .. ====================================================================
 
@@ -50,7 +51,7 @@ export async function R ( item: TS.db_item, reference: TS.db ) {
         r ? R.push( r ) : await trap( "ERR!:  R Calc." );
     }
 
-    return R.filter( x => x[2] > 44 );
+    return R.filter( x => x[2] > 55 );
 
 }
 
@@ -66,7 +67,8 @@ function R_Calc ( A: TS.db_item, X: TS.db_item ): TS.R {
     let totalParts = partsA.length + partsX.length;
     // .. preserve match_c info
     let match_C = (partsA.length>=5 && partsX.length>=5) ? 
-        Math.abs( partsA.length - partsX.length ) : 0;
+        partsA.length - partsX.length : 0;
+    if ( match_C < 0 ) match_C *= -1;
 
     // .. trimming by A on (X and A)
     pAOX( partsA, partsX );
@@ -75,7 +77,8 @@ function R_Calc ( A: TS.db_item, X: TS.db_item ): TS.R {
     let totalRemains = partsA.length + partsX.length;
 
     // .. match_c meets not the condition
-    if ( partsA.length > 5 && partsX.length > 5 ) match_C = 0;
+    // ! define distance if ( partsA.length > 3 && partsX.length > 3 ) 
+    match_C = 0;
     // .. calculate final matched value
     match_C += totalParts - totalRemains;
 

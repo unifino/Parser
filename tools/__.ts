@@ -170,14 +170,14 @@ export function hrCtr ( page: string[], HR: string ) {
 
 // .. ====================================================================
 
-export async function R (
+let R: TS.R[] = [];
+
+export async function R_wrapper (
     R_Path: string,
     dbs: TS.db[],
     tmpFolder: string,
     name: string
 ) {
-
-    let R: TS.R[] = [];
 
     // .. return cached
     if ( fs.existsSync( R_Path ) ) {
@@ -185,18 +185,17 @@ export async function R (
         return R;
     }
 
+    time = new Date().getTime()
+    report.timer( fragged, tools.fragment, time, 4 );
+
     // .. prepare DB
     for ( let db of dbs ) db = tools.addTmpProps( db );
 
     // .. do processes synchronously
-    let prs: Promise<TS.R[]>[] = [];
-    for ( let i=0; i<tools.frag; i++ ) prs.push( R_worker( dbs ) );
+    for ( let i=0; i<tools.cpus; i++ ) R_worker( dbs );
 
-    // .. wait for all processes get Done.
-    await Promise.all( prs ).then( RS => {
-        for ( let r of RS ) R = [ ...R, ...r ]
-    } );
-
+    // .. wait
+    await waiter();
     // .. wait a bit
     await new Promise( _ => setTimeout( _, 700 ) );
     report.cursor( 22, 0 );
@@ -209,15 +208,34 @@ export async function R (
 
 // .. ====================================================================
 
+async function waiter () {
+    await new Promise( _ => setTimeout( _, 700 ) );
+    if ( fragged >= tools.fragment ) return Promise.resolve();
+    else return waiter();
+}
+ 
+// .. ====================================================================
+
+let fragged = tools.cpus;
+let time: number;
+
 function R_worker( workerData: TS.db[] ): Promise<TS.R[]> {
 
     let address = "./tools/R_worker.js";
 
     return new Promise( (rs, rx) => {
         const worker = new WS.Worker( address, { workerData } );
-        worker.on( 'message', rs );
+        worker.on( 'message', r => {
+            // .. report progress
+            report.timer( fragged, 100, time, 4 );
+            // .. concat R
+            R = [ ...R, ...r ];
+            rs;
+        } );
         worker.on( 'error', rx );
         worker.on( 'exit', code => {
+            fragged++;
+            if ( fragged < tools.fragment ) R_worker( workerData );
             if ( code ) rx( new Error(`Worker stopped! ${code}`) );
         } )
     } );

@@ -25,8 +25,8 @@ export function timer ( i: number, z: number, time: number, line=4 ) {
     e_M_r = ( ( ets - e_H*3600 ) /60 ) |0;
     e_S_r = ( ( ets - ( (e_H*3600) + (e_M_r*60) ) ) ) | 0;
     dialog = ( (i/z) *100 ).toFixed(2) + "%";
-    // dialog += " | T: " + p_H + "°: " + p_M_r + "': " + p_S_r;
-    // dialog += " | ETS: " + e_H + "°: " + e_M_r + "': " + e_S_r + "\"";
+    dialog += " | T: " + p_H + "°: " + p_M_r + "': " + p_S_r;
+    dialog += " | ETS: " + e_H + "°: " + e_M_r + "': " + e_S_r + "\"";
 
     readline.clearLine( process.stdout, 0 );
     cursor( line, 0 );

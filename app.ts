@@ -13,9 +13,11 @@ import * as WS                          from "worker_threads";
 
 let tmpFolder = "tmp/";
 let db: TS.db;
+let copy_db: TS.db;
 let path = "source/mix-collection.json";
 // .. read mix-db
 let mix_db: TS.db = JSON.parse( fs.readFileSync( path, 'utf8' ) );
+let copy_mix_db: TS.db = JSON.parse( fs.readFileSync( path, 'utf8' ) );
 
 // .. ====================================================================
 
@@ -28,7 +30,9 @@ async function run () {
     // n_pad = await server_نهج_البلاغة.ignite( "Cached", n_pad || 51282 );
 
     // .. merge all DBs
-    db = [ ...server_الكافي.db, ...server_وسائل_الشيعة.db, ...server_نهج_البلاغة.db ];
+    // db = [ ...server_الكافي.db, ...server_وسائل_الشيعة.db, ...server_نهج_البلاغة.db ];
+    db = server_الكافي.db;
+    copy_db = server_الكافي.db;
 
     // // .. get db-s
     // __.db_db( db, await __.getFinalR( db ) );
@@ -64,11 +68,28 @@ async function picker_maker () {
 
 async function pick_make_one ( item: TS.db_item, ) {
 
+    let R = await tools.R_Searcher( item, copy_db, false );
 
-    let R = await tools.R_Searcher( item, db, false );
-    if ( R ) console.log("hatef");
-    // storage.saveData( mix_db, "source", "mix-collection" )
+    let org: TS.db_item;
+    let patch: TS.db_item;
 
+    if ( R.length ) {
+
+        org = copy_db.find( x => x.n === R[0][1] );
+        patch = copy_mix_db.find( x => x.n === R[0][0] );
+
+        // .. transfer some data
+        if ( !org.b && patch.b ) org.b = patch.b;
+        if ( org.c === null && patch.c !== null ) org.c = patch.c;
+
+        // .. remove this cell
+        copy_mix_db.splice( copy_mix_db.findIndex( x => x.n === R[0][0] ), 1 );
+
+        // .. save DBs
+        storage.saveData( copy_mix_db, "source", "mix-collection" );
+        storage.saveData( copy_db, "db", server_الكافي.name );
+
+    }
 
 }
 

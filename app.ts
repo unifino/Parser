@@ -32,7 +32,7 @@ async function run () {
     // .. merge all DBs
     // db = [ ...server_الكافي.db, ...server_وسائل_الشيعة.db, ...server_نهج_البلاغة.db ];
     db = server_الكافي.db;
-    copy_db = server_الكافي.db;
+    copy_db = JSON.parse( JSON.stringify( db ) );
 
     // // .. get db-s
     // __.db_db( db, await __.getFinalR( db ) );
@@ -54,8 +54,8 @@ async function picker_maker () {
         db = tools.addTmpProps( db );
         mix_db = tools.addTmpProps( mix_db );
 
-        for ( let i in mix_db.slice(0,10) ) {
-            report.timer( Number(i), mix_db.length, time, 4 )
+        for ( let i in mix_db ) {
+            if ( !(Number(i) % 50) ) report.timer( Number(i), mix_db.length, time, 4 )
             pick_make_one( mix_db[i] );
         }
 
@@ -68,7 +68,7 @@ async function picker_maker () {
 
 async function pick_make_one ( item: TS.db_item, ) {
 
-    let R = await tools.R_Searcher( item, copy_db, false );
+    let R = await tools.R_Searcher( item, db, false );
 
     let org: TS.db_item;
     let patch: TS.db_item;

@@ -172,12 +172,7 @@ export function hrCtr ( page: string[], HR: string ) {
 
 let R: TS.R[] = [];
 
-export async function R_wrapper (
-    R_Path: string,
-    db: TS.db,
-    tmpFolder: string,
-    name: string
-) {
+export async function R_wrapper ( R_Path: string, db: TS.db ) {
 
     // .. return cached
     if ( fs.existsSync( R_Path ) ) {
@@ -194,13 +189,6 @@ export async function R_wrapper (
     // .. do processes synchronously
     for ( let i=0; i<tools.cpus; i++ ) R_worker( db );
 
-    // .. wait
-    await waiter();
-    // .. wait a bit
-    await new Promise( _ => setTimeout( _, 700 ) );
-    report.cursor( 22, 0 );
-
-    storage.saveData( R, tmpFolder, name + "-R", true );
 
     return R;
 
@@ -209,9 +197,9 @@ export async function R_wrapper (
 // .. ====================================================================
 
 async function waiter () {
-    await new Promise( _ => setTimeout( _, 700 ) );
-    if ( fragged > tools.fragment ) return Promise.resolve();
-    else return waiter();
+    // await new Promise( _ => setTimeout( _, 1000 ) );
+    // if ( false ) return Promise.resolve();
+    // else return waiter();
 }
  
 // .. ====================================================================
@@ -225,15 +213,20 @@ function R_worker( workerData: TS.db ): Promise<TS.R[]> {
 
     return new Promise( (rs, rx) => {
         const worker = new WS.Worker( address, { workerData } );
-        worker.on( 'message', r => {
+        worker.on( 'message', async r => {
             // .. concat R
             R = [ ...R, ...r ];
-            // .. counter
-            fragged++;
-            // .. new Worker
-            if ( fragged < tools.fragment ) R_worker( workerData );
-            // .. report progress
-            report.timer( fragged, tools.fragment, time, 4 );
+            if ( ~fragged && fragged < tools.fragment ) { 
+                // .. report progress
+                report.timer( fragged, tools.fragment, time, 4 );
+                // .. new Worker
+                R_worker( workerData );
+                // .. counter
+                fragged++;
+            }
+            // .. save R result
+            if ( fragged === tools.fragment ) 
+                storage.saveData( R, "tmp", "نهاية-R", true );
         } );
         worker.on( 'error', rx );
         worker.on( 'exit', code => {

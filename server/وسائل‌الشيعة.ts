@@ -39,7 +39,7 @@ export async function ignite ( mode: "Scratch"|"Cached", n_pad: number ) {
     db = cellPatcher_byHand( db );
     db = cellPatcher( db );
     // .. R allocation
-    R = await __.R_wrapper( R_Path, db, tmpFolder, name );
+    R = await __.R_wrapper( R_Path, db );
     // .. Get R_67
     R = tools.R_optimizer( R, 67 );
     // .. search for optimizing

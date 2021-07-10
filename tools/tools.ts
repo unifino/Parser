@@ -510,13 +510,13 @@ export function relation_definer ( tmpFolder: string, db: TS.db ) {
     } )
     if ( ctl.length ) storage.saveData( ctl, "tmp/", "control", true );
 
-    // for ( let i in [0] ) {
-    //     idx_head = head_cluster( rich_mix[i] );
-    //     i_children = rich_mix[i].filter( x => x.index_in_db !== idx_head );
-    //     db[ idx_head ].cDB = i_children.map( x => x.id_in_book );
-    //     db[ idx_head ].cDB = [ ...new Set( db[ idx_head ].cDB ) ];
-    //     for ( let q of i_children.map( x => x.index_in_db ) ) db[ q ].cDB = null;
-    // }
+    for ( let i in rich_mix ) {
+        idx_head = head_cluster( rich_mix[i] );
+        i_children = rich_mix[i].filter( x => x.index_in_db !== idx_head );
+        db[ idx_head ].cDB = i_children.map( x => x.id_in_book );
+        db[ idx_head ].cDB = [ ...new Set( db[ idx_head ].cDB ) ];
+        for ( let q of i_children.map( x => x.index_in_db ) ) db[ q ].cDB = null;
+    }
 
     return dbCleaner( db );
 

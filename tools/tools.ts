@@ -48,10 +48,35 @@ export async function R ( item: TS.db_item, reference: TS.db ) {
 
     for ( let x of reference ) {
         r = R_Calc( item, x );
-        r ? R.push( r ) : await trap( "ERR!:  R Calc." );
+        if ( r ) {
+            if ( r[2] > 55 )
+                R.push( r );
+        }
+        else await trap( "ERR!:  R Calc." );
     }
 
-    return R.filter( x => x[2] > 55 );
+    return R;
+
+}
+
+
+// .. ====================================================================
+
+export async function R_Searcher ( item: TS.db_item, reference: TS.db, deep: boolean ) {
+
+    let R: TS.R[] = [],
+        r: TS.R;
+
+    for ( let x of reference ) {
+        r = R_Calc( item, x );
+        if ( r ) {
+            if ( r[2] === 100 ) return [r];
+            if ( deep && r[2] > 55 ) R.push( r );
+        }
+        else await trap( "ERR!:  R Calc." );
+    }
+
+    return R;
 
 }
 

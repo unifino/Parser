@@ -12,13 +12,16 @@ import * as WS                          from "worker_threads";
 // .. ====================================================================
 
 let tmpFolder = "tmp/";
+let db: TS.db;
+let path = "source/mix-collection.json";
+// .. read mix-db
+let mix_db: TS.db = JSON.parse( fs.readFileSync( path, 'utf8' ) );
 
 // .. ====================================================================
 
 async function run () {
 
     let n_pad;
-    let db: TS.db;
 
     // n_pad = await server_الكافي.ignite( "Cached", n_pad || 1 );
     // n_pad = await server_وسائل_الشيعة.ignite( "Cached", n_pad || 15414 );
@@ -30,10 +33,44 @@ async function run () {
     // // .. get db-s
     // __.db_db( db, await __.getFinalR( db ) );
 
+    await picker_maker();
 
 }
 
+// .. ====================================================================
 
+async function picker_maker () {
+
+    let time = new Date().getTime();
+
+    // .. return cached
+    if ( fs.existsSync( path ) ) {
+
+        // .. prepare DBs
+        db = tools.addTmpProps( db );
+        mix_db = tools.addTmpProps( mix_db );
+
+        for ( let i in mix_db.slice(0,10) ) {
+            report.timer( Number(i), mix_db.length, time, 4 )
+            pick_make_one( mix_db[i] );
+        }
+
+    }
+    else console.log( "mix-db not Found!" );
+
+}
+
+// .. ====================================================================
+
+async function pick_make_one ( item: TS.db_item, ) {
+
+
+    let R = await tools.R_Searcher( item, db, false );
+    if ( R ) console.log("hatef");
+    // storage.saveData( mix_db, "source", "mix-collection" )
+
+
+}
 
 // .. ====================================================================
 

@@ -5,6 +5,9 @@ import * as WS                          from "worker_threads";
 import * as storage                     from "./storage";
 import * as basic_tools                 from "./basic_tools";
 import * as fs                          from "fs";
+import * as server_الكافي                  from "../server/الكافي";
+import * as server_وسائل_الشيعة             from "../server/وسائل‌الشيعة";
+import * as server_نهج_البلاغة              from "../server/نهج‌البلاغة";
 
 // .. ====================================================================
 
@@ -267,22 +270,38 @@ export function janitor ( tmpFolder: string ) {
 
 // .. ====================================================================
 
-// export async function _R_ ( db: TS.db ) {
+export async function getFinalR ( db: TS.db ) {
+    let tmpFolder = "tmp/";
+    let final_name = "نهاية";
+    let final_path = tmpFolder + final_name + "-R.json";
+    let final_R = await R_wrapper( final_path, db );
+    return final_R;
+}
 
-//     let R: TS.R[] = [],
-//         r: TS.R[],
-//         time = new Date().getTime(),
-//         title = " R Calc " + db.length;
 
-//     // .. [addTmpProps]
-//     db = tools.addTmpProps( db );
+// .. ====================================================================
 
-//     for ( let i in db ) {
-//         report.timer( Number(i), db.length, time );
-//         await tools.R( db[i], db.slice( Number(i) +1 ) ).then( x => r = x );
-//         R = [ ...R, ...r ];
-//     }
+export async function db_db ( db: TS.db, R: TS.R[] ) {
 
-//     return R;
+    let tmpFolder = "tmp/";
+    // .. search for optimizing
+    cook( R, db, tmpFolder );
+    // .. check result
+    await tools._db_check_( tmpFolder, db );
+    // .. get relations in one BIG DB
+    db = tools.relation_definer( tmpFolder, db );
+    // .. save DBs | divide them ***
+    let n1 = server_الكافي.db.length; let c1 = n1;
+    let n2 = server_وسائل_الشيعة.db.length; let c2 = n1 + n2;
+    let n3 = server_نهج_البلاغة.db.length; let c3 = n1 + n2 + n3;
+    storage.saveData( db.slice( 0,  c1 ), "db", server_الكافي.name );
+    storage.saveData( db.slice( c1, c2 ), "db", server_وسائل_الشيعة.name );
+    storage.saveData( db.slice( c2, c3 ), "db", server_نهج_البلاغة.name );
 
-// }
+    // .. clean the tmpFolder
+    janitor( tmpFolder );
+
+}
+
+// .. ====================================================================
+

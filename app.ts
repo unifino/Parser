@@ -29,15 +29,16 @@ async function run () {
     // n_pad = await server_وسائل_الشيعة.ignite( "Cached", n_pad || 15414 );
     // n_pad = await server_نهج_البلاغة.ignite( "Cached", n_pad || 51282 );
 
-    // .. merge all DBs
-    // db = [ ...server_الكافي.db, ...server_وسائل_الشيعة.db, ...server_نهج_البلاغة.db ];
-    db = server_نهج_البلاغة.db;
+    n_pad = 52565 // .. نهج‌الفصاحة => n_pad = 55791;
+
+    db = JSON.parse( fs.readFileSync( "db/نهج‌الفصاحة.json", 'utf8' ) );
+
     copy_db = JSON.parse( JSON.stringify( db ) );
+
+    await picker_maker();
 
     // // .. get db-s
     // __.db_db( db, await __.getFinalR( db ) );
-
-    await picker_maker();
 
 }
 
@@ -62,7 +63,7 @@ async function picker_maker () {
 
         // .. save DBs
         storage.saveData( copy_mix_db, "source", "mix-collection" );
-        storage.saveData( copy_db, "db", server_نهج_البلاغة.name );
+        storage.saveData( copy_db, "db", "نهج‌الفصاحة" );
 
         console.log(copy_mix_db.length);
 

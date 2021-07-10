@@ -192,7 +192,6 @@ export async function R_wrapper ( R_Path: string, db: TS.db ) {
     // .. do processes synchronously
     for ( let i=0; i<tools.cpus; i++ ) R_worker( db );
 
-
     return R;
 
 }
@@ -294,9 +293,11 @@ export async function db_db ( db: TS.db, R: TS.R[] ) {
     let n1 = server_الكافي.db.length; let c1 = n1;
     let n2 = server_وسائل_الشيعة.db.length; let c2 = n1 + n2;
     let n3 = server_نهج_البلاغة.db.length; let c3 = n1 + n2 + n3;
+    let n4 = 3200; let c4 = n1 + n2 + n3 + n4;
     storage.saveData( db.slice( 0,  c1 ), "db", server_الكافي.name );
     storage.saveData( db.slice( c1, c2 ), "db", server_وسائل_الشيعة.name );
     storage.saveData( db.slice( c2, c3 ), "db", server_نهج_البلاغة.name );
+    storage.saveData( db.slice( c3, c4 ), "db", "نهج‌الفصاحة" );
 
     // .. clean the tmpFolder
     janitor( tmpFolder );

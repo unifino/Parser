@@ -13,6 +13,8 @@ import * as WS                          from "worker_threads";
 
 let tmpFolder = "tmp/";
 let db: TS.db;
+
+// .. for: await picker_maker();
 let copy_db: TS.db;
 let path = "source/mix-collection.json";
 // .. read mix-db
@@ -30,12 +32,20 @@ async function run () {
     // n_pad = await server_نهج_البلاغة.ignite( "Cached", n_pad || 51282 );
     // n_pad = 52565 // .. نهج‌الفصاحة => n_pad = 55791;
 
-    db = JSON.parse( fs.readFileSync( "db/نهج‌الفصاحة.json", 'utf8' ) );
-    copy_db = JSON.parse( JSON.stringify( db ) );
-    await picker_maker();
+    let نهج_الفصاحة_db = JSON.parse( fs.readFileSync( "db/نهج‌الفصاحة.json", 'utf8' ) );
 
-    // // .. get db-s
-    // __.db_db( db, await __.getFinalR( db ) );
+    // .. merge all DBs
+    db = [ 
+        ...server_الكافي.db, 
+        ...server_وسائل_الشيعة.db, 
+        ...server_نهج_البلاغة.db,
+        ...نهج_الفصاحة_db
+    ];
+
+    let R = await __.getFinalR( db );
+    storage.saveData( R, tmpFolder, "نهاية-R", true );
+    // .. get db-s
+    // await __.db_db( db, await __.getFinalR( db ) );
 
 }
 

@@ -1,13 +1,11 @@
+import * as fs                          from "fs";
 import * as __                          from "./tools/__";
 import * as report                      from "./tools/logger"
 import * as server_الكافي                  from "./server/الكافي";
 import * as server_وسائل_الشيعة             from "./server/وسائل‌الشيعة";
 import * as server_نهج_البلاغة              from "./server/نهج‌البلاغة";
-import * as finder                      from "./tmp/rm/finder";
-import * as appendix                    from "./tmp/rm/appendix";
 import * as storage                     from "./tools/storage";
 import * as tools                       from "./tools/tools";
-import * as fs                          from "fs";
 import * as TS                          from "./types/types";
 import * as WS                          from "worker_threads";
 

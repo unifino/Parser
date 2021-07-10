@@ -31,7 +31,7 @@ async function run () {
 
     // .. merge all DBs
     // db = [ ...server_الكافي.db, ...server_وسائل_الشيعة.db, ...server_نهج_البلاغة.db ];
-    db = server_وسائل_الشيعة.db;
+    db = server_نهج_البلاغة.db;
     copy_db = JSON.parse( JSON.stringify( db ) );
 
     // // .. get db-s
@@ -73,12 +73,17 @@ async function picker_maker () {
 
 async function pick_make_one ( item: TS.db_item, ) {
 
-    let R = await tools.R_Searcher( item, db, false );
+    let R = await tools.R_Searcher( item, db, true );
 
     let org: TS.db_item;
     let patch: TS.db_item;
 
     if ( R.length ) {
+
+        R = R.reduce( (selected, nextOne) => {
+            if ( nextOne[2] > selected[0][2] ) selected = [nextOne];
+            return selected;
+        } , [[0,0,0]] );
 
         org = copy_db.find( x => x.n === R[0][1] );
         patch = copy_mix_db.find( x => x.n === R[0][0] );
@@ -92,7 +97,7 @@ async function pick_make_one ( item: TS.db_item, ) {
 
         // .. save DBs
         storage.saveData( copy_mix_db, "source", "mix-collection" );
-        storage.saveData( copy_db, "db", server_وسائل_الشيعة.name );
+        storage.saveData( copy_db, "db", server_نهج_البلاغة.name );
 
     }
 

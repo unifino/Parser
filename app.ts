@@ -31,7 +31,7 @@ async function run () {
 
     // .. merge all DBs
     // db = [ ...server_الكافي.db, ...server_وسائل_الشيعة.db, ...server_نهج_البلاغة.db ];
-    db = server_الكافي.db;
+    db = server_وسائل_الشيعة.db;
     copy_db = JSON.parse( JSON.stringify( db ) );
 
     // // .. get db-s
@@ -53,11 +53,16 @@ async function picker_maker () {
         // .. prepare DBs
         db = tools.addTmpProps( db );
         mix_db = tools.addTmpProps( mix_db );
-
+        console.log(mix_db.length);
+        
         for ( let i in mix_db ) {
             if ( !(Number(i) % 50) ) report.timer( Number(i), mix_db.length, time, 4 )
-            pick_make_one( mix_db[i] );
+            await pick_make_one( mix_db[i] );
         }
+
+        console.log(copy_mix_db.length);
+
+
 
     }
     else console.log( "mix-db not Found!" );
@@ -87,7 +92,7 @@ async function pick_make_one ( item: TS.db_item, ) {
 
         // .. save DBs
         storage.saveData( copy_mix_db, "source", "mix-collection" );
-        storage.saveData( copy_db, "db", server_الكافي.name );
+        storage.saveData( copy_db, "db", server_وسائل_الشيعة.name );
 
     }
 

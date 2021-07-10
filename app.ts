@@ -28,13 +28,10 @@ async function run () {
     // n_pad = await server_الكافي.ignite( "Cached", n_pad || 1 );
     // n_pad = await server_وسائل_الشيعة.ignite( "Cached", n_pad || 15414 );
     // n_pad = await server_نهج_البلاغة.ignite( "Cached", n_pad || 51282 );
-
-    n_pad = 52565 // .. نهج‌الفصاحة => n_pad = 55791;
+    // n_pad = 52565 // .. نهج‌الفصاحة => n_pad = 55791;
 
     db = JSON.parse( fs.readFileSync( "db/نهج‌الفصاحة.json", 'utf8' ) );
-
     copy_db = JSON.parse( JSON.stringify( db ) );
-
     await picker_maker();
 
     // // .. get db-s

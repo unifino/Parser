@@ -321,7 +321,7 @@ export function aggressiveClusterPeptics ( m_1: TS.ClusterBox, R: TS.R[] ) {
 
     for ( let i in uni ) {
 
-        report.timer( Number(i), uni.length, time );
+        if ( !(Number(i) % 300) ) report.timer( Number(i), uni.length, time );
 
         clusterBox.push( cluster( uni[i], R ) );
 

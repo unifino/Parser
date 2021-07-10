@@ -43,9 +43,8 @@ async function run () {
     ];
 
     let R = await __.getFinalR( db );
-    storage.saveData( R, tmpFolder, "نهاية-R", true );
     // .. get db-s
-    // await __.db_db( db, await __.getFinalR( db ) );
+    await __.db_db( db, await __.getFinalR( db ) );
 
 }
 

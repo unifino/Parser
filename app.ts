@@ -31,7 +31,7 @@ async function run () {
 
     // .. merge all DBs
     // db = [ ...server_الكافي.db, ...server_وسائل_الشيعة.db, ...server_نهج_البلاغة.db ];
-    db = server_نهج_البلاغة.db;
+    db = server_الكافي.db;
     copy_db = JSON.parse( JSON.stringify( db ) );
 
     // // .. get db-s
@@ -97,7 +97,7 @@ async function pick_make_one ( item: TS.db_item, ) {
 
         // .. save DBs
         storage.saveData( copy_mix_db, "source", "mix-collection" );
-        storage.saveData( copy_db, "db", server_نهج_البلاغة.name );
+        storage.saveData( copy_db, "db", server_الكافي.name );
 
     }
 

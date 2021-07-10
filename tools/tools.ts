@@ -71,7 +71,7 @@ export async function R_Searcher ( item: TS.db_item, reference: TS.db, deep: boo
         r = R_Calc( item, x );
         if ( r ) {
             if ( r[2] === 100 ) return [r];
-            if ( deep && r[2] > 90 ) R.push( r );
+            if ( deep && r[2] > 80 ) R.push( r );
         }
         else await trap( "ERR!:  R Calc." );
     }

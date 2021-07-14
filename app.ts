@@ -4,6 +4,7 @@ import * as report                      from "./tools/logger"
 import * as server_الكافي                  from "./server/الكافي";
 import * as server_وسائل_الشيعة             from "./server/وسائل‌الشيعة";
 import * as server_نهج_البلاغة              from "./server/نهج‌البلاغة";
+import * as server_مستدرك_الوسائل           from "./server/مستدرك‌الوسائل";
 import * as storage                     from "./tools/storage";
 import * as tools                       from "./tools/tools";
 import * as TS                          from "./types/types";
@@ -30,7 +31,8 @@ async function run () {
     // n_pad = await server_الكافي.ignite( "Cached", n_pad || 1 );
     // n_pad = await server_وسائل_الشيعة.ignite( "Cached", n_pad || 15414 );
     // n_pad = await server_نهج_البلاغة.ignite( "Cached", n_pad || 51282 );
-    // n_pad = 52565 // .. نهج‌الفصاحة => n_pad = 55792;
+    n_pad = 52565 // .. نهج‌الفصاحة => n_pad = 55792;
+    n_pad = server_مستدرك_الوسائل.ignite( "Scratch", n_pad );
 
     // let نهج_الفصاحة_db = JSON.parse( fs.readFileSync( "db/نهج‌الفصاحة.json", 'utf8' ) );
 
@@ -46,8 +48,10 @@ async function run () {
     // // .. get db-s
     // await __.db_db( db, await __.getFinalR( db ) );
 
-    db = JSON.parse( fs.readFileSync( "db/نهج‌الفصاحة.json", 'utf8' ) );
-    await picker_maker();
+    // db = JSON.parse( fs.readFileSync( "db/نهج‌الفصاحة.json", 'utf8' ) );
+    // await picker_maker();
+
+
 
 }
 

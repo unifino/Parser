@@ -24,6 +24,13 @@ export function saveData (
 
 // .. ====================================================================
 
+export function saveTMP ( data: string, format: "text"|"html" ) {
+    // .. write down Data
+    fs.writeFileSync( "tmp/ctl." +  format, data );
+}
+
+// .. ====================================================================
+
 export function getParts ( tmpFolder: string ) {
 
     let single_Path = tmpFolder + "single.json";

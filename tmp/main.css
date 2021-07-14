@@ -23,7 +23,10 @@ body{
     border: none;
 }
 
-p { border-width: 3px; }
+p { 
+    border-width: 3px;
+    background-color: transparent;
+}
 
 span {
     background-color: rgb(46, 45, 44);
@@ -37,9 +40,9 @@ q{
     background-color: rgb(21, 120, 201);
 }
 
-.libAlaem{
+.libAlaem, .fm{
     background-color: rgb(118, 180, 19);
-    /* display: nones; */
+    display: none;
 }
 
 .libBold2 {
@@ -65,7 +68,6 @@ q{
 .main {
     background-color: rgb(78, 78, 78);
     /* display: none; */
-
 }
 
 .suffix {
@@ -81,7 +83,7 @@ body{width : 700px;margin : auto;padding : 50px;background-color : #2a2a2a;direc
     border : gray 1px dotted;
     display : block;
 } 
-.aya{color : #18b2e0} 
-.hdeth{color : #67bb46} 
+.aya, .quran{color : #18b2e0} 
+.hdeth, .hadith {color : #67bb46} 
 .snd{color : #88827d} 
 .SHR{color : #700718}

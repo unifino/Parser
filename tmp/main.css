@@ -8,6 +8,7 @@
     margin: 5px;
     font-family: Terafik;
     display: inline-block;
+    line-height: 33px;
 }
 head, style, link{ display: none; }
 

@@ -269,7 +269,7 @@ function a_0_9 ( db: TS.db ) {
     // ! م
     // ! 12273 check if ajmaein?
 
-    let find_ID: number;
+    let container: { [key: string]: TS.db_item[] } = {};
 
     for( let p of db ) {
 
@@ -303,15 +303,6 @@ function a_0_9 ( db: TS.db ) {
                         p.a = p.tmp.w[1];
                         p[9] = p.tmp.w[2];
                     }
-
-        // // .. module S - H - S - H
-        // if ( p.tmp.w.length === 4 ) {
-        //     if ( !p.tmp.w[0].includes( "class" ) && !p.tmp.w[2].includes( "class" ) )
-        //     if ( p.tmp.w[1].includes( "hadith" ) && p.tmp.w[3].includes( "hadith" ) ) {
-        //         p[0] = p.tmp.w[0];
-        //         p.a = p.tmp.w[1];
-        //     }
-        // }
 
         // .. module 3: x H x
         if ( p.tmp.w.length === 3 )
@@ -349,7 +340,15 @@ function a_0_9 ( db: TS.db ) {
             4177,4222,4790,4800,4977,5387,5390,6129,6287,6750,6822,7106,
             7310,7421,7851,8286,8292,8987,8997,9168,9171,9757,9772,9775,
             9876,9980,10155,12263,16358,18100,7117,16548,16846,18608,
+            22235
         ];
+
+        if ( cdnBox_1.includes( Number(p.d) ) ) {
+            p[0] = p.tmp.w.splice(0,1).join( " " );
+            p.a = p.tmp.w.splice(0,1).join( " " );
+            p[9] = p.tmp.w.join( " " );
+        };
+
         let cdnBox_2 = [
             91,108,214,325,343,730,845,957,1096,1106,1111,1125,1137,1194,
             1264,1301,1355,1359,1363,1425,1435,1444,1563,1669,1686,1692,
@@ -372,7 +371,7 @@ function a_0_9 ( db: TS.db ) {
             18143,18183,18203,18207,18217,19134,19306,19553,19593,19627,
             19634,19651,19652,19695,19733,19947,19986,20052,20199,20213,
             20260,20266,20303,20383,20385,20491,20515,20518,20776,20796,
-            20815,21100,21482,21601,22005,22233,22235,22439,22607,22728,
+            20815,21100,21482,21601,22005,22233,22439,22607,22728,
             13283,7093,7095,7442,7859,12649,12931,12954,12963,12965,
             13079,13224,13283,13342,13351,13366,13488,13668,13671,13674,
             13685,13686,13689,13699,13707,13731,13753,13761,13762,13833,
@@ -380,12 +379,52 @@ function a_0_9 ( db: TS.db ) {
             14269,14277,14281,14285,14303,15587,19355,19940,
         ];
 
-        if ( cdnBox_1.includes( Number(p.d) ) ) p.a = " remove it ";
-        if ( cdnBox_2.includes( Number(p.d) ) ) p.a = " remove it ";
+        if ( cdnBox_2.includes( Number(p.d) ) ) {
+
+            // .. check structure
+            for ( let i=0; i<p.tmp.w.length; i++ ) {
+                if ( i%2 ) {
+                    if ( !p.tmp.w[i].includes( "hadith" ) )
+                        console.log(p.d);
+                }
+                else {
+                    if ( p.tmp.w[i].includes( "hadith" ) )
+                        console.log(p.d);
+                }
+            }
+
+            let tmpCnt: TS.db_item[] = [];
+            let tmpBox: string[] = [];
+            let tmpItem: TS.db_item = {} as any;
+            let cdx = 1;
+            while ( p.tmp.w.length ) {
+                tmpBox = [];
+                tmpBox = p.tmp.w.splice(0,2);
+                if ( tmpBox.length === 1 ) {
+                    tmpCnt[ tmpCnt.length -1 ][9] = tmpBox[0]; 
+                }
+                else {
+                    tmpItem = JSON.parse( JSON.stringify(p) );
+                    tmpItem.d += " - " + cdx;
+                    tmpItem[0] = tmpBox[0];
+                    tmpItem.a = tmpBox[1];
+                    tmpCnt.push( tmpItem );
+                }
+                cdx++;
+            }
+
+            container[ p.d ] = tmpCnt;
+
+        };
 
     }
 
-    return db.filter( x => !x.a );
+    // .. replace container with each cell of cdnBox_2
+    for( let p of Object.keys( container ) ) {
+        db.splice( db.findIndex( x => x.d === p ), 1, ...container[p] )
+    }
+
+    return db.filter( x => x.a );
 
 }
 

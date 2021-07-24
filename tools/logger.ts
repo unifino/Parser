@@ -37,7 +37,7 @@ export function timer ( i: number, z: number, time: number, line=4 ) {
 
 // .. ====================================================================
 
-export function notify ( title?: string, end?: boolean ) {
+export function notify ( title?: string, end?: boolean, line?: number ) {
 
     cursor( 19, 1 );
     let msg = "########################################";
@@ -52,7 +52,7 @@ export function notify ( title?: string, end?: boolean ) {
     else {
         if ( title ) {
             x = (40 - title.length)/2|0;
-            cursor( 1, x );
+            cursor( line || 1, x );
         }
         else {
             title = "Server Script - v.3";

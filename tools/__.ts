@@ -210,15 +210,10 @@ export function hrCtr ( page: string[], HR: string ) {
 
 let R: TS.R[] = [];
 
-export async function R_wrapper ( R_Path: string, db: TS.db ) {
+export async function R_wrapper ( db: TS.db ) {
 
-    // .. return cached
-    if ( fs.existsSync( R_Path ) ) {
-        R = JSON.parse( fs.readFileSync( R_Path, 'utf8' ) );
-        return R;
-    }
-
-    time = new Date().getTime()
+    report.notify( "R Calculation!" );
+    time = new Date().getTime();
     report.timer( 0, tools.fragment, time, 4 );
 
     // .. prepare DB
@@ -227,18 +222,8 @@ export async function R_wrapper ( R_Path: string, db: TS.db ) {
     // .. do processes synchronously
     for ( let i=0; i<tools.cpus; i++ ) R_worker( db );
 
-    return R;
-
 }
 
-// .. ====================================================================
-
-async function waiter () {
-    // await new Promise( _ => setTimeout( _, 1000 ) );
-    // if ( false ) return Promise.resolve();
-    // else return waiter();
-}
- 
 // .. ====================================================================
 
 let fragged = tools.cpus;
@@ -246,6 +231,7 @@ let time: number;
 
 function R_worker( workerData: TS.db ): Promise<TS.R[]> {
 
+    report.notify( "R Calculation ..." );
     let address = "./tools/R_worker.js";
 
     return new Promise( (rs, rx) => {
@@ -262,8 +248,10 @@ function R_worker( workerData: TS.db ): Promise<TS.R[]> {
                 fragged++;
             }
             // .. save R result
-            if ( fragged === tools.fragment ) 
+            if ( fragged === tools.fragment ) {
                 storage.saveData( R, "tmp", "نهاية-R", true );
+                report.notify( "R Exported!" );
+            }
         } );
         worker.on( 'error', rx );
         worker.on( 'exit', code => {
@@ -304,14 +292,17 @@ export function janitor ( tmpFolder: string ) {
 
 // .. ====================================================================
 
-export async function getFinalR ( db: TS.db ) {
-    let tmpFolder = "tmp/";
-    let final_name = "نهاية";
-    let final_path = tmpFolder + final_name + "-R.json";
-    let final_R = await R_wrapper( final_path, db );
-    return final_R;
+export async function getFinalR ( db: TS.db ): Promise<TS.R[]> {
+    let final_path = "tmp/" + "نهاية" + "-R.json";
+    // .. calculate R
+    if ( !fs.existsSync( final_path ) ) {
+        let msg = " R Calculation is running in Background!";
+        setTimeout( () => report.notify( msg, false, 17 ), 13000 );
+        R_wrapper( db );
+    }
+    // .. return cached
+    else return JSON.parse( fs.readFileSync( final_path, 'utf8' ) );
 }
-
 
 // .. ====================================================================
 

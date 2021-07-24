@@ -33,16 +33,16 @@ export async function ignite ( mode: "Scratch"|"Cached", n_pad: number ) {
     db = setTitle( db );
     // .. N allocation
     n_pad = tools.n_allocation( db, n_pad );
-    // .. R allocation
-    R = await __.R_wrapper( R_Path, db );
-    // .. Get R_67
-    R = tools.R_optimizer( R, 67 );
-    // .. search for optimizing
-    __.cook( R, db, tmpFolder );
-    // .. check optimized info
-    await tools._db_check_( tmpFolder, db );
-    // .. create and save DBs
-    db_exporter();
+    // // .. R allocation
+    // R = await __.R_wrapper( R_Path, db );
+    // // .. Get R_67
+    // R = tools.R_optimizer( R, 67 );
+    // // .. search for optimizing
+    // __.cook( R, db, tmpFolder );
+    // // .. check optimized info
+    // await tools._db_check_( tmpFolder, db );
+    // // .. create and save DBs
+    // db_exporter();
     // .. clean the tmpFolder
     __.janitor( tmpFolder );
     // .. N-PAD report

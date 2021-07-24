@@ -38,16 +38,16 @@ export async function ignite ( mode: "Scratch"|"Cached", n_pad: number ) {
     // .. Patch Cells
     db = cellPatcher_byHand( db );
     db = cellPatcher( db );
-    // .. R allocation
-    R = await __.R_wrapper( R_Path, db );
-    // .. Get R_67
-    R = tools.R_optimizer( R, 67 );
-    // .. search for optimizing
-    __.cook( R, db, tmpFolder );
-    // .. check optimized info
-    await tools._db_check_( tmpFolder, db );
-    // .. merge similar ones
-    db = tools.relation_definer( tmpFolder, db );
+    // // .. R allocation
+    // R = await __.R_wrapper( R_Path, db );
+    // // .. Get R_67
+    // R = tools.R_optimizer( R, 67 );
+    // // .. search for optimizing
+    // __.cook( R, db, tmpFolder );
+    // // .. check optimized info
+    // await tools._db_check_( tmpFolder, db );
+    // // .. merge similar ones
+    // db = tools.relation_definer( tmpFolder, db );
     // .. create and save DBs
     db_exporter();
     // .. clean the tmpFolder

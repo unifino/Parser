@@ -29,21 +29,16 @@ export async function ignite ( mode: "Scratch"|"Cached", n_pad: number ) {
     db = [];
     // .. get v0 [ Scratch | Cached ]
     db = load_db_v0( mode );
-    // // .. get Actual DB
-    // db = build_db ( db );
-    // // .. N allocation
-    // n_pad = tools.n_allocation( db, n_pad );
-    // // .. R allocation
-    // R = await __.R_wrapper( R_Path, db );
-    // // .. Get R_67
-    // R = tools.R_optimizer( R, 67 );
-    // // .. search for optimizing
-    // __.cook( R, db, tmpFolder );
-    // // .. check optimized info
-    // await tools._db_check_( tmpFolder, db );
-    // // .. merge similar ones
-    // db = tools.relation_definer( tmpFolder, db );
-    // // .. create and save DBs
+    // .. last editor
+    db = editor_1( db );
+    db = editor_2( db );
+    db = editor_1( db );
+    // .. N allocation
+    n_pad = tools.n_allocation( db, n_pad );
+    // .. d allocation
+    db = d_allocator( db );
+    // .. create and save DBs
+    storage.saveData( db, "tmp/مستدرك‌الوسائل", "مستدرك‌الوسائل" );
     // db_exporter();
     // .. clean the tmpFolder
     __.janitor( tmpFolder );
@@ -79,18 +74,16 @@ function load_db_v0 ( mode: "Scratch"|"Cached" ) {
         textBook = getNeatBook( textBook );
         // .. build first db => rawDB
         let raw_db = getRawDB( textBook );
-        // // .. provide a preview for checking
-        // preview_1( raw_db.join( "</p>" ) );
         // .. build main db
         db_v0 = hadith_db_generator( raw_db );
         // .. scatter 0-a-9
-        db_v0 = a_0_9( db_v0);
-            console.log(db_v0.length);
-            storage.saveData( db_v0, "tmp", "ctl" )
-        // .. provide a preview for checking
-        preview_1( tmpProvider_2( db_v0 ) );
+        db_v0 = a_0_9( db_v0 );
+        // .. sort db
+        db_v0 = sortByD( db_v0 );
         // // .. assign c code
         // db_v0 = c_allocator( db_v0 );
+        // // .. provide a preview for checking
+        // preview_1( tmpProvider_1( db_v0 ) );
 
     }
 
@@ -279,10 +272,6 @@ function hadith_db_generator ( raw_db: string[] ) {
 
 function a_0_9 ( db: TS.db ) {
 
-    // ! الْخَبَرَ
-    // ! إلخ
-    // ! 9264,مَا يَقْرَبُ مِنْهُ
-    // ! 9698,الْحَدِيثَ
     // ! ]
     // ! [
     // ! |Q| & in 0
@@ -300,19 +289,20 @@ function a_0_9 ( db: TS.db ) {
     for( let p of db ) {
 
         // .. module A-0 : merge-all
-        cdnBox_pre = [12055];
-        if ( cdnBox_pre.includes( Number(p.d) ) ) {
+        cdnBox_pre = [12055,666];
+        if ( cdnBox_pre.find( x => x === Number(p.d) ) ) {
             p[0] = p.tmp.w.join( " " );
             p.a = "";
+            p.tmp.w = [];
         }
         // .. module A-1 : merge-all
         cdnBox_pre = [42];
-        if ( cdnBox_pre.includes( Number(p.d) ) ) {
+        if ( cdnBox_pre.find( x => x === Number(p.d) ) ) {
             p.a = p.tmp.w.join( " " );
         }
         // .. module A-2 : 0 as a
         cdnBox_pre = [7049,7054,12500,12502,14066,2692,2161];
-        if ( cdnBox_pre.includes( Number(p.d) ) ) {
+        if ( cdnBox_pre.find( x => x === Number(p.d) ) ) {
             p.a = p.tmp.w[0];
         }
         // .. module A-3 : مِثْل as 0
@@ -325,7 +315,7 @@ function a_0_9 ( db: TS.db ) {
             (
                 p.tmp.w[0].includes( "مِثْل" ) || 
                 p.tmp.w[0].includes( "أَيْضاً" ) ||
-                cdnBox_pre.includes( Number(p.d) )
+                cdnBox_pre.find( x => x === Number(p.d) )
             )
             {
                 p[0] = p.tmp.w[0];
@@ -398,7 +388,7 @@ function a_0_9 ( db: TS.db ) {
             if ( !p.tmp.w[0].includes( "class" ) && !p.tmp.w[2].includes( "class" ) )
                 if ( p.tmp.w[1].includes( "hadith" ) && p.tmp.w[3].includes( "hadith" ) ) {
                     if ( !p.tmp.w[2].includes("Q") ) {
-                        if ( cdnBox_pre.includes( Number(p.d) ) ) {
+                        if ( cdnBox_pre.find( x => x === Number(p.d) ) ) {
                             p[0] = p.tmp.w[0];
                             p.a = p.tmp.w[1];
                             p[9] = p.tmp.w[2] + " " + p.tmp.w[3];
@@ -437,7 +427,7 @@ function a_0_9 ( db: TS.db ) {
             22235,1745,2853,3292,5720,6378,6967,22084,22337
         ];
 
-        if ( cdnBox_1.includes( Number(p.d) ) ) {
+        if ( cdnBox_1.find( x => x === Number(p.d) ) ) {
             p[0] = p.tmp.w.splice(0,1).join( " " );
             p.a = p.tmp.w.splice(0,1).join( " " );
             p[9] = p.tmp.w.join( " " );
@@ -475,7 +465,7 @@ function a_0_9 ( db: TS.db ) {
             17361,20676,21304,21337,21799
         ];
 
-        if ( cdnBox_2.includes( Number(p.d) ) ) {
+        if ( cdnBox_2.find( x => x === Number(p.d) ) ) {
 
             // .. check structure
             for ( let i=0; i<p.tmp.w.length; i++ ) {
@@ -520,6 +510,7 @@ function a_0_9 ( db: TS.db ) {
         db.splice( db.findIndex( x => x.d === p ), 1, ...container[p] )
     }
 
+    // .. apply patches
     let link = "source/مستدرك‌الوسائل/patches.json";
     let patches: TS.db = JSON.parse( fs.readFileSync( link, 'utf8' ) );
     let cdnBox_after: number[] = [
@@ -527,9 +518,178 @@ function a_0_9 ( db: TS.db ) {
         11143,11611,13245,13429,13658,13933,14038,15459,15944,16209,19159,
         19653,19799,20220,20693,21388
     ];
-    for ( let p of patches ) cdnBox_after.push( Number(p.d) );
-    db = db.filter( x => !cdnBox_after.includes( Number(x.d) ) );
+    for ( let p of patches ) 
+        if ( Number(p.d) ) 
+            cdnBox_after.push( Number(p.d) );
+    for ( let p of cdnBox_after )
+        db[ db.findIndex( x => x.d === p + "" ) ].a = "remove";
+    db = db.filter( x => x.a !== "remove" );
     db = [ ...db, ...patches ];
+
+    // .. remove tmp
+    for( let p of db ) delete p.tmp;
+
+    return db;
+
+}
+
+// .. ====================================================================
+
+function sortByD ( db: TS.db ) {
+
+    let tmpDB: TS.db = [];
+    let myDB: TS.db = [];
+    let tmpContainer: { [key: string]: TS.db_item[] } = {};
+    let itemId: number;
+
+    tmpDB.length = 23130;
+
+    for ( let i=1; i<tmpDB.length; i++ ) {
+
+        itemId = db.findIndex( x => x && x.d === i.toString() );
+
+        if ( ~itemId ) {
+            tmpDB[i] = db[ itemId ];
+            delete db[ itemId ];
+        }
+
+    }
+
+    // .. rest of db
+    db = db.filter( x => x );
+    // .. touch cells-container
+    for ( let i=1; i<23130; i++ ) if ( !tmpDB[i] ) tmpContainer[i] = [];
+    // .. find dependent cells
+    for ( let p of Object.keys(tmpContainer) ) {
+        for ( let i=0; i<db.length; i++ ) {
+            if ( db[i].d.split( " - " )[0] === p ) {
+                tmpContainer[p].push( db[i] );
+                delete db[i];
+            }
+        }
+        // .. rest of db
+        db = db.filter( x => x );
+    }
+
+    // .. implant data
+    for ( let i=1; i<tmpDB.length; i++ ) {
+        if ( tmpDB[i] ) myDB.push( tmpDB[i] );
+        else myDB.push( ...tmpContainer[i] );
+    }
+
+    let c = 0;
+    let d = 0;
+    // .. check sorted DB
+    for ( let p of myDB ) {
+        // .. reset counter
+        if ( p.d.split( " - " )[1] === "1" ) d = 0;
+        // .. check incremental steps [main]
+        if ( Number( p.d.split( " - " )[0] ) < c ) console.log(p.d);
+        else c = Number( p.d.split( " - " )[0] );
+        // .. check incremental steps [child]
+        if ( Number( p.d.split( " - " )[1] ) < d ) console.log(p.d);
+        else d = Number( p.d.split( " - " )[1] );
+    }
+
+    // .. return
+    return myDB;
+
+}
+
+// .. ====================================================================
+
+function editor_1 ( db: TS.db ) {
+
+    for ( let p of db ) {
+        if (p) {
+            if( p[0] ) p[0] = editor_assists( p[0] );
+            if( p.a ) p.a = editor_assists( p.a );
+            if( p[9] ) p[9] = editor_assists( p[9] );
+        }
+    }
+
+    return db;
+
+}
+
+// .. ====================================================================
+
+function editor_2 ( db: TS.db ) {
+
+    let cdn: string;
+
+    for ( let p of db ) {
+        if( p && p.a ) {
+            cdn = "الْخَبَرَ";
+            if ( p.a.endsWith( cdn ) ) {
+                p.a = p.a.slice( 0, p.a.length - cdn.length );
+                if ( p[9] ) p[9] = cdn + " " + p[9];
+            }
+            cdn = "إلخ";
+            if ( p.a.endsWith( cdn ) ) {
+                p.a = p.a.slice( 0, p.a.length - cdn.length );
+                if ( p[9] ) p[9] = cdn + " " + p[9];
+            }
+            cdn = "الْحَدِيثَ";
+            if ( p.a.endsWith( cdn ) ) {
+                p.a = p.a.slice( 0, p.a.length - cdn.length );
+                if ( p[9] ) p[9] = cdn + " " + p[9];
+            }
+        }
+    }
+
+    return db;
+
+}
+
+// .. ====================================================================
+
+function editor_assists ( str: string ) {
+
+    str = str.replace( /<span class=\"hadith\">/g, " " );
+    str = str.replace( /<\/span>/g, " " );
+    str = str.replace( /-/g, " - " );
+    str = str.replace( /\. \./g, " ... " );
+    str = str.replace( / +/g, " " );
+    str = str.trim();
+    if ( str.startsWith("،") ) str = str.slice(1);
+    if ( str.startsWith(":") ) str = str.slice(1);
+    if ( str.endsWith(":") ) str = str.slice( 0, str.length -1 );
+    if ( ( str.match( /"/g ) || [] ).length === 1 ) 
+        str = str.replace( '"', ' ' );
+    str = str.replace( / +/g, " " );
+    str = str.trim();
+    str = " " + str + " ";
+    str = str.replace( /\|Q\|/g, "<Q>" );
+    str = str.replace( /\|\/Q\|/g, "</Q>" );
+    str = str.replace( / ع /g, " عليه‌السلام " );
+    str = str.replace( /\[/g, " [ " );
+    str = str.replace( /\]/g, " ] " );
+    str = str.replace( / ع /g, " عليه‌السلام " );
+    str = str.replace( / +/g, " " );
+    str = str.trim();
+
+    return str;
+
+}
+
+// .. ====================================================================
+
+function d_allocator ( db: TS.db ) {
+
+    let parts: string[];
+
+    for ( let p of db ) {
+        parts = ( p.d as string ).split( " - " );
+        if ( parts.length > 1 ) {
+            parts[0] = "مستدرك‌الوسائل: الحديث " + basic_tools.arabicDigits( parts[0] );
+            parts[1] = " ، القطاع " + basic_tools.arabicDigits( parts[1] );
+        }
+        else {
+            parts[0] = "مستدرك‌الوسائل، الحديث: " + basic_tools.arabicDigits( parts[0] );
+        }
+        p.d = parts.join( "" );
+    }
 
     return db;
 

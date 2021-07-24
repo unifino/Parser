@@ -31,27 +31,30 @@ async function run () {
     // n_pad = await server_الكافي.ignite( "Cached", n_pad || 1 );
     // n_pad = await server_وسائل_الشيعة.ignite( "Cached", n_pad || 15414 );
     // n_pad = await server_نهج_البلاغة.ignite( "Cached", n_pad || 51282 );
-    n_pad = 52565 // .. نهج‌الفصاحة => n_pad = 55792;
-    n_pad = server_مستدرك_الوسائل.ignite( "Scratch", n_pad );
+    // n_pad = 55792 // .. نهج‌الفصاحة => n_pad = 55792;
+    // n_pad = server_مستدرك_الوسائل.ignite( "Scratch", n_pad );
+    // n_pad = 55792 // .. مستدرك‌الوسائل => n_pad = 80913;
 
-    // let نهج_الفصاحة_db = JSON.parse( fs.readFileSync( "db/نهج‌الفصاحة.json", 'utf8' ) );
+    let نهج_الفصاحة_db = JSON.parse( fs.readFileSync( "db/نهج‌الفصاحة.json", 'utf8' ) );
+    let مستدرك_الوسائل_db = JSON.parse( fs.readFileSync( "db/مستدرك‌الوسائل.json", 'utf8' ) );
 
-    // // .. merge all DBs
-    // db = [ 
-    //     ...server_الكافي.db, 
-    //     ...server_وسائل_الشيعة.db, 
-    //     ...server_نهج_البلاغة.db,
-    //     ...نهج_الفصاحة_db
-    // ];
+    // .. merge all DBs
+    db = [ 
+        ...server_الكافي.db,
+        ...server_وسائل_الشيعة.db, 
+        ...server_نهج_البلاغة.db,
+        ...نهج_الفصاحة_db,
+        ...مستدرك_الوسائل_db
+    ];
 
-    // let R = await __.getFinalR( db );
+    let R = await __.getFinalR( db );
+    // console.log(R);
+    
     // // .. get db-s
     // await __.db_db( db, await __.getFinalR( db ) );
 
     // db = JSON.parse( fs.readFileSync( "db/نهج‌الفصاحة.json", 'utf8' ) );
     // await picker_maker();
-
-
 
 }
 

@@ -48,10 +48,9 @@ async function run () {
     ];
 
     let R = await __.getFinalR( db );
-    // console.log(R);
-    
-    // // .. get db-s
-    // await __.db_db( db, await __.getFinalR( db ) );
+
+    // .. get db-s
+    await __.db_db( db, R );
 
     // db = JSON.parse( fs.readFileSync( "db/نهج‌الفصاحة.json", 'utf8' ) );
     // await picker_maker();

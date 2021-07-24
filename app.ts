@@ -38,28 +38,28 @@ async function run () {
     let نهج_الفصاحة_db = JSON.parse( fs.readFileSync( "db/نهج‌الفصاحة.json", 'utf8' ) );
     let مستدرك_الوسائل_db = JSON.parse( fs.readFileSync( "db/مستدرك‌الوسائل.json", 'utf8' ) );
 
-    // .. merge all DBs
-    db = [ 
-        ...server_الكافي.db,
-        ...server_وسائل_الشيعة.db, 
-        ...server_نهج_البلاغة.db,
-        ...نهج_الفصاحة_db,
-        ...مستدرك_الوسائل_db
-    ];
+    // // .. merge all DBs
+    // db = [ 
+    //     ...server_الكافي.db,
+    //     ...server_وسائل_الشيعة.db, 
+    //     ...server_نهج_البلاغة.db,
+    //     ...نهج_الفصاحة_db,
+    //     ...مستدرك_الوسائل_db
+    // ];
 
-    let R = await __.getFinalR( db );
+    // let R = await __.getFinalR( db );
+    // // .. get db-s
+    // await __.db_db( db, R );
 
-    // .. get db-s
-    await __.db_db( db, R );
-
-    // db = JSON.parse( fs.readFileSync( "db/نهج‌الفصاحة.json", 'utf8' ) );
-    // await picker_maker();
+    copy_db = JSON.parse( JSON.stringify( مستدرك_الوسائل_db ) )
+    await picker_maker( مستدرك_الوسائل_db );
 
 }
 
 // .. ====================================================================
 
-async function picker_maker () {
+// .. remove duplicated items from mix-collection based on new-born DB
+async function picker_maker ( db: TS.db ) {
 
     let time = new Date().getTime();
 
@@ -73,12 +73,12 @@ async function picker_maker () {
 
         for ( let i in mix_db ) {
             if ( !(Number(i) % 50) ) report.timer( Number(i), mix_db.length, time, 4 )
-            await pick_make_one( mix_db[i] );
+            await pick_make_one( mix_db[i], db );
         }
 
         // .. save DBs
         storage.saveData( copy_mix_db, "source", "mix-collection" );
-        storage.saveData( copy_db, "db", "نهج‌الفصاحة" );
+        storage.saveData( copy_db, "db", "مستدرك‌الوسائل" );
 
         console.log(copy_mix_db.length);
 
@@ -89,7 +89,7 @@ async function picker_maker () {
 
 // .. ====================================================================
 
-async function pick_make_one ( item: TS.db_item, ) {
+async function pick_make_one ( item: TS.db_item, db: TS.db ) {
 
     let R = await tools.R_Searcher( item, db, true );
 

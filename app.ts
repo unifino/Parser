@@ -38,21 +38,21 @@ async function run () {
     let نهج_الفصاحة_db = JSON.parse( fs.readFileSync( "db/نهج‌الفصاحة.json", 'utf8' ) );
     let مستدرك_الوسائل_db = JSON.parse( fs.readFileSync( "db/مستدرك‌الوسائل.json", 'utf8' ) );
 
-    // // .. merge all DBs
-    // db = [ 
-    //     ...server_الكافي.db,
-    //     ...server_وسائل_الشيعة.db, 
-    //     ...server_نهج_البلاغة.db,
-    //     ...نهج_الفصاحة_db,
-    //     ...مستدرك_الوسائل_db
-    // ];
+    // .. merge all DBs
+    db = [ 
+        ...server_الكافي.db,
+        ...server_وسائل_الشيعة.db, 
+        ...server_نهج_البلاغة.db,
+        ...نهج_الفصاحة_db,
+        ...مستدرك_الوسائل_db
+    ];
 
     // let R = await __.getFinalR( db );
     // // .. get db-s
     // await __.db_db( db, R );
 
-    copy_db = JSON.parse( JSON.stringify( مستدرك_الوسائل_db ) )
-    await picker_maker( مستدرك_الوسائل_db );
+    // copy_db = JSON.parse( JSON.stringify( مستدرك_الوسائل_db ) )
+    // await picker_maker( مستدرك_الوسائل_db );
 
 }
 

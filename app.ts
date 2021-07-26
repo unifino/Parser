@@ -35,17 +35,17 @@ async function run () {
     // n_pad = server_مستدرك_الوسائل.ignite( "Scratch", n_pad );
     // n_pad = 55792 // .. مستدرك‌الوسائل => n_pad = 80913;
 
-    let نهج_الفصاحة_db = JSON.parse( fs.readFileSync( "db/نهج‌الفصاحة.json", 'utf8' ) );
-    let مستدرك_الوسائل_db = JSON.parse( fs.readFileSync( "db/مستدرك‌الوسائل.json", 'utf8' ) );
+    // let نهج_الفصاحة_db = JSON.parse( fs.readFileSync( "db/نهج‌الفصاحة.json", 'utf8' ) );
+    // let مستدرك_الوسائل_db = JSON.parse( fs.readFileSync( "db/مستدرك‌الوسائل.json", 'utf8' ) );
 
-    // .. merge all DBs
-    db = [ 
-        ...server_الكافي.db,
-        ...server_وسائل_الشيعة.db, 
-        ...server_نهج_البلاغة.db,
-        ...نهج_الفصاحة_db,
-        ...مستدرك_الوسائل_db
-    ];
+    // // .. merge all DBs
+    // db = [ 
+    //     ...server_الكافي.db,
+    //     ...server_وسائل_الشيعة.db, 
+    //     ...server_نهج_البلاغة.db,
+    //     ...نهج_الفصاحة_db,
+    //     ...مستدرك_الوسائل_db
+    // ];
 
     // let R = await __.getFinalR( db );
     // // .. get db-s
@@ -53,6 +53,20 @@ async function run () {
 
     // copy_db = JSON.parse( JSON.stringify( مستدرك_الوسائل_db ) )
     // await picker_maker( مستدرك_الوسائل_db );
+
+
+    // mix_db = mix_db.filter( x => !x.d || 
+    //     !(
+    //         x.d.toString().includes( "الكافي" ) ||
+    //         x.d.toString().includes( "كافى" ) ||
+    //         x.d.toString().includes( "كافي" ) ||
+    //         x.d.toString().includes( "کافی" ) ||
+    //         x.d.toString().includes( "کافي" ) ||
+    //         x.d.toString().includes( "نهج البلاغه" ) 
+    //     ) 
+    // );
+    // storage.saveData( mix_db, "db", "more" );
+
 
 }
 
